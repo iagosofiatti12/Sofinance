@@ -6,7 +6,7 @@ import {
   Home, 
   Car, 
   Target,
-  Settings,
+  User,
   LogOut,
   FileText
 } from 'lucide-react'
@@ -97,7 +97,7 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
           onClick={handleSettings}
           aria-label="Perfil"
         >
-          <Settings size={20} aria-hidden="true" />
+          <User size={20} aria-hidden="true" />
           <span>Perfil</span>
         </button>
         

@@ -3,6 +3,7 @@ import { User, LogOut, Mail, Calendar, Shield, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../services/supabaseClient'
+import { deleteAccount } from '../../services/authService'
 import './Settings.css'
 
 const Settings = () => {
@@ -62,6 +63,31 @@ const Settings = () => {
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
       toast.error('Erro ao fazer logout')
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    const confirmText = 'Tem certeza que deseja excluir sua conta? Esta ação é IRREVERSÍVEL e todos os seus dados serão perdidos permanentemente.'
+    
+    if (!confirm(confirmText)) return
+
+    const doubleConfirm = prompt('Digite "EXCLUIR" (em maiúsculas) para confirmar a exclusão da conta:')
+    
+    if (doubleConfirm !== 'EXCLUIR') {
+      toast.error('Exclusão cancelada')
+      return
+    }
+
+    try {
+      setLoading(true)
+      await deleteAccount()
+      toast.success('Conta excluída com sucesso')
+      // O redirecionamento será automático após o logout
+    } catch (error) {
+      console.error('Erro ao excluir conta:', error)
+      toast.error(error.message || 'Erro ao excluir conta')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -186,6 +212,21 @@ const Settings = () => {
               >
                 <LogOut size={18} />
                 Sair
+              </button>
+            </div>
+
+            <div className="danger-action">
+              <div>
+                <h3>Excluir Conta</h3>
+                <p>Ação permanente - todos os seus dados serão removidos</p>
+              </div>
+              <button 
+                onClick={handleDeleteAccount}
+                className="btn btn-danger"
+                disabled={loading}
+              >
+                <Trash2 size={18} />
+                {loading ? 'Excluindo...' : 'Excluir Conta'}
               </button>
             </div>
           </div>

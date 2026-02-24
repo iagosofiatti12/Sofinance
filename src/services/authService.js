@@ -73,6 +73,41 @@ export const signOut = async () => {
 }
 
 /**
+ * Excluir conta do usuário (CUIDADO - ação irreversível)
+ */
+export const deleteAccount = async () => {
+  try {
+    // Primeiro, obter o ID do usuário atual
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      throw new Error('Usuário não autenticado')
+    }
+
+    const userId = user.id
+
+    // Deletar dados do usuário em todas as tabelas (RLS vai garantir que só delete seus próprios dados)
+    await supabase.from('contas_fixas').delete().eq('user_id', userId)
+    await supabase.from('cartoes').delete().eq('user_id', userId)
+    await supabase.from('faturas').delete().eq('user_id', userId)
+    await supabase.from('parcelas').delete().eq('user_id', userId)
+    await supabase.from('financiamentos').delete().eq('user_id', userId)
+    await supabase.from('metas').delete().eq('user_id', userId)
+
+    // Deletar perfil do usuário
+    await supabase.from('profiles').delete().eq('id', userId)
+
+    // Por último, fazer logout (a conta auth ficará, mas sem dados)
+    await signOut()
+
+    return true
+  } catch (error) {
+    console.error('Erro ao excluir conta:', error)
+    throw error
+  }
+}
+
+/**
  * Obter usuário atual
  */
 export const getCurrentUser = async () => {

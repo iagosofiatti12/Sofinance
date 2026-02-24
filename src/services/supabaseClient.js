@@ -9,7 +9,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true, // Mantém a sessão após fechar o navegador
+    autoRefreshToken: true, // Atualiza automaticamente o token de autenticação
+    detectSessionInUrl: true, // Detecta código de autenticação na URL (OAuth)
+    storage: window.localStorage // Usa localStorage para armazenar a sessão
+  }
+})
 
 /**
  * Obtém o ID do usuário autenticado
