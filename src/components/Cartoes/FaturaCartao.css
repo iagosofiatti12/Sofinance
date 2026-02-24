@@ -1,0 +1,281 @@
+.fatura-modal {
+  max-width: 800px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+}
+
+.cartao-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.fatura-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.resumo-item {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resumo-item .label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.valor-fatura {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #f44336;
+}
+
+.limite-bar-container {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.limite-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.limite-bar {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.limite-fill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+  border-radius: 6px;
+}
+
+.limite-fill.success {
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
+}
+
+.limite-fill.warning {
+  background: linear-gradient(90deg, #ff9800, #ffa726);
+}
+
+.limite-fill.danger {
+  background: linear-gradient(90deg, #f44336, #ef5350);
+}
+
+.limite-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.transacoes-fatura {
+  margin-bottom: 1.5rem;
+}
+
+.transacoes-fatura h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.lista-transacoes-fatura {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.lista-transacoes-fatura::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-transacoes-fatura::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.lista-transacoes-fatura::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.lista-transacoes-fatura::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.transacao-fatura-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.transacao-fatura-item .descricao {
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+.transacao-fatura-item .detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.transacao-fatura-item .data {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.transacao-fatura-item .categoria {
+  padding: 0.2rem 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.transacao-fatura-item .parcela {
+  padding: 0.2rem 0.5rem;
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.transacao-fatura-item .valor {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #f44336;
+  white-space: nowrap;
+}
+
+.fatura-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-pagar-fatura {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.text-success {
+  color: #4caf50;
+}
+
+.text-danger {
+  color: #f44336;
+}
+
+.modal-content.small {
+  max-width: 500px;
+}
+
+.modal-content.small form small {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* Dark Mode */
+body.dark-mode .transacao-fatura-item {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body.dark-mode .limite-bar {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .resumo-item,
+body.dark-mode .limite-bar-container {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .transacao-fatura-item .categoria {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fatura-modal {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .fatura-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .transacao-fatura-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .transacao-fatura-item .valor {
+    align-self: flex-end;
+  }
+
+  .btn-pagar-fatura {
+    width: 100%;
+  }
+}

@@ -1,0 +1,244 @@
+.cartoes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cartoes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cartoes-header h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.cartoes-content {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+}
+
+.cartoes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cartao-card {
+  padding: 20px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.cartao-card:hover {
+  border-color: var(--accent-primary);
+}
+
+.cartao-card.selected {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.cartao-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.cartao-card-header > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cartao-card-header svg {
+  color: var(--accent-primary);
+}
+
+.cartao-card-header h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.bandeira {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.cartao-limite {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.limite-label {
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.limite-valor {
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.percentual {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.cartao-datas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.cartao-datas > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cartao-datas .label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cartao-datas .dia {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.transacoes-section {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.transacoes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transacoes {
+  height: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  gap: 10px;
+  font-size: 20px;
+}
+
+.transacoes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.transacao-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--glass-bg);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.transacao-item:hover {
+  background: var(--card-hover);
+  transform: translateX(4px);
+}
+
+.transacao-titulo {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+
+.transacao-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.transacao-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.transacao-valor {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-red);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .cartoes-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .cartoes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .cartoes-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .cartoes-header button {
+    width: 100%;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .cartoes-list {
+    grid-template-columns: 1fr;
+  }
+}
