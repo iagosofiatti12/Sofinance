@@ -95,10 +95,10 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
         <button
           className="sidebar-item sidebar-action"
           onClick={handleSettings}
-          aria-label="Configurações"
+          aria-label="Perfil"
         >
           <Settings size={20} aria-hidden="true" />
-          <span>Configurações</span>
+          <span>Perfil</span>
         </button>
         
         <button

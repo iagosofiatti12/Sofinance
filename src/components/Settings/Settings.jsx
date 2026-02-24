@@ -171,7 +171,7 @@ const Settings = () => {
         <div className="settings-card danger-zone">
           <h2>
             <Trash2 size={20} />
-            Zona de Perigo
+            Gerenciar Conta
           </h2>
 
           <div className="danger-actions">

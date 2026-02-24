@@ -54,7 +54,7 @@ const Login = ({ onToggleMode }) => {
     <div className="auth-container">
       <div className="auth-card glass-card">
         <div className="auth-header">
-          <h1>Bem-vindo de volta!</h1>
+          <h1>Bem-vindo!</h1>
           <p>Faça login para acessar suas finanças</p>
         </div>
 
