@@ -110,7 +110,7 @@ Este projeto é privado e de uso pessoal.
 
 ## 👤 Autor
 
-Desenvolvido por **Igor** - [Portfolio](https://seu-portfolio.com)
+Desenvolvido por **Iago Sofiatti** - [GitHub](https://github.com/iagosofiatti12)
 
 ---
 
