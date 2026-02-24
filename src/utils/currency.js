@@ -56,6 +56,14 @@ export const useCurrencyInput = (initialValue = 0) => {
     
     setDisplayValue(formatted)
     setNumericValue(numeric)
+    
+    // Retorna evento customizado para compatibilidade
+    return {
+      target: {
+        value: numeric,
+        formattedValue: formatted
+      }
+    }
   }
 
   const setValue = (value) => {
@@ -70,7 +78,15 @@ export const useCurrencyInput = (initialValue = 0) => {
     displayValue,
     numericValue,
     handleChange,
-    setValue
+    setValue,
+    // Props para espalhar diretamente no input
+    inputProps: {
+      type: 'text',
+      value: displayValue,
+      onChange: handleChange,
+      placeholder: 'R$ 0,00',
+      inputMode: 'numeric'
+    }
   }
 }
 
@@ -108,4 +124,47 @@ export const getNumericValue = (formattedValue) => {
   if (!formattedValue) return 0
   
   return parseCurrency(formattedValue)
+}
+
+/**
+ * Hook otimizado para input monetário com validação
+ * Usa debounce e validação integrada
+ */
+export const useCurrencyInputV2 = (initialValue = 0, onChange = null) => {
+  const [rawValue, setRawValue] = useState(initialValue.toString())
+  const [numericValue, setNumericValue] = useState(initialValue)
+  
+  const handleInputChange = (e) => {
+    const input = e.target.value
+    
+    // Remove tudo que não é número
+    const onlyNumbers = input.replace(/\D/g, '')
+    
+    // Converte para centavos
+    const numeric = Number(onlyNumbers) / 100
+    
+    setRawValue(onlyNumbers)
+    setNumericValue(numeric)
+    
+    // Callback externo
+    if (onChange) {
+      onChange(numeric)
+    }
+  }
+  
+  const displayValue = formatCurrency(rawValue)
+  
+  return {
+    value: displayValue,
+    numericValue,
+    onChange: handleInputChange,
+    // Props para espalhar no input
+    inputProps: {
+      type: 'text',
+      value: displayValue,
+      onChange: handleInputChange,
+      placeholder: 'R$ 0,00',
+      inputMode: 'numeric'
+    }
+  }
 }

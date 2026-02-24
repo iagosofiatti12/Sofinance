@@ -1,0 +1,35 @@
+.loading-button {
+  position: relative;
+  min-width: 120px;
+}
+
+.loading-button.loading {
+  pointer-events: none;
+}
+
+.loading-button .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efeito visual de loading */
+.loading-button.loading {
+  opacity: 0.8;
+}
+
+.loading-button:not(:disabled):not(.loading):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.loading-button:not(:disabled):not(.loading):active {
+  transform: translateY(0);
+}
