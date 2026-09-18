@@ -49,22 +49,6 @@ export const signInWithGoogle = async () => {
 }
 
 /**
- * Login com Microsoft
- */
-export const signInWithMicrosoft = async () => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'azure',
-    options: {
-      redirectTo: `${window.location.origin}/`,
-      scopes: 'email'
-    }
-  })
-  
-  if (error) throw error
-  return data
-}
-
-/**
  * Logout
  */
 export const signOut = async () => {

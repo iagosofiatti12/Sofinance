@@ -56,11 +56,12 @@ Crie um arquivo `.env` na raiz do projeto:
 ```env
 VITE_SUPABASE_URL=sua_url_do_supabase
 VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+VITE_SENTRY_DSN=sua_dsn_do_sentry (opcional, ativa monitoramento de erros)
 ```
 
 4. Configure o banco de dados:
 
-Execute o arquivo `supabase-setup.sql` no SQL Editor do Supabase.
+Execute as migrations em `supabase/migrations/` (Supabase CLI).
 
 5. Inicie o servidor de desenvolvimento:
 ```bash
@@ -106,7 +107,7 @@ npm test
 
 ## 📝 Licença
 
-Este projeto é privado e de uso pessoal.
+Em preparação para lançamento público. Veja `docs/superpowers/specs/`.
 
 ## 👤 Autor
 
