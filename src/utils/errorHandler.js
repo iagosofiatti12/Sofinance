@@ -45,8 +45,8 @@ export const getErrorMessage = (error) => {
   if (!error) return 'Ocorreu um erro desconhecido'
   
   // Erro de validação Zod (já vem formatado)
-  if (error.name === 'ZodError') {
-    return error.errors[0]?.message || 'Dados inválidos'
+  if (error.name === 'ZodError' || Array.isArray(error.issues)) {
+    return error.issues?.[0]?.message || 'Dados inválidos'
   }
   
   // Erro do Supabase

@@ -24,9 +24,7 @@ export const contaFixaSchema = z.object({
 
 // Validação para Transações
 export const transacaoSchema = z.object({
-  tipo: z.enum(['receita', 'despesa'], {
-    errorMap: () => ({ message: 'Tipo deve ser receita ou despesa' })
-  }),
+  tipo: z.enum(['receita', 'despesa'], { error: 'Tipo deve ser receita ou despesa' }),
   categoria: z.string()
     .min(1, 'Categoria é obrigatória'),
   descricao: z.string()
@@ -37,9 +35,7 @@ export const transacaoSchema = z.object({
     .max(10000000, 'Valor máximo permitido: R$ 10.000.000'),
   data_transacao: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida'),
-  metodo_pagamento: z.enum(['PIX', 'Dinheiro', 'Débito', 'Crédito', 'Transferência'], {
-    errorMap: () => ({ message: 'Método de pagamento inválido' })
-  }),
+  metodo_pagamento: z.enum(['PIX', 'Dinheiro', 'Débito', 'Crédito', 'Transferência'], { error: 'Método de pagamento inválido' }),
   conta_bancaria: z.string().max(100).optional(),
   observacoes: z.string().max(500).optional()
 })
@@ -49,9 +45,7 @@ export const cartaoSchema = z.object({
   nome: z.string()
     .min(3, 'Nome deve ter no mínimo 3 caracteres')
     .max(100, 'Nome deve ter no máximo 100 caracteres'),
-  bandeira: z.enum(['Visa', 'Mastercard', 'Elo', 'American Express', 'Hipercard'], {
-    errorMap: () => ({ message: 'Bandeira inválida' })
-  }),
+  bandeira: z.enum(['Visa', 'Mastercard', 'Elo', 'American Express', 'Hipercard'], { error: 'Bandeira inválida' }),
   limite_total: z.number()
     .positive('Limite deve ser positivo')
     .max(1000000, 'Limite máximo: R$ 1.000.000'),
@@ -145,18 +139,11 @@ export const financiamentoCarroSchema = z.object({
  * Função helper para validar e retornar erros formatados
  */
 export const validateData = (schema, data) => {
-  try {
-    const validated = schema.parse(data)
-    return { success: true, data: validated }
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => ({
-        field: err.path.join('.'),
-        message: err.message
-      }))
-      return { success: false, errors }
-    }
-    return { success: false, errors: [{ message: 'Erro de validação desconhecido' }] }
+  const result = schema.safeParse(data)
+  if (result.success) return { success: true, data: result.data }
+  return {
+    success: false,
+    errors: result.error.issues.map((err) => ({ field: err.path.join('.'), message: err.message })),
   }
 }
 
