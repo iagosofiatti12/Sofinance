@@ -651,6 +651,17 @@ Storage não é tocado porque `uploadAvatar` não tem chamador e o bucket `avata
 incluir quando o upload de avatar existir. A tabela legada `usuarios` (id, nome, email, senha_hash) tem 0 linhas
 e será removida na Fase 2.
 
+### 13.3.2 Fase 0 executada em 2026-09-17/18
+
+Branch `fase-0/seguranca`, 15 commits, plano em `docs/superpowers/plans/2026-09-17-fase-0-seguranca-estabilizacao.md`.
+Entregue: ESLint flat config e Vitest funcionando (26 testes); Zod 4; datas em fuso local; vencimentos com virada de mês;
+dashboard via view `resumo_mensal` sem valores fictícios; edição/exclusão de transações coerentes com o limite e sem RPCs
+inexistentes (parcelamento e pagar fatura desativados na UI até a Fase 2); Edge Function `delete-account` publicada;
+esqueci/redefinir senha; favicon SVG, `Spinner` único e code-splitting (entrada de 910 kB para ~55 kB); Sentry opcional;
+código morto e SQL legado movidos para `docs/legacy*`. Revisão de segurança e revisão final da branch sem itens críticos.
+Pendências do Iago antes do merge: smoke test (reset de senha e exclusão de conta com usuário descartável), Redirect URLs
+e senha mínima 8 no painel Supabase, DSN do Sentry na Vercel. Docker Desktop antes da Fase 1 (`db pull` + `migration repair`).
+
 ### 13.4 Agente e arquivos de configuração
 
 - `.claude/agents/sofinance-senior-engineer.md` criado nesta rodada, com as regras do modelo de cartão lite.
