@@ -2,6 +2,7 @@ import { supabase } from './supabaseClient'
 import { getCurrentUser } from './authService'
 import { formatMesReferencia, formatarMesExtenso } from '../utils/dates'
 import { linhaParaResumo, montarEvolucao, ultimosMeses } from '../utils/resumo'
+import logger from '../utils/logger'
 
 export { formatMesReferencia }
 
@@ -71,33 +72,47 @@ export const addTransacao = async (payload) => {
 
   if (error) throw error
 
+  let limiteAtualizado = true
   if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
-    await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+    limiteAtualizado = await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
   }
 
-  return data[0]
+  return { ...data[0], limiteAtualizado }
 }
 
 /**
  * Atualizar limite usado do cartão
+ * @returns {Promise<boolean>} true em caso de sucesso, false se o cartão não foi encontrado ou houve erro
  */
 const atualizarLimiteCartao = async (cartaoId, valor, operacao = 'aumentar') => {
-  const { data: cartao } = await supabase
+  const { data: cartao, error: erroSelect } = await supabase
     .from('cartoes_credito')
     .select('limite_usado')
     .eq('id', cartaoId)
     .single()
-  
-  if (!cartao) return
-  
-  const novoLimite = operacao === 'aumentar' 
+
+  if (erroSelect) {
+    logger.error('Erro ao atualizar limite do cartão:', erroSelect)
+    return false
+  }
+
+  if (!cartao) return false
+
+  const novoLimite = operacao === 'aumentar'
     ? parseFloat(cartao.limite_usado) + parseFloat(valor)
     : Math.max(0, parseFloat(cartao.limite_usado) - parseFloat(valor))
-  
-  await supabase
+
+  const { error: erroUpdate } = await supabase
     .from('cartoes_credito')
     .update({ limite_usado: novoLimite })
     .eq('id', cartaoId)
+
+  if (erroUpdate) {
+    logger.error('Erro ao atualizar limite do cartão:', erroUpdate)
+    return false
+  }
+
+  return true
 }
 
 /**
@@ -122,14 +137,17 @@ export const updateTransacao = async (id, payload) => {
   if (error) throw error
   if (!data || data.length === 0) throw new Error('Transação não encontrada')
 
+  let limiteAtualizado = true
   if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id) {
-    await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
+    const ok = await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
+    limiteAtualizado = limiteAtualizado && ok
   }
   if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
-    await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+    const ok = await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+    limiteAtualizado = limiteAtualizado && ok
   }
 
-  return data[0]
+  return { ...data[0], limiteAtualizado }
 }
 
 /**
@@ -153,9 +171,12 @@ export const deleteTransacao = async (id) => {
   if (error) throw error
   if (!data || data.length === 0) throw new Error('Transação não encontrada')
 
+  let limiteAtualizado = true
   if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id && !atual.is_parcelado) {
-    await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
+    limiteAtualizado = await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
   }
+
+  return { limiteAtualizado }
 }
 
 // ========== RESUMOS E ESTATÍSTICAS ==========

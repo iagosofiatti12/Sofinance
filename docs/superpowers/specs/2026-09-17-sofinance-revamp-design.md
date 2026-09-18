@@ -646,6 +646,11 @@ Consequência para o plano: os itens 2 (RPCs com `auth.uid()`) e 3 (`nome_cartao
 "corrigir" para "não aplicar a migração de parcelas antiga; implementar parcelamento/fatura já no modelo cartão lite da Fase 2".
 Enquanto isso, o app deve esconder ou desabilitar parcelamento e "pagar fatura" (Fase 0, item 5).
 
+Exclusão de conta (Task 7 da Fase 0): a Edge Function apaga todas as tabelas de dados, `perfis` e `auth.users`.
+Storage não é tocado porque `uploadAvatar` não tem chamador e o bucket `avatars` não tem objetos de usuário;
+incluir quando o upload de avatar existir. A tabela legada `usuarios` (id, nome, email, senha_hash) tem 0 linhas
+e será removida na Fase 2.
+
 ### 13.4 Agente e arquivos de configuração
 
 - `.claude/agents/sofinance-senior-engineer.md` criado nesta rodada, com as regras do modelo de cartão lite.

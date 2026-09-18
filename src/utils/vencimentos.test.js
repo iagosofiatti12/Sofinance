@@ -17,6 +17,9 @@ describe('diasAteVencimento', () => {
   it('dezembro para janeiro', () => {
     expect(diasAteVencimento(2, new Date(2026, 11, 30))).toBe(3)
   })
+  it('dia de vencimento inválido vai para o fim (Infinity)', () => {
+    expect(diasAteVencimento(undefined, new Date(2026, 8, 17))).toBe(Infinity)
+  })
 })
 
 describe('proximosVencimentos', () => {
@@ -30,5 +33,13 @@ describe('proximosVencimentos', () => {
     const r = proximosVencimentos(contas, new Date(2026, 8, 17), 2)
     expect(r.map((c) => c.nome)).toEqual(['Internet', 'Luz'])
     expect(r[0].diasRestantes).toBe(1)
+  })
+  it('conta com dia_vencimento inválido vai depois das válidas', () => {
+    const contas = [
+      { id: 1, nome: 'Sem dia', dia_vencimento: null, ativa: true },
+      { id: 2, nome: 'Aluguel', dia_vencimento: 5, ativa: true },
+    ]
+    const r = proximosVencimentos(contas, new Date(2026, 8, 17), 5)
+    expect(r.map((c) => c.nome)).toEqual(['Aluguel', 'Sem dia'])
   })
 })

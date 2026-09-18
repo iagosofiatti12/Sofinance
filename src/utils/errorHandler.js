@@ -14,7 +14,7 @@ const SUPABASE_ERROR_MESSAGES = {
   'email_not_confirmed': 'Por favor, confirme seu email',
   'user_not_found': 'Usuário não encontrado',
   'user_already_registered': 'Este email já está cadastrado',
-  'weak_password': 'Senha muito fraca. Use no mínimo 6 caracteres',
+  'weak_password': 'Senha muito fraca. Use no mínimo 8 caracteres',
   
   // Database errors
   'PGRST116': 'Nenhum registro encontrado',

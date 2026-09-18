@@ -23,4 +23,11 @@ describe('montarPayloadTransacao', () => {
     expect(p.cartao_credito_id).toBe('abc')
     expect(p.conta_bancaria).toBeNull()
   })
+  it('zera conta_bancaria quando o método é Dinheiro', () => {
+    const p = montarPayloadTransacao({
+      tipo: 'despesa', categoria: 'Compras', descricao: 'Feira', valor: 20,
+      data_transacao: '2026-09-17', metodo_pagamento: 'Dinheiro', conta_bancaria: 'Nubank',
+    })
+    expect(p.conta_bancaria).toBeNull()
+  })
 })

@@ -9,7 +9,7 @@ export const montarPayloadTransacao = (form) => ({
   valor: Number(form.valor),
   data_transacao: form.data_transacao,
   mes_referencia: formatMesReferencia(parseISODateLocal(form.data_transacao)),
-  conta_bancaria: form.metodo_pagamento === 'Crédito' ? null : ouNulo(form.conta_bancaria),
+  conta_bancaria: (form.metodo_pagamento === 'Crédito' || form.metodo_pagamento === 'Dinheiro') ? null : ouNulo(form.conta_bancaria),
   metodo_pagamento: form.metodo_pagamento,
   cartao_credito_id: form.metodo_pagamento === 'Crédito' ? ouNulo(form.cartao_credito_id) : null,
   observacoes: ouNulo(form.observacoes),

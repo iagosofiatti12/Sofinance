@@ -61,7 +61,11 @@ VITE_SENTRY_DSN=sua_dsn_do_sentry (opcional, ativa monitoramento de erros)
 
 4. Configure o banco de dados:
 
-Execute as migrations em `supabase/migrations/` (Supabase CLI).
+Aplique as migrations em `supabase/migrations/` com a Supabase CLI (`npx supabase link --project-ref <ref>` e `npx supabase db push`). Observação: o baseline do schema será gerado na Fase 1; hoje a pasta contém apenas a migration de RLS, já aplicada em produção.
+
+Publique a Edge Function de exclusão de conta: `npx supabase functions deploy delete-account --use-api`.
+
+No painel Supabase → Authentication: adicione `http://localhost:3000/reset-password` e `https://<seu-domínio>/reset-password` em Redirect URLs, e defina o tamanho mínimo de senha como 8.
 
 5. Inicie o servidor de desenvolvimento:
 ```bash
