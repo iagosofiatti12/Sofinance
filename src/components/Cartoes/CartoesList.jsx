@@ -12,6 +12,7 @@ import { formatCurrency, parseCurrency } from '../../utils/currency'
 import { cartaoSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
 import { getErrorMessage } from '../../utils/errorHandler'
 import FaturaCartao from './FaturaCartao'
+import Spinner from '../UI/Spinner'
 import './Cartoes.css'
 
 const CartoesList = () => {
@@ -140,10 +141,7 @@ const CartoesList = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <img src="/loading-icon.gif" alt="Carregando..." className="loading-icon" />
-        <p>Carregando cartões...</p>
-      </div>
+      <Spinner label="Carregando cartões..." />
     )
   }
 

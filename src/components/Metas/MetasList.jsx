@@ -5,6 +5,7 @@ import { getMetas, addMeta, updateMeta, deleteMeta } from '../../services/metasS
 import { getUserId } from '../../services/supabaseClient'
 import { formatCurrency, parseCurrency } from '../../utils/currency'
 import { metaSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
+import Spinner from '../UI/Spinner'
 import './Metas.css'
 
 const MetasList = () => {
@@ -165,10 +166,7 @@ const MetasList = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <img src="/loading-icon.gif" alt="Carregando..." className="loading-icon" />
-        <p>Carregando metas...</p>
-      </div>
+      <Spinner label="Carregando metas..." />
     )
   }
 
