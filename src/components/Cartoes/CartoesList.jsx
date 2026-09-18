@@ -160,7 +160,7 @@ const CartoesList = () => {
       <div className="info-banner">
         <FileText size={20} />
         <p>
-          <strong>Dica:</strong> Para adicionar compras no cartão, vá em &quot;Extrato Mensal&quot; e selecione &quot;Crédito&quot; como método de pagamento.
+          <strong>Dica:</strong> Para adicionar compras no cartão, vá em &quot;Extrato Mensal&quot; e escolha &quot;Crédito&quot; como método. Parcelamento chega na próxima versão.
         </p>
       </div>
 

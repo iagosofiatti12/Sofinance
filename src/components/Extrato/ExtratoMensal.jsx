@@ -16,6 +16,8 @@ import { getCartoes } from '../../services/cartoesService'
 import { CATEGORIAS_CONTAS, CATEGORIAS_TRANSACOES } from '../../config/constants'
 import { formatCurrency, parseCurrency } from '../../utils/currency'
 import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
+import { montarPayloadTransacao } from '../../utils/transacaoPayload'
+import { getErrorMessage } from '../../utils/errorHandler'
 import './Extrato.css'
 
 const ExtratoMensal = () => {
@@ -38,7 +40,6 @@ const ExtratoMensal = () => {
     conta_bancaria: '',
     metodo_pagamento: 'PIX',
     cartao_credito_id: '',
-    num_parcelas: 1,
     observacoes: ''
   })
 
@@ -131,7 +132,6 @@ const ExtratoMensal = () => {
         conta_bancaria: transacao.conta_bancaria || '',
         metodo_pagamento: transacao.metodo_pagamento || 'PIX',
         cartao_credito_id: transacao.cartao_credito_id || '',
-        num_parcelas: transacao.total_parcelas || 1,
         observacoes: transacao.observacoes || ''
       })
     } else {
@@ -145,7 +145,6 @@ const ExtratoMensal = () => {
         conta_bancaria: '',
         metodo_pagamento: 'PIX',
         cartao_credito_id: '',
-        num_parcelas: 1,
         observacoes: ''
       })
     }
@@ -166,48 +165,43 @@ const ExtratoMensal = () => {
       return
     }
     
+    // Não permite editar transação parcelada (por segurança)
+    if (editingTransacao && editingTransacao.is_parcelado) {
+      toast.error('Não é possível editar transações parceladas. Exclua e crie novamente.')
+      return
+    }
+
     try {
-      const transacaoData = {
+      const payload = montarPayloadTransacao({
         ...formData,
-        valor: parseFloat(formData.valor),
-        categoria: formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros'),
-        num_parcelas: formData.metodo_pagamento === 'Crédito' ? parseInt(formData.num_parcelas) : 1
-      }
+        categoria: formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros')
+      })
 
       if (editingTransacao) {
-        // Não permite editar transação parcelada (por segurança)
-        if (editingTransacao.is_parcelado) {
-          toast.error('Não é possível editar transações parceladas. Exclua e crie novamente.')
-          return
-        }
-        await updateTransacao(editingTransacao.id, transacaoData)
-        toast.success('Transação atualizada!')
+        await updateTransacao(editingTransacao.id, payload)
       } else {
-        await addTransacao(transacaoData)
-        const msg = formData.metodo_pagamento === 'Crédito' && formData.num_parcelas > 1
-          ? `Transação parcelada em ${formData.num_parcelas}x adicionada!`
-          : 'Transação adicionada!'
-        toast.success(msg)
+        await addTransacao(payload)
       }
+      toast.success('Transação salva!')
 
       await loadTransacoes()
       handleCloseModal()
     } catch (error) {
       console.error('Erro ao salvar transação:', error)
-      toast.error(error.message || 'Erro ao salvar transação')
+      toast.error(getErrorMessage(error))
     }
   }
 
   const handleDelete = async (id) => {
     if (!window.confirm('Deseja realmente excluir esta transação?')) return
-    
+
     try {
       await deleteTransacao(id)
       await loadTransacoes()
       toast.success('Transação excluída!')
     } catch (error) {
       console.error('Erro ao excluir transação:', error)
-      toast.error('Erro ao excluir transação')
+      toast.error(getErrorMessage(error))
     }
   }
 
@@ -326,7 +320,7 @@ const ExtratoMensal = () => {
                       {formatarData(transacao.data_transacao)}
                     </span>
                     <span className={`tipo-badge ${transacao.tipo}`}>
-                      {transacao.tipo === 'receita' ? '↑ Receúita' : '↓ Despesa'}
+                      {transacao.tipo === 'receita' ? '↑ Receita' : '↓ Despesa'}
                     </span>
                   </div>
                   <div className="transacao-details">
@@ -490,11 +484,10 @@ const ExtratoMensal = () => {
                   <select
                     id="transacao-metodo-pagamento"
                     value={formData.metodo_pagamento}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
+                    onChange={(e) => setFormData({
+                      ...formData,
                       metodo_pagamento: e.target.value,
-                      cartao_credito_id: e.target.value === 'Crédito' ? formData.cartao_credito_id : '',
-                      num_parcelas: e.target.value === 'Crédito' ? formData.num_parcelas : 1
+                      cartao_credito_id: e.target.value === 'Crédito' ? formData.cartao_credito_id : ''
                     })}
                   >
                     {metodosPagamento.map(metodo => (
@@ -504,39 +497,22 @@ const ExtratoMensal = () => {
                 </div>
 
                 {formData.metodo_pagamento === 'Crédito' && (
-                  <>
-                    <div className="form-group">
-                      <label htmlFor="transacao-cartao-credito">Cartão de Crédito *</label>
-                      <select
-                        id="transacao-cartao-credito"
-                        value={formData.cartao_credito_id}
-                        onChange={(e) => setFormData({ ...formData, cartao_credito_id: e.target.value })}
-                        required={formData.metodo_pagamento === 'Crédito'}
-                      >
-                        <option value="">Selecione um cartão...</option>
-                        {cartoes.map(cartao => (
-                          <option key={cartao.id} value={cartao.id}>
-                            {cartao.nome} - {cartao.bandeira}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="transacao-parcelas">Parcelas</label>
-                      <select
-                        id="transacao-parcelas"
-                        value={formData.num_parcelas}
-                        onChange={(e) => setFormData({ ...formData, num_parcelas: parseInt(e.target.value) })}
-                      >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24].map(num => (
-                          <option key={num} value={num}>
-                            {num}x {num > 1 && `de R$ ${(parseFloat(formData.valor) / num || 0).toFixed(2)}`}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
+                  <div className="form-group">
+                    <label htmlFor="transacao-cartao-credito">Cartão de Crédito *</label>
+                    <select
+                      id="transacao-cartao-credito"
+                      value={formData.cartao_credito_id}
+                      onChange={(e) => setFormData({ ...formData, cartao_credito_id: e.target.value })}
+                      required={formData.metodo_pagamento === 'Crédito'}
+                    >
+                      <option value="">Selecione um cartão...</option>
+                      {cartoes.map(cartao => (
+                        <option key={cartao.id} value={cartao.id}>
+                          {cartao.nome} - {cartao.bandeira}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 )}
 
                 {formData.metodo_pagamento !== 'Crédito' && formData.metodo_pagamento !== 'Dinheiro' && (
