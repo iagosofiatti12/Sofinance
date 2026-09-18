@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { useAuth } from './contexts/AuthContext'
 import AuthPage from './components/Auth/AuthPage'
+import ResetPassword from './components/Auth/ResetPassword'
 import DarkModeToggle from './components/Layout/DarkModeToggle'
 import Sidebar from './components/Layout/Sidebar'
 import DashboardHome from './components/Dashboard/DashboardHome'
@@ -15,7 +16,7 @@ import Settings from './components/Settings/Settings'
 import './App.css'
 
 function App() {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, recoveryMode } = useAuth()
   const [activeSection, setActiveSection] = useState('dashboard')
 
   // Loading state
@@ -26,6 +27,12 @@ function App() {
         <p>Carregando...</p>
       </div>
     )
+  }
+
+  // Recuperação de senha - o link do e-mail já autentica a sessão via evento
+  // PASSWORD_RECOVERY; mostrar a tela de nova senha antes do dashboard.
+  if (recoveryMode) {
+    return <ResetPassword />
   }
 
   // Not authenticated - show login

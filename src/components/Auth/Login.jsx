@@ -8,7 +8,7 @@ import {
 } from '../../services/authService'
 import './Auth.css'
 
-const Login = ({ onToggleMode }) => {
+const Login = ({ onToggleMode, onForgotPassword }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -128,6 +128,7 @@ const Login = ({ onToggleMode }) => {
         </button>
 
         <div className="auth-footer">
+          <p><button type="button" onClick={onForgotPassword} className="link-button" disabled={loading}>Esqueci minha senha</button></p>
           <p>
             Não tem uma conta?{' '}
             <button 

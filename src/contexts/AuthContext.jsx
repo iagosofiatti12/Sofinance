@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [recoveryMode, setRecoveryMode] = useState(false)
 
   useEffect(() => {
     // Verificar sessão inicial
@@ -30,6 +31,8 @@ export const AuthProvider = ({ children }) => {
     const { data: authListener } = onAuthStateChange(async (event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+      if (event === 'PASSWORD_RECOVERY') setRecoveryMode(true)
+      if (event === 'SIGNED_OUT') setRecoveryMode(false)
       setLoading(false)
     })
 
@@ -70,7 +73,9 @@ export const AuthProvider = ({ children }) => {
     session,
     loading,
     signOut,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    recoveryMode,
+    clearRecovery: () => setRecoveryMode(false)
   }
 
   return (
