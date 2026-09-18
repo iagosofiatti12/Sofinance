@@ -25,8 +25,8 @@ const SignUp = ({ onToggleMode }) => {
       return false
     }
     
-    if (formData.password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres')
+    if (formData.password.length < 8) {
+      setError('A senha deve ter pelo menos 8 caracteres')
       return false
     }
 
@@ -164,11 +164,11 @@ const SignUp = ({ onToggleMode }) => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
-              minLength={6}
+              minLength={8}
               required
               disabled={loading}
             />
-            <small className="form-hint">Mínimo 6 caracteres</small>
+            <small className="form-hint">Mínimo 8 caracteres</small>
           </div>
 
           <div className="form-group">
@@ -182,7 +182,7 @@ const SignUp = ({ onToggleMode }) => {
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               placeholder="••••••••"
-              minLength={6}
+              minLength={8}
               required
               disabled={loading}
             />
