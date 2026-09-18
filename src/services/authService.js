@@ -74,7 +74,8 @@ export const deleteAccount = async () => {
     throw new Error(detalhe ? `Não foi possível excluir a conta (${detalhe})` : 'Não foi possível excluir a conta. Tente novamente.')
   }
   if (!data?.ok) throw new Error(data?.error || 'Não foi possível excluir a conta. Tente novamente.')
-  await supabase.auth.signOut()
+  // O usuário já não existe no servidor; limpar só a sessão local evita um 403 no /logout.
+  await supabase.auth.signOut({ scope: 'local' })
   return true
 }
 
