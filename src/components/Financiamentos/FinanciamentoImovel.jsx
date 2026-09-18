@@ -7,6 +7,7 @@ import { getUserId } from '../../services/supabaseClient'
 import { formatCurrency } from '../../utils/currency'
 import { financiamentoImovelSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
 import { getErrorMessage } from '../../utils/errorHandler'
+import { hojeISO, formatarData } from '../../utils/dates'
 import './Financiamentos.css'
 
 const FinanciamentoImovel = () => {
@@ -21,7 +22,7 @@ const FinanciamentoImovel = () => {
     parcela_valor: '',
     parcelas_pagas: 0,
     taxa_obra: 0,
-    data_inicio: new Date().toISOString().split('T')[0]
+    data_inicio: hojeISO()
   })
 
   useEffect(() => {
@@ -369,7 +370,7 @@ const FinanciamentoImovel = () => {
               <div className="detail-row">
                 <span className="detail-label">Data de Início</span>
                 <span className="detail-value">
-                  {new Date(financiamento.data_inicio).toLocaleDateString('pt-BR')}
+                  {formatarData(financiamento.data_inicio)}
                 </span>
               </div>
               <div className="detail-row">

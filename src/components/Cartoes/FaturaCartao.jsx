@@ -7,6 +7,7 @@ import {
   formatMesReferencia 
 } from '../../services/transacoesService'
 import { formatCurrency, parseCurrency } from '../../utils/currency'
+import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
 import './FaturaCartao.css'
 
 const FaturaCartao = ({ cartao, onClose }) => {
@@ -16,7 +17,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
   const [showPagarModal, setShowPagarModal] = useState(false)
   const [formPagamento, setFormPagamento] = useState({
     valor: '',
-    data: new Date().toISOString().split('T')[0],
+    data: hojeISO(),
     conta: ''
   })
 
@@ -40,18 +41,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
     }
   }
 
-  const mudarMes = (direcao) => {
-    const [ano, mes] = mesAtual.split('-')
-    const data = new Date(parseInt(ano), parseInt(mes) - 1, 1)
-    
-    if (direcao === 'anterior') {
-      data.setMonth(data.getMonth() - 1)
-    } else {
-      data.setMonth(data.getMonth() + 1)
-    }
-    
-    setMesAtual(formatMesReferencia(data))
-  }
+  const mudarMes = (direcao) => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
 
   const handlePagarFatura = async (e) => {
     e.preventDefault()
@@ -79,10 +69,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
     }
   }
 
-  const mesFormatado = new Date(mesAtual + '-01').toLocaleDateString('pt-BR', {
-    month: 'long',
-    year: 'numeric'
-  })
+  const mesFormatado = formatarMesExtenso(mesAtual)
 
   const limiteDisponivel = parseFloat(cartao.limite_total) - parseFloat(cartao.limite_usado)
   const percentualUsado = (parseFloat(cartao.limite_usado) / parseFloat(cartao.limite_total)) * 100
@@ -173,7 +160,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
                         <div className="detalhes">
                           <span className="data">
                             <Calendar size={14} />
-                            {new Date(t.data).toLocaleDateString('pt-BR')}
+                            {formatarData(t.data)}
                           </span>
                           <span className="categoria">{t.categoria}</span>
                           {t.parcela && t.parcela !== 'À vista' && (
