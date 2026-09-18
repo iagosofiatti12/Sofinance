@@ -60,79 +60,22 @@ export const getTransacoesPorMes = async (mesReferencia) => {
 
 /**
  * Adicionar nova transação
- * Se for crédito com parcelas, chama função para criar todas as parcelas
  */
-export const addTransacao = async (transacao) => {
+export const addTransacao = async (payload) => {
   const userId = await getUserId()
-  
-  // Se for crédito parcelado, usar função especial
-  if (transacao.metodo_pagamento === 'Crédito' && transacao.num_parcelas && transacao.num_parcelas > 1) {
-    return await criarTransacaoParcelada({
-      descricao: transacao.descricao,
-      valor_total: transacao.valor,
-      categoria: transacao.categoria,
-      data_primeira_parcela: transacao.data_transacao,
-      cartao_id: transacao.cartao_credito_id,
-      num_parcelas: transacao.num_parcelas,
-      observacoes: transacao.observacoes
-    })
-  }
-  
-  // Transação normal (PIX, débito, dinheiro, ou crédito à vista)
+
   const { data, error } = await supabase
     .from('transacoes')
-    .insert([{
-      user_id: userId,
-      tipo: transacao.tipo,
-      categoria: transacao.categoria,
-      descricao: transacao.descricao,
-      valor: transacao.valor,
-      data_transacao: transacao.data_transacao,
-      mes_referencia: formatMesReferencia(transacao.data_transacao),
-      conta_bancaria: transacao.conta_bancaria,
-      metodo_pagamento: transacao.metodo_pagamento,
-      observacoes: transacao.observacoes,
-      recorrente: transacao.recorrente || false
-    }])
+    .insert([{ user_id: userId, ...payload }])
     .select()
-  
-  if (error) throw error
-  
-  // Se for crédito à vista, atualizar limite do cartão
-  if (transacao.metodo_pagamento === 'Crédito' && transacao.cartao_credito_id) {
-    await atualizarLimiteCartao(transacao.cartao_credito_id, transacao.valor, 'aumentar')
-  }
-  
-  return data[0]
-}
 
-/**
- * Criar transação parcelada no cartão de crédito
- */
-export const criarTransacaoParcelada = async ({
-  descricao,
-  valor_total,
-  categoria,
-  data_primeira_parcela,
-  cartao_id,
-  num_parcelas,
-  observacoes = null
-}) => {
-  const userId = await getUserId()
-  
-  const { data, error } = await supabase.rpc('criar_transacao_parcelada', {
-    p_user_id: userId,
-    p_descricao: descricao,
-    p_valor_total: valor_total,
-    p_categoria: categoria,
-    p_data_primeira_parcela: data_primeira_parcela,
-    p_cartao_id: cartao_id,
-    p_num_parcelas: num_parcelas,
-    p_observacoes: observacoes
-  })
-  
   if (error) throw error
-  return data
+
+  if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
+    await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+  }
+
+  return data[0]
 }
 
 /**
@@ -160,17 +103,31 @@ const atualizarLimiteCartao = async (cartaoId, valor, operacao = 'aumentar') => 
 /**
  * Atualizar transação
  */
-export const updateTransacao = async (id, updates) => {
+export const updateTransacao = async (id, payload) => {
+  const { data: atual, error: erroAtual } = await supabase
+    .from('transacoes')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (erroAtual) throw erroAtual
+  if (atual.is_parcelado) throw new Error('Transações parceladas não podem ser editadas')
+
   const { data, error } = await supabase
     .from('transacoes')
-    .update({
-      ...updates,
-      updated_at: new Date().toISOString()
-    })
+    .update({ ...payload, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
-  
+
   if (error) throw error
+
+  if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id) {
+    await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
+  }
+  if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
+    await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+  }
+
   return data[0]
 }
 
@@ -178,12 +135,24 @@ export const updateTransacao = async (id, updates) => {
  * Deletar transação
  */
 export const deleteTransacao = async (id) => {
+  const { data: atual, error: erroAtual } = await supabase
+    .from('transacoes')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (erroAtual) throw erroAtual
+
   const { error } = await supabase
     .from('transacoes')
     .delete()
     .eq('id', id)
-  
+
   if (error) throw error
+
+  if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id && !atual.is_parcelado) {
+    await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
+  }
 }
 
 // ========== RESUMOS E ESTATÍSTICAS ==========
@@ -299,66 +268,31 @@ export const getCategoriasMaisUsadas = async (tipo = 'despesa', limite = 10) => 
  * Calcular fatura de um cartão em um mês específico
  */
 export const calcularFaturaCartao = async (cartaoId, mesReferencia) => {
-  const { data, error } = await supabase.rpc('calcular_fatura_cartao', {
-    p_cartao_id: cartaoId,
-    p_mes_referencia: mesReferencia
-  })
-  
-  if (error) {
-    // Se a função RPC não existir, calcular manualmente
-    const userId = await getUserId()
-    const transacoes = await supabase
-      .from('transacoes')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('cartao_credito_id', cartaoId)
-      .eq('mes_referencia', mesReferencia)
-      .eq('tipo', 'despesa')
-    
-    if (transacoes.error) throw transacoes.error
-    
-    const total = transacoes.data.reduce((sum, t) => sum + parseFloat(t.valor), 0)
-    
-    return {
-      total_fatura: total,
-      total_transacoes: transacoes.data.length,
-      transacoes: transacoes.data.map(t => ({
-        id: t.id,
-        descricao: t.descricao,
-        valor: t.valor,
-        data: t.data_transacao,
-        categoria: t.categoria,
-        parcela: t.is_parcelado ? `${t.parcela_atual}/${t.total_parcelas}` : 'À vista'
-      }))
-    }
-  }
-  
-  return data[0] || { total_fatura: 0, total_transacoes: 0, transacoes: [] }
-}
-
-/**
- * Pagar fatura do cartão
- */
-export const pagarFaturaCartao = async ({
-  cartaoId,
-  mesReferencia,
-  valorPago,
-  dataPagamento,
-  contaBancaria = null
-}) => {
   const userId = await getUserId()
-  
-  const { data, error } = await supabase.rpc('pagar_fatura_cartao', {
-    p_user_id: userId,
-    p_cartao_id: cartaoId,
-    p_mes_referencia: mesReferencia,
-    p_valor_pago: valorPago,
-    p_data_pagamento: dataPagamento,
-    p_conta_bancaria: contaBancaria
-  })
-  
-  if (error) throw error
-  return data
+  const transacoes = await supabase
+    .from('transacoes')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('cartao_credito_id', cartaoId)
+    .eq('mes_referencia', mesReferencia)
+    .eq('tipo', 'despesa')
+
+  if (transacoes.error) throw transacoes.error
+
+  const total = transacoes.data.reduce((sum, t) => sum + parseFloat(t.valor), 0)
+
+  return {
+    total_fatura: total,
+    total_transacoes: transacoes.data.length,
+    transacoes: transacoes.data.map(t => ({
+      id: t.id,
+      descricao: t.descricao,
+      valor: t.valor,
+      data: t.data_transacao,
+      categoria: t.categoria,
+      parcela: t.is_parcelado ? `${t.parcela_atual}/${t.total_parcelas}` : 'À vista'
+    }))
+  }
 }
 
 /**

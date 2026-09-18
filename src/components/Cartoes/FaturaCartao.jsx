@@ -1,25 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { CreditCard, Calendar, TrendingDown, FileText, ChevronRight, X } from 'lucide-react'
+import { CreditCard, Calendar, FileText, X } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { 
-  calcularFaturaCartao, 
-  pagarFaturaCartao,
-  formatMesReferencia 
+import {
+  calcularFaturaCartao,
+  formatMesReferencia
 } from '../../services/transacoesService'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
+import { formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
 import './FaturaCartao.css'
 
 const FaturaCartao = ({ cartao, onClose }) => {
   const [mesAtual, setMesAtual] = useState(formatMesReferencia(new Date()))
   const [fatura, setFatura] = useState({ total_fatura: 0, total_transacoes: 0, transacoes: [] })
   const [loading, setLoading] = useState(true)
-  const [showPagarModal, setShowPagarModal] = useState(false)
-  const [formPagamento, setFormPagamento] = useState({
-    valor: '',
-    data: hojeISO(),
-    conta: ''
-  })
 
   useEffect(() => {
     if (cartao) {
@@ -32,7 +24,6 @@ const FaturaCartao = ({ cartao, onClose }) => {
       setLoading(true)
       const data = await calcularFaturaCartao(cartao.id, mesAtual)
       setFatura(data)
-      setFormPagamento({ ...formPagamento, valor: data.total_fatura })
     } catch (error) {
       console.error('Erro ao carregar fatura:', error)
       toast.error('Erro ao carregar fatura')
@@ -42,32 +33,6 @@ const FaturaCartao = ({ cartao, onClose }) => {
   }
 
   const mudarMes = (direcao) => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
-
-  const handlePagarFatura = async (e) => {
-    e.preventDefault()
-    
-    if (parseFloat(formPagamento.valor) <= 0) {
-      toast.error('Valor inválido')
-      return
-    }
-
-    try {
-      await pagarFaturaCartao({
-        cartaoId: cartao.id,
-        mesReferencia: mesAtual,
-        valorPago: parseFloat(formPagamento.valor),
-        dataPagamento: formPagamento.data,
-        contaBancaria: formPagamento.conta
-      })
-
-      toast.success('Fatura paga com sucesso!')
-      setShowPagarModal(false)
-      onClose()
-    } catch (error) {
-      console.error('Erro ao pagar fatura:', error)
-      toast.error('Erro ao registrar pagamento')
-    }
-  }
 
   const mesFormatado = formatarMesExtenso(mesAtual)
 
@@ -126,6 +91,10 @@ const FaturaCartao = ({ cartao, onClose }) => {
               </div>
             </div>
 
+            <p className="text-muted" style={{ fontSize: 13 }}>
+              Para registrar o pagamento, lance uma despesa na categoria &quot;Cartão de Crédito&quot; no Extrato.
+            </p>
+
             {/* Barra de Limite */}
             <div className="limite-bar-container">
               <div className="limite-info">
@@ -182,83 +151,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
               )}
             </div>
 
-            {/* Botão Pagar Fatura */}
-            {fatura.total_fatura > 0 && (
-              <div className="fatura-actions">
-                <button 
-                  className="btn btn-primary btn-pagar-fatura"
-                  onClick={() => setShowPagarModal(true)}
-                >
-                  <TrendingDown size={18} />
-                  Pagar Fatura
-                </button>
-              </div>
-            )}
           </>
-        )}
-
-        {/* Modal de Pagamento */}
-        {showPagarModal && (
-          <div className="modal-overlay">
-            <div className="modal-content small" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header-close">
-                <h3>Pagar Fatura</h3>
-                <button type="button" className="btn-icon" onClick={() => setShowPagarModal(false)} aria-label="Fechar modal">
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <form onSubmit={handlePagarFatura}>
-                <div className="form-group">
-                  <label htmlFor="fatura-valor-pagar">Valor a Pagar (R$)</label>
-                  <input
-                    id="fatura-valor-pagar"
-                    type="text"
-                    value={formPagamento.valor ? formatCurrency(parseFloat(formPagamento.valor) * 100) : ''}
-                    onChange={(e) => {
-                      const valor = e.target.value.replace(/\D/g, '')
-                      const numero = Number(valor) / 100
-                      setFormPagamento({ ...formPagamento, valor: numero || '' })
-                    }}
-                    placeholder="R$ 0,00"
-                    required
-                  />
-                  <small>Valor total da fatura: R$ {fatura.total_fatura.toFixed(2)}</small>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="fatura-data-pagamento">Data do Pagamento</label>
-                  <input
-                    id="fatura-data-pagamento"
-                    type="date"
-                    value={formPagamento.data}
-                    onChange={(e) => setFormPagamento({ ...formPagamento, data: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="fatura-conta-bancaria">Conta Bancária (opcional)</label>
-                  <input
-                    id="fatura-conta-bancaria"
-                    type="text"
-                    value={formPagamento.conta}
-                    onChange={(e) => setFormPagamento({ ...formPagamento, conta: e.target.value })}
-                    placeholder="Ex: Nubank, Itaú..."
-                  />
-                </div>
-
-                <div className="modal-actions">
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowPagarModal(false)}>
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    Confirmar Pagamento
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
         )}
       </div>
     </div>
