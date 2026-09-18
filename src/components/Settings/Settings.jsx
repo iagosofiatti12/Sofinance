@@ -81,7 +81,7 @@ const Settings = () => {
     try {
       setLoading(true)
       await deleteAccount()
-      toast.success('Conta excluída com sucesso')
+      toast.success('Conta excluída. Sentiremos sua falta.')
       // O redirecionamento será automático após o logout
     } catch (error) {
       console.error('Erro ao excluir conta:', error)

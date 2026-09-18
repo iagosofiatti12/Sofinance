@@ -74,37 +74,15 @@ export const signOut = async () => {
 
 /**
  * Excluir conta do usuário (CUIDADO - ação irreversível)
+ * Chama a Edge Function `delete-account`, que roda com service role,
+ * apaga os dados do usuário em todas as tabelas e remove o usuário do auth.
  */
 export const deleteAccount = async () => {
-  try {
-    // Primeiro, obter o ID do usuário atual
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
-    if (userError || !user) {
-      throw new Error('Usuário não autenticado')
-    }
-
-    const userId = user.id
-
-    // Deletar dados do usuário em todas as tabelas (RLS vai garantir que só delete seus próprios dados)
-    await supabase.from('contas_fixas').delete().eq('user_id', userId)
-    await supabase.from('cartoes').delete().eq('user_id', userId)
-    await supabase.from('faturas').delete().eq('user_id', userId)
-    await supabase.from('parcelas').delete().eq('user_id', userId)
-    await supabase.from('financiamentos').delete().eq('user_id', userId)
-    await supabase.from('metas').delete().eq('user_id', userId)
-
-    // Deletar perfil do usuário
-    await supabase.from('profiles').delete().eq('id', userId)
-
-    // Por último, fazer logout (a conta auth ficará, mas sem dados)
-    await signOut()
-
-    return true
-  } catch (error) {
-    console.error('Erro ao excluir conta:', error)
-    throw error
-  }
+  const { data, error } = await supabase.functions.invoke('delete-account', { method: 'POST' })
+  if (error) throw new Error(error.message || 'Não foi possível excluir a conta')
+  if (!data?.ok) throw new Error(data?.error || 'Não foi possível excluir a conta')
+  await supabase.auth.signOut()
+  return true
 }
 
 /**
