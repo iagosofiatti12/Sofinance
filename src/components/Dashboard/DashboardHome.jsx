@@ -31,6 +31,7 @@ import {
   getEvolucaoMensal,
   formatMesReferencia 
 } from '../../services/transacoesService'
+import { proximosVencimentos } from '../../utils/vencimentos'
 import './DashboardHome.css'
 
 const DashboardHome = () => {
@@ -76,17 +77,13 @@ const DashboardHome = () => {
       const metasProgresso = metasTotal > 0 ? (metasGuardado / metasTotal) * 100 : 0
       
       // Próximos vencimentos
-      const hoje = new Date().getDate()
-      const proximosVencimentos = contas
-        .filter(conta => conta.ativa && conta.dia_vencimento >= hoje)
-        .sort((a, b) => a.dia_vencimento - b.dia_vencimento)
-        .slice(0, 5)
-      
+      const proximosVencimentosLista = proximosVencimentos(contas)
+
       setStats({
         saldoTotal: resumo.saldo,
         gastosMes: resumo.despesas,
         receitasMes: resumo.receitas,
-        proximosVencimentos,
+        proximosVencimentos: proximosVencimentosLista,
         contasFixasTotal: contasTotal,
         limiteDisponivel: limiteTotal - limiteUsado,
         metasProgresso,
@@ -258,7 +255,7 @@ const DashboardHome = () => {
                 <div key={conta.id} className="vencimento-item">
                   <div>
                     <p className="vencimento-nome">{conta.nome}</p>
-                    <p className="vencimento-dia">Dia {conta.dia_vencimento}</p>
+                    <p className="vencimento-dia">{conta.diasRestantes === 0 ? 'Vence hoje' : `Dia ${conta.dia_vencimento} · em ${conta.diasRestantes} dias`}</p>
                   </div>
                   <span className="vencimento-valor">
                     R$ {parseFloat(conta.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}

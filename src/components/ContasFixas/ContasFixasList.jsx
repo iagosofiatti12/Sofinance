@@ -13,6 +13,7 @@ import { getUserId } from '../../services/supabaseClient'
 import { CATEGORIAS_CONTAS } from '../../config/constants'
 import { formatCurrency, parseCurrency } from '../../utils/currency'
 import { contaFixaSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
+import { diasAteVencimento } from '../../utils/vencimentos'
 import './ContasFixas.css'
 
 const ContasFixasList = () => {
@@ -145,12 +146,6 @@ const ContasFixasList = () => {
     }
   }
 
-  const getDiasRestantes = (diaVencimento) => {
-    const hoje = new Date().getDate()
-    const dias = diaVencimento - hoje
-    return dias >= 0 ? dias : 30 + dias
-  }
-
   const getStatusBadge = (diasRestantes) => {
     if (diasRestantes <= 3) return 'badge-danger'
     if (diasRestantes <= 7) return 'badge-warning'
@@ -192,7 +187,7 @@ const ContasFixasList = () => {
       <div className="contas-grid">
         {contas.length > 0 ? (
           contas.map(conta => {
-            const diasRestantes = getDiasRestantes(conta.dia_vencimento)
+            const diasRestantes = diasAteVencimento(conta.dia_vencimento)
             return (
               <div key={conta.id} className={`conta-card glass-card ${!conta.ativa ? 'inativa' : ''}`}>
                 <div className="conta-card-header">
