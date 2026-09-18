@@ -26,6 +26,7 @@ export const CATEGORIAS_TRANSACOES = [
   'Lazer',
   'Educação',
   'Viagem',
+  'Cartão de Crédito',
   'Outros'
 ]
 
