@@ -18,6 +18,7 @@ import { formatCurrency, parseCurrency } from '../../utils/currency'
 import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
 import { montarPayloadTransacao } from '../../utils/transacaoPayload'
 import { getErrorMessage } from '../../utils/errorHandler'
+import Spinner from '../UI/Spinner'
 import './Extrato.css'
 
 const ExtratoMensal = () => {
@@ -219,10 +220,7 @@ const ExtratoMensal = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <img src="/loading-icon.gif" alt="Carregando..." className="loading-icon" />
-        <p>Carregando extrato...</p>
-      </div>
+      <Spinner label="Carregando extrato..." />
     )
   }
 

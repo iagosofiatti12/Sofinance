@@ -5,5 +5,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: { recharts: ['recharts'], supabase: ['@supabase/supabase-js'], react: ['react', 'react-dom'] },
+      },
+    },
+  },
 })

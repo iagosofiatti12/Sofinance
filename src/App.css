@@ -15,22 +15,6 @@
   background: var(--bg-primary);
 }
 
-.app-loading .loading-icon {
-  width: 200px;
-  height: 200px;
-  filter: drop-shadow(0 8px 24px rgba(37, 99, 235, 0.4));
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
 .app-loading p {
   color: var(--text-secondary);
   font-weight: 600;

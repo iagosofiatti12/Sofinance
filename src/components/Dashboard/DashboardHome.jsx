@@ -33,6 +33,7 @@ import {
   formatMesReferencia 
 } from '../../services/transacoesService'
 import { proximosVencimentos } from '../../utils/vencimentos'
+import Spinner from '../UI/Spinner'
 import './DashboardHome.css'
 
 const DashboardHome = () => {
@@ -121,10 +122,7 @@ const DashboardHome = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-loading">
-        <img src="/loading-icon.gif" alt="Carregando..." className="loading-icon" />
-        <p>Carregando dados...</p>
-      </div>
+      <Spinner label="Carregando dados..." />
     )
   }
 

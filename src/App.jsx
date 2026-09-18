@@ -1,19 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, Suspense, lazy } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { useAuth } from './contexts/AuthContext'
 import AuthPage from './components/Auth/AuthPage'
 import ResetPassword from './components/Auth/ResetPassword'
 import DarkModeToggle from './components/Layout/DarkModeToggle'
 import Sidebar from './components/Layout/Sidebar'
-import DashboardHome from './components/Dashboard/DashboardHome'
-import ExtratoMensal from './components/Extrato/ExtratoMensal'
-import ContasFixasList from './components/ContasFixas/ContasFixasList'
-import CartoesList from './components/Cartoes/CartoesList'
-import FinanciamentoImovel from './components/Financiamentos/FinanciamentoImovel'
-import FinanciamentoCarro from './components/Financiamentos/FinanciamentoCarro'
-import MetasList from './components/Metas/MetasList'
-import Settings from './components/Settings/Settings'
+import Spinner from './components/UI/Spinner'
 import './App.css'
+
+const DashboardHome = lazy(() => import('./components/Dashboard/DashboardHome'))
+const ExtratoMensal = lazy(() => import('./components/Extrato/ExtratoMensal'))
+const ContasFixasList = lazy(() => import('./components/ContasFixas/ContasFixasList'))
+const CartoesList = lazy(() => import('./components/Cartoes/CartoesList'))
+const FinanciamentoImovel = lazy(() => import('./components/Financiamentos/FinanciamentoImovel'))
+const FinanciamentoCarro = lazy(() => import('./components/Financiamentos/FinanciamentoCarro'))
+const MetasList = lazy(() => import('./components/Metas/MetasList'))
+const Settings = lazy(() => import('./components/Settings/Settings'))
 
 function App() {
   const { isAuthenticated, loading, recoveryMode } = useAuth()
@@ -23,8 +25,7 @@ function App() {
   if (loading) {
     return (
       <div className="app-loading">
-        <img src="/loading-icon.gif" alt="Carregando..." className="loading-icon" />
-        <p>Carregando...</p>
+        <Spinner label="Carregando..." size={56} />
       </div>
     )
   }
@@ -104,7 +105,9 @@ function App() {
         
         <main className="main-content">
           <div className="content-wrapper">
-            {renderContent()}
+            <Suspense fallback={<Spinner />}>
+              {renderContent()}
+            </Suspense>
           </div>
         </main>
       </div>

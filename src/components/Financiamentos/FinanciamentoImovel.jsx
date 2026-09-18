@@ -8,6 +8,7 @@ import { formatCurrency } from '../../utils/currency'
 import { financiamentoImovelSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
 import { getErrorMessage } from '../../utils/errorHandler'
 import { hojeISO, formatarData } from '../../utils/dates'
+import Spinner from '../UI/Spinner'
 import './Financiamentos.css'
 
 const FinanciamentoImovel = () => {
@@ -100,10 +101,7 @@ const FinanciamentoImovel = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <img src="/loading-icon.gif" alt="Carregando..." className="loading-icon" />
-        <p>Carregando financiamento...</p>
-      </div>
+      <Spinner label="Carregando financiamento..." />
     )
   }
 
