@@ -120,6 +120,7 @@ export const updateTransacao = async (id, payload) => {
     .select()
 
   if (error) throw error
+  if (!data || data.length === 0) throw new Error('Transação não encontrada')
 
   if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id) {
     await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
@@ -143,12 +144,14 @@ export const deleteTransacao = async (id) => {
 
   if (erroAtual) throw erroAtual
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('transacoes')
     .delete()
     .eq('id', id)
+    .select()
 
   if (error) throw error
+  if (!data || data.length === 0) throw new Error('Transação não encontrada')
 
   if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id && !atual.is_parcelado) {
     await atualizarLimiteCartao(atual.cartao_credito_id, atual.valor, 'diminuir')
