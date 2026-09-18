@@ -1,3 +1,8 @@
+-- ATENÇÃO (ordem das migrations): este arquivo ALTERA tabelas e views que ele não cria.
+-- Antes de qualquer `supabase db push`/`db reset`/`supabase start`, gere o baseline do schema
+-- (`supabase db pull`, exige Docker) com timestamp ANTERIOR a este (ex.: 20260917000000_baseline.sql)
+-- e marque este arquivo como já aplicado em produção: `supabase migration repair --status applied 20260917230000`.
+
 -- Fase 0 / passo 1: fechar o acesso aos dados em produção.
 -- Auditoria de 2026-09-17 encontrou:
 --   * RLS desligado em transacoes, cartoes_credito, contas_fixas, transacoes_cartao

@@ -3,6 +3,8 @@ const inicioDoDia = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const MS_DIA = 86_400_000
 
 export const diasAteVencimento = (diaVencimento, hoje = new Date()) => {
+  if (!Number.isInteger(diaVencimento) || diaVencimento < 1) return Number.POSITIVE_INFINITY
+
   const base = inicioDoDia(hoje)
   const ano = base.getFullYear()
   const mes = base.getMonth()

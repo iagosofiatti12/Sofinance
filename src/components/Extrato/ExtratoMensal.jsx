@@ -178,12 +178,16 @@ const ExtratoMensal = () => {
         categoria: formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros')
       })
 
+      let resultado
       if (editingTransacao) {
-        await updateTransacao(editingTransacao.id, payload)
+        resultado = await updateTransacao(editingTransacao.id, payload)
       } else {
-        await addTransacao(payload)
+        resultado = await addTransacao(payload)
       }
       toast.success('Transação salva!')
+      if (resultado?.limiteAtualizado === false) {
+        toast('Transação salva, mas o limite do cartão não foi atualizado. Confira em Cartões.', { icon: '⚠️' })
+      }
 
       await loadTransacoes()
       handleCloseModal()
@@ -197,9 +201,12 @@ const ExtratoMensal = () => {
     if (!window.confirm('Deseja realmente excluir esta transação?')) return
 
     try {
-      await deleteTransacao(id)
+      const resultado = await deleteTransacao(id)
       await loadTransacoes()
       toast.success('Transação excluída!')
+      if (resultado?.limiteAtualizado === false) {
+        toast('Transação excluída, mas o limite do cartão não foi atualizado. Confira em Cartões.', { icon: '⚠️' })
+      }
     } catch (error) {
       console.error('Erro ao excluir transação:', error)
       toast.error(getErrorMessage(error))
