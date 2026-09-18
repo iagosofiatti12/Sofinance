@@ -53,10 +53,11 @@ const ExtratoMensal = () => {
         if (!value.trim()) error = 'Descrição é obrigatória'
         else if (value.trim().length < 3) error = 'Mínimo de 3 caracteres'
         break
-      case 'valor':
+      case 'valor': {
         const val = parseCurrency(value)
         if (!value || val <= 0) error = 'Valor deve ser maior que zero'
         break
+      }
       case 'categoria':
         if (!value) error = 'Categoria é obrigatória'
         break
@@ -304,11 +305,11 @@ const ExtratoMensal = () => {
       {/* Filtros */}
       <div className="filtros-container glass-card">
         <div className="filtro-group">
-          <label>
+          <label htmlFor="extrato-filtro-tipo">
             <Filter size={16} />
             Tipo
           </label>
-          <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
+          <select id="extrato-filtro-tipo" value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
             <option value="todos">Todos</option>
             <option value="receita">Receitas</option>
             <option value="despesa">Despesas</option>
@@ -316,8 +317,8 @@ const ExtratoMensal = () => {
         </div>
 
         <div className="filtro-group">
-          <label>Categoria</label>
-          <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
+          <label htmlFor="extrato-filtro-categoria">Categoria</label>
+          <select id="extrato-filtro-categoria" value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
             <option value="todas">Todas</option>
             {[...new Set(transacoes.map(t => t.categoria))].map(cat => (
               <option key={cat} value={cat}>{cat}</option>
@@ -417,8 +418,9 @@ const ExtratoMensal = () => {
             <form onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Tipo *</label>
+                  <label htmlFor="transacao-tipo">Tipo *</label>
                   <select
+                    id="transacao-tipo"
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value, categoria: '' })}
                     required
@@ -429,8 +431,9 @@ const ExtratoMensal = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Categoria *</label>
+                  <label htmlFor="transacao-categoria">Categoria *</label>
                   <select
+                    id="transacao-categoria"
                     name="categoria"
                     value={formData.categoria}
                     onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
@@ -448,8 +451,9 @@ const ExtratoMensal = () => {
               </div>
 
               <div className="form-group">
-                <label>Descrição *</label>
+                <label htmlFor="transacao-descricao">Descrição *</label>
                 <input
+                  id="transacao-descricao"
                   type="text"
                   name="descricao"
                   value={formData.descricao}
@@ -464,8 +468,9 @@ const ExtratoMensal = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Valor (R$) *</label>
+                  <label htmlFor="transacao-valor">Valor (R$) *</label>
                   <input
+                    id="transacao-valor"
                     type="text"
                     name="valor"
                     value={formData.valor ? formatCurrency(parseFloat(formData.valor) * 100) : ''}
@@ -483,8 +488,9 @@ const ExtratoMensal = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Data *</label>
+                  <label htmlFor="transacao-data">Data *</label>
                   <input
+                    id="transacao-data"
                     type="date"
                     name="data_transacao"
                     value={formData.data_transacao}
@@ -499,8 +505,9 @@ const ExtratoMensal = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Método de Pagamento</label>
+                  <label htmlFor="transacao-metodo-pagamento">Método de Pagamento</label>
                   <select
+                    id="transacao-metodo-pagamento"
                     value={formData.metodo_pagamento}
                     onChange={(e) => setFormData({ 
                       ...formData, 
@@ -518,8 +525,9 @@ const ExtratoMensal = () => {
                 {formData.metodo_pagamento === 'Crédito' && (
                   <>
                     <div className="form-group">
-                      <label>Cartão de Crédito *</label>
+                      <label htmlFor="transacao-cartao-credito">Cartão de Crédito *</label>
                       <select
+                        id="transacao-cartao-credito"
                         value={formData.cartao_credito_id}
                         onChange={(e) => setFormData({ ...formData, cartao_credito_id: e.target.value })}
                         required={formData.metodo_pagamento === 'Crédito'}
@@ -534,8 +542,9 @@ const ExtratoMensal = () => {
                     </div>
 
                     <div className="form-group">
-                      <label>Parcelas</label>
+                      <label htmlFor="transacao-parcelas">Parcelas</label>
                       <select
+                        id="transacao-parcelas"
                         value={formData.num_parcelas}
                         onChange={(e) => setFormData({ ...formData, num_parcelas: parseInt(e.target.value) })}
                       >
@@ -551,8 +560,9 @@ const ExtratoMensal = () => {
 
                 {formData.metodo_pagamento !== 'Crédito' && formData.metodo_pagamento !== 'Dinheiro' && (
                   <div className="form-group">
-                    <label>Conta Bancária</label>
+                    <label htmlFor="transacao-conta-bancaria">Conta Bancária</label>
                     <input
+                      id="transacao-conta-bancaria"
                       type="text"
                       value={formData.conta_bancaria}
                       onChange={(e) => setFormData({ ...formData, conta_bancaria: e.target.value })}
@@ -564,16 +574,17 @@ const ExtratoMensal = () => {
 
               {formData.metodo_pagamento === 'Crédito' && cartoes.length === 0 && (
                 <div className="alert-warning">
-                  ⚠️ Você não tem cartões cadastrados. 
-                  <a href="#" onClick={(e) => { e.preventDefault(); toast('Vá em "Cartões" para cadastrar') }}>
+                  ⚠️ Você não tem cartões cadastrados.
+                  <button type="button" className="alert-warning-link" onClick={() => toast('Vá em "Cartões" para cadastrar')}>
                     Cadastre um cartão primeiro
-                  </a>
+                  </button>
                 </div>
               )}
 
               <div className="form-group">
-                <label>Observações</label>
+                <label htmlFor="transacao-observacoes">Observações</label>
                 <textarea
+                  id="transacao-observacoes"
                   value={formData.observacoes}
                   onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                   placeholder="Informações adicionais..."

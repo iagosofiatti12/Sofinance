@@ -76,6 +76,12 @@ class ErrorBoundary extends React.Component {
             onMouseOut={(e) => {
               e.target.style.background = '#1a1a1a'
             }}
+            onFocus={(e) => {
+              e.target.style.background = '#404040'
+            }}
+            onBlur={(e) => {
+              e.target.style.background = '#1a1a1a'
+            }}
           >
             Recarregar Página
           </button>

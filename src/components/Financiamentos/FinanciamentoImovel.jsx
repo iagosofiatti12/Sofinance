@@ -144,8 +144,9 @@ const FinanciamentoImovel = () => {
           <form onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
-                <label>Valor Total do Imóvel (R$) *</label>
+                <label htmlFor="fin-imovel-valor-total">Valor Total do Imóvel (R$) *</label>
                 <input
+                  id="fin-imovel-valor-total"
                   type="text"
                   value={formData.valor_total ? formatCurrency(parseFloat(formData.valor_total) * 100) : ''}
                   onChange={(e) => {
@@ -159,8 +160,9 @@ const FinanciamentoImovel = () => {
               </div>
 
               <div className="form-group">
-                <label>Valor Financiado (R$) *</label>
+                <label htmlFor="fin-imovel-valor-financiado">Valor Financiado (R$) *</label>
                 <input
+                  id="fin-imovel-valor-financiado"
                   type="text"
                   value={formData.valor_financiado ? formatCurrency(parseFloat(formData.valor_financiado) * 100) : ''}
                   onChange={(e) => {
@@ -176,8 +178,9 @@ const FinanciamentoImovel = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Taxa de Juros (% a.a.) *</label>
+                <label htmlFor="fin-imovel-taxa-juros">Taxa de Juros (% a.a.) *</label>
                 <input
+                  id="fin-imovel-taxa-juros"
                   type="number"
                   step="0.01"
                   value={formData.taxa_juros}
@@ -187,8 +190,9 @@ const FinanciamentoImovel = () => {
               </div>
 
               <div className="form-group">
-                <label>Número de Parcelas *</label>
+                <label htmlFor="fin-imovel-num-parcelas">Número de Parcelas *</label>
                 <input
+                  id="fin-imovel-num-parcelas"
                   type="number"
                   value={formData.num_parcelas}
                   onChange={(e) => setFormData({ ...formData, num_parcelas: e.target.value })}
@@ -199,8 +203,9 @@ const FinanciamentoImovel = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Valor da Parcela (R$) *</label>
+                <label htmlFor="fin-imovel-parcela-valor">Valor da Parcela (R$) *</label>
                 <input
+                  id="fin-imovel-parcela-valor"
                   type="text"
                   value={formData.parcela_valor ? formatCurrency(parseFloat(formData.parcela_valor) * 100) : ''}
                   onChange={(e) => {
@@ -214,8 +219,9 @@ const FinanciamentoImovel = () => {
               </div>
 
               <div className="form-group">
-                <label>Parcelas Já Pagas</label>
+                <label htmlFor="fin-imovel-parcelas-pagas">Parcelas Já Pagas</label>
                 <input
+                  id="fin-imovel-parcelas-pagas"
                   type="number"
                   value={formData.parcelas_pagas}
                   onChange={(e) => setFormData({ ...formData, parcelas_pagas: e.target.value })}
@@ -225,8 +231,9 @@ const FinanciamentoImovel = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Taxa de Obra (R$)</label>
+                <label htmlFor="fin-imovel-taxa-obra">Taxa de Obra (R$)</label>
                 <input
+                  id="fin-imovel-taxa-obra"
                   type="text"
                   value={formData.taxa_obra ? formatCurrency(parseFloat(formData.taxa_obra) * 100) : ''}
                   onChange={(e) => {
@@ -239,8 +246,9 @@ const FinanciamentoImovel = () => {
               </div>
 
               <div className="form-group">
-                <label>Data de Início *</label>
+                <label htmlFor="fin-imovel-data-inicio">Data de Início *</label>
                 <input
+                  id="fin-imovel-data-inicio"
                   type="date"
                   value={formData.data_inicio}
                   onChange={(e) => setFormData({ ...formData, data_inicio: e.target.value })}

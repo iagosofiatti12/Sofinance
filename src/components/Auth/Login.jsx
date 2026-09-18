@@ -67,11 +67,12 @@ const Login = ({ onToggleMode }) => {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label>
+            <label htmlFor="login-email">
               <Mail size={18} />
               Email
             </label>
             <input
+              id="login-email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -82,11 +83,12 @@ const Login = ({ onToggleMode }) => {
           </div>
 
           <div className="form-group">
-            <label>
+            <label htmlFor="login-password">
               <Lock size={18} />
               Senha
             </label>
             <input
+              id="login-password"
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}

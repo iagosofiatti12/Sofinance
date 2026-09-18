@@ -223,8 +223,9 @@ const FaturaCartao = ({ cartao, onClose }) => {
               
               <form onSubmit={handlePagarFatura}>
                 <div className="form-group">
-                  <label>Valor a Pagar (R$)</label>
+                  <label htmlFor="fatura-valor-pagar">Valor a Pagar (R$)</label>
                   <input
+                    id="fatura-valor-pagar"
                     type="text"
                     value={formPagamento.valor ? formatCurrency(parseFloat(formPagamento.valor) * 100) : ''}
                     onChange={(e) => {
@@ -239,8 +240,9 @@ const FaturaCartao = ({ cartao, onClose }) => {
                 </div>
 
                 <div className="form-group">
-                  <label>Data do Pagamento</label>
+                  <label htmlFor="fatura-data-pagamento">Data do Pagamento</label>
                   <input
+                    id="fatura-data-pagamento"
                     type="date"
                     value={formPagamento.data}
                     onChange={(e) => setFormPagamento({ ...formPagamento, data: e.target.value })}
@@ -249,8 +251,9 @@ const FaturaCartao = ({ cartao, onClose }) => {
                 </div>
 
                 <div className="form-group">
-                  <label>Conta Bancária (opcional)</label>
+                  <label htmlFor="fatura-conta-bancaria">Conta Bancária (opcional)</label>
                   <input
+                    id="fatura-conta-bancaria"
                     type="text"
                     value={formPagamento.conta}
                     onChange={(e) => setFormPagamento({ ...formPagamento, conta: e.target.value })}

@@ -275,8 +275,9 @@ const ContasFixasList = () => {
             
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Nome da Conta *</label>
+                <label htmlFor="conta-fixa-nome">Nome da Conta *</label>
                 <input
+                  id="conta-fixa-nome"
                   type="text"
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
@@ -286,8 +287,9 @@ const ContasFixasList = () => {
               </div>
 
               <div className="form-group">
-                <label>Valor (R$) *</label>
+                <label htmlFor="conta-fixa-valor">Valor (R$) *</label>
                 <input
+                  id="conta-fixa-valor"
                   type="text"
                   value={formData.valor ? formatCurrency(parseFloat(formData.valor) * 100) : ''}
                   onChange={(e) => {
@@ -301,8 +303,9 @@ const ContasFixasList = () => {
               </div>
 
               <div className="form-group">
-                <label>Dia do Vencimento *</label>
+                <label htmlFor="conta-fixa-dia-vencimento">Dia do Vencimento *</label>
                 <input
+                  id="conta-fixa-dia-vencimento"
                   type="number"
                   min="1"
                   max="31"
@@ -314,8 +317,9 @@ const ContasFixasList = () => {
               </div>
 
               <div className="form-group">
-                <label>Categoria *</label>
+                <label htmlFor="conta-fixa-categoria">Categoria *</label>
                 <select
+                  id="conta-fixa-categoria"
                   value={formData.categoria}
                   onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
                   required
