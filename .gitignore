@@ -50,3 +50,6 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Screenshots do navegador automatizado (Playwright MCP)
+.playwright-mcp/
