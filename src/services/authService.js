@@ -79,8 +79,17 @@ export const signOut = async () => {
  */
 export const deleteAccount = async () => {
   const { data, error } = await supabase.functions.invoke('delete-account', { method: 'POST' })
-  if (error) throw new Error(error.message || 'Não foi possível excluir a conta')
-  if (!data?.ok) throw new Error(data?.error || 'Não foi possível excluir a conta')
+  if (error) {
+    let detalhe = ''
+    try {
+      const body = await error.context?.json?.()
+      detalhe = body?.error || ''
+    } catch {
+      detalhe = ''
+    }
+    throw new Error(detalhe ? `Não foi possível excluir a conta (${detalhe})` : 'Não foi possível excluir a conta. Tente novamente.')
+  }
+  if (!data?.ok) throw new Error(data?.error || 'Não foi possível excluir a conta. Tente novamente.')
   await supabase.auth.signOut()
   return true
 }
