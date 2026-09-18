@@ -4,14 +4,13 @@ import {
   TrendingUp, TrendingDown, FileText, X
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { 
-  getTransacoesPorMes, 
-  addTransacao, 
-  updateTransacao, 
+import {
+  getTransacoesPorMes,
+  addTransacao,
+  updateTransacao,
   deleteTransacao,
   formatMesReferencia,
-  getTotalReceitas,
-  getTotalDespesas 
+  getResumoMensal
 } from '../../services/transacoesService'
 import { getCartoes } from '../../services/cartoesService'
 import { CATEGORIAS_CONTAS, CATEGORIAS_TRANSACOES } from '../../config/constants'
@@ -103,15 +102,10 @@ const ExtratoMensal = () => {
       setLoading(true)
       const data = await getTransacoesPorMes(mesAtual)
       setTransacoes(data || [])
-      
+
       // Calcular resumo
-      const receitas = await getTotalReceitas(mesAtual)
-      const despesas = await getTotalDespesas(mesAtual)
-      setResumo({
-        receitas,
-        despesas,
-        saldo: receitas - despesas
-      })
+      const resumo = await getResumoMensal(mesAtual)
+      setResumo(resumo)
     } catch (error) {
       console.error('Erro ao carregar transações:', error)
       toast.error('Erro ao carregar extrato')

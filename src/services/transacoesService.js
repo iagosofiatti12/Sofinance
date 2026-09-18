@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient'
 import { getCurrentUser } from './authService'
 import { formatMesReferencia, formatarMesExtenso } from '../utils/dates'
+import { linhaParaResumo, montarEvolucao, ultimosMeses } from '../utils/resumo'
 
 export { formatMesReferencia }
 
@@ -192,30 +193,14 @@ export const deleteTransacao = async (id) => {
  */
 export const getResumoMensal = async (mesReferencia) => {
   const userId = await getUserId()
-  
   const { data, error } = await supabase
-    .rpc('obter_receitas_mes', { usuario_id: userId, mes: mesReferencia })
-  
-  if (error && error.code !== 'PGRST116') {
-    // Se a função RPC não existir, calcular manualmente
-    const transacoes = await getTransacoesPorMes(mesReferencia)
-    
-    const receitas = transacoes
-      .filter(t => t.tipo === 'receita')
-      .reduce((sum, t) => sum + parseFloat(t.valor), 0)
-    
-    const despesas = transacoes
-      .filter(t => t.tipo === 'despesa')
-      .reduce((sum, t) => sum + parseFloat(t.valor), 0)
-    
-    return {
-      receitas,
-      despesas,
-      saldo: receitas - despesas
-    }
-  }
-  
-  return data
+    .from('resumo_mensal')
+    .select('total_receitas, total_despesas, saldo')
+    .eq('user_id', userId)
+    .eq('mes_referencia', mesReferencia)
+    .maybeSingle()
+  if (error) throw error
+  return linhaParaResumo(data)
 }
 
 /**
@@ -273,56 +258,14 @@ export const getReceitasPorCategoria = async (mesReferencia) => {
  */
 export const getEvolucaoMensal = async (meses = 6) => {
   const userId = await getUserId()
-  const hoje = new Date()
-  
-  // Criar array de promessas para buscar todos os meses em paralelo
-  const promises = Array.from({ length: meses }, (_, index) => {
-    const i = meses - 1 - index
-    const data = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1)
-    const mesRef = formatMesReferencia(data)
-    
-    return getTransacoesPorMes(mesRef).then(transacoes => {
-      const receitas = transacoes
-        .filter(t => t.tipo === 'receita')
-        .reduce((sum, t) => sum + parseFloat(t.valor), 0)
-      
-      const despesas = transacoes
-        .filter(t => t.tipo === 'despesa')
-        .reduce((sum, t) => sum + parseFloat(t.valor), 0)
-      
-      return {
-        mes: data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
-        mesReferencia: mesRef,
-        receitas,
-        despesas,
-        saldo: receitas - despesas
-      }
-    })
-  })
-  
-  const resultado = await Promise.all(promises)
-  
-  return resultado
-}
-
-/**
- * Obter total de receitas de um mês
- */
-export const getTotalReceitas = async (mesReferencia) => {
-  const transacoes = await getTransacoesPorMes(mesReferencia)
-  return transacoes
-    .filter(t => t.tipo === 'receita')
-    .reduce((sum, t) => sum + parseFloat(t.valor), 0)
-}
-
-/**
- * Obter total de despesas de um mês
- */
-export const getTotalDespesas = async (mesReferencia) => {
-  const transacoes = await getTransacoesPorMes(mesReferencia)
-  return transacoes
-    .filter(t => t.tipo === 'despesa')
-    .reduce((sum, t) => sum + parseFloat(t.valor), 0)
+  const mesesRef = ultimosMeses(meses)
+  const { data, error } = await supabase
+    .from('resumo_mensal')
+    .select('mes_referencia, total_receitas, total_despesas, saldo')
+    .eq('user_id', userId)
+    .in('mes_referencia', mesesRef)
+  if (error) throw error
+  return montarEvolucao(data || [], mesesRef)
 }
 
 /**

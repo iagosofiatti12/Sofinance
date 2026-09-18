@@ -22,6 +22,7 @@ import {
 } from 'recharts'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import toast from 'react-hot-toast'
 import { getContasFixas } from '../../services/contasService'
 import { getCartoes } from '../../services/cartoesService'
 import { getMetas } from '../../services/metasService'
@@ -37,12 +38,8 @@ import './DashboardHome.css'
 const DashboardHome = () => {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
-    saldoTotal: 5420.50,
-    gastosMes: 3280.00,
-    proximosVencimentos: [],
-    contasFixasTotal: 0,
-    limiteDisponivel: 0,
-    metasProgresso: 0
+    saldoMes: 0, gastosMes: 0, receitasMes: 0, proximosVencimentos: [],
+    contasFixasTotal: 0, limiteDisponivel: 0, metasProgresso: 0, gastosPorCategoria: [], evolucaoMensal: [],
   })
 
   const loadDashboardData = useCallback(async () => {
@@ -80,7 +77,7 @@ const DashboardHome = () => {
       const proximosVencimentosLista = proximosVencimentos(contas)
 
       setStats({
-        saldoTotal: resumo.saldo,
+        saldoMes: resumo.saldo,
         gastosMes: resumo.despesas,
         receitasMes: resumo.receitas,
         proximosVencimentos: proximosVencimentosLista,
@@ -92,6 +89,7 @@ const DashboardHome = () => {
       })
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error)
+      toast.error('Não foi possível carregar o dashboard')
     } finally {
       setLoading(false)
     }
@@ -137,13 +135,11 @@ const DashboardHome = () => {
         <div className="stat-card glass-card">
           <div className="stat-header">
             <Wallet size={24} className="stat-icon primary" />
-            <span className="stat-label">Saldo Total</span>
+            <span className="stat-label">Saldo do mês</span>
           </div>
-          <h2 className="stat-value primary">R$ {(stats.saldoTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h2>
+          <h2 className="stat-value primary">R$ {(stats.saldoMes || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h2>
           <div className="stat-footer">
-            {stats.receitasMes > 0 && (
-              <span>{((stats.saldoTotal / stats.receitasMes) * 100).toFixed(1)}% do total</span>
-            )}
+            <span>{stats.receitasMes > 0 ? `${((stats.gastosMes / stats.receitasMes) * 100).toFixed(0)}% da receita gasta` : 'Sem receitas neste mês'}</span>
           </div>
         </div>
 
@@ -285,7 +281,11 @@ const DashboardHome = () => {
               />
             </div>
             <p className="progress-text">
-              Continue assim! Você está no caminho certo.
+              {stats.metasProgresso >= 100
+                ? 'Todas as metas atingidas!'
+                : stats.metasProgresso > 0
+                  ? 'Continue guardando.'
+                  : 'Crie uma meta para acompanhar aqui.'}
             </p>
           </div>
         </div>
