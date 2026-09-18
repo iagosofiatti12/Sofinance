@@ -16,6 +16,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@sentry/react": "^10.75.0",
     "@supabase/supabase-js": "^2.39.0",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.263.1",

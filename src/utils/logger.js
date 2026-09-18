@@ -3,6 +3,8 @@
  * Em produção, os logs não são exibidos no console (evita expor informações sensíveis)
  */
 
+import * as Sentry from '@sentry/react'
+
 const isDevelopment = import.meta.env.DEV
 
 /**
@@ -17,6 +19,9 @@ const logger = {
   error: (message, ...args) => {
     if (isDevelopment) {
       console.error(`[ERROR] ${message}`, ...args)
+    }
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureMessage(message, { level: 'error', extra: { args } })
     }
   },
 
