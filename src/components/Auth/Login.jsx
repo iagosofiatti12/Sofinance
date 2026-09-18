@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Mail, Lock, LogIn, UserPlus, AlertCircle } from 'lucide-react'
-import { FcGoogle } from 'react-icons/fc'
+import GoogleIcon from './GoogleIcon'
 import toast from 'react-hot-toast'
 import { 
   signInWithEmail, 
@@ -123,7 +123,7 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
           className="btn btn-google btn-block"
           disabled={loading}
         >
-          <FcGoogle size={20} />
+          <GoogleIcon />
           Continuar com Google
         </button>
 
