@@ -337,8 +337,9 @@ const MetasList = () => {
             
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Nome da Meta *</label>
+                <label htmlFor="meta-nome">Nome da Meta *</label>
                 <input
+                  id="meta-nome"
                   type="text"
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
@@ -349,8 +350,9 @@ const MetasList = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Valor da Meta (R$) *</label>
+                  <label htmlFor="meta-valor-meta">Valor da Meta (R$) *</label>
                   <input
+                    id="meta-valor-meta"
                     type="text"
                     value={formData.valor_meta ? formatCurrency(parseFloat(formData.valor_meta) * 100) : ''}
                     onChange={(e) => {
@@ -364,8 +366,9 @@ const MetasList = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Já Guardado (R$)</label>
+                  <label htmlFor="meta-valor-guardado">Já Guardado (R$)</label>
                   <input
+                    id="meta-valor-guardado"
                     type="text"
                     value={formData.valor_guardado ? formatCurrency(parseFloat(formData.valor_guardado) * 100) : ''}
                     onChange={(e) => {
@@ -379,8 +382,9 @@ const MetasList = () => {
               </div>
 
               <div className="form-group">
-                <label>Prazo (meses)</label>
+                <label htmlFor="meta-prazo-meses">Prazo (meses)</label>
                 <input
+                  id="meta-prazo-meses"
                   type="number"
                   min="1"
                   value={formData.prazo_meses}

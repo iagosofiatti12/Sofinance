@@ -160,7 +160,7 @@ const CartoesList = () => {
       <div className="info-banner">
         <FileText size={20} />
         <p>
-          <strong>Dica:</strong> Para adicionar compras no cartão, vá em "Extrato Mensal" e selecione "Crédito" como método de pagamento.
+          <strong>Dica:</strong> Para adicionar compras no cartão, vá em &quot;Extrato Mensal&quot; e selecione &quot;Crédito&quot; como método de pagamento.
         </p>
       </div>
 
@@ -275,8 +275,9 @@ const CartoesList = () => {
             
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Nome do Cartão *</label>
+                <label htmlFor="cartao-nome">Nome do Cartão *</label>
                 <input
+                  id="cartao-nome"
                   type="text"
                   value={formData.nome}
                   onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
@@ -287,8 +288,9 @@ const CartoesList = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Bandeira *</label>
+                  <label htmlFor="cartao-bandeira">Bandeira *</label>
                   <select
+                    id="cartao-bandeira"
                     value={formData.bandeira}
                     onChange={(e) => setFormData({ ...formData, bandeira: e.target.value })}
                     required
@@ -300,8 +302,9 @@ const CartoesList = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Limite Total (R$) *</label>
+                  <label htmlFor="cartao-limite-total">Limite Total (R$) *</label>
                   <input
+                    id="cartao-limite-total"
                     type="text"
                     value={formData.limite_total ? formatCurrency(parseFloat(formData.limite_total) * 100) : ''}
                     onChange={(e) => {
@@ -317,8 +320,9 @@ const CartoesList = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Dia de Fechamento *</label>
+                  <label htmlFor="cartao-dia-fechamento">Dia de Fechamento *</label>
                   <input
+                    id="cartao-dia-fechamento"
                     type="number"
                     min="1"
                     max="31"
@@ -331,8 +335,9 @@ const CartoesList = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Dia de Vencimento *</label>
+                  <label htmlFor="cartao-dia-vencimento">Dia de Vencimento *</label>
                   <input
+                    id="cartao-dia-vencimento"
                     type="number"
                     min="1"
                     max="31"

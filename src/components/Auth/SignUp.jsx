@@ -122,11 +122,12 @@ const SignUp = ({ onToggleMode }) => {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label>
+            <label htmlFor="signup-fullname">
               <User size={18} />
               Nome Completo
             </label>
             <input
+              id="signup-fullname"
               type="text"
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
@@ -137,11 +138,12 @@ const SignUp = ({ onToggleMode }) => {
           </div>
 
           <div className="form-group">
-            <label>
+            <label htmlFor="signup-email">
               <Mail size={18} />
               Email
             </label>
             <input
+              id="signup-email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -152,11 +154,12 @@ const SignUp = ({ onToggleMode }) => {
           </div>
 
           <div className="form-group">
-            <label>
+            <label htmlFor="signup-password">
               <Lock size={18} />
               Senha
             </label>
             <input
+              id="signup-password"
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -169,11 +172,12 @@ const SignUp = ({ onToggleMode }) => {
           </div>
 
           <div className="form-group">
-            <label>
+            <label htmlFor="signup-confirm-password">
               <Lock size={18} />
               Confirmar Senha
             </label>
             <input
+              id="signup-confirm-password"
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
