@@ -1,19 +1,14 @@
 import { supabase } from './supabaseClient'
 import { getCurrentUser } from './authService'
+import { formatMesReferencia, formatarMesExtenso } from '../utils/dates'
+
+export { formatMesReferencia }
 
 // Helper para obter user_id
 const getUserId = async () => {
   const user = await getCurrentUser()
   if (!user) throw new Error('Usuário não autenticado')
   return user.id
-}
-
-// Helper para formatar mês de referência
-export const formatMesReferencia = (date) => {
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  return `${year}-${month}`
 }
 
 // ========== TRANSAÇÕES ==========
@@ -445,10 +440,7 @@ export const getHistoricoFaturasCartao = async (cartaoId) => {
       acc[t.mes_referencia] = {
         mes: t.mes_referencia,
         total: 0,
-        mesFormatado: new Date(t.mes_referencia + '-01').toLocaleDateString('pt-BR', {
-          month: 'long',
-          year: 'numeric'
-        })
+        mesFormatado: formatarMesExtenso(t.mes_referencia)
       }
     }
     acc[t.mes_referencia].total += parseFloat(t.valor)

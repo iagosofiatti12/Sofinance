@@ -16,6 +16,7 @@ import {
 import { getCartoes } from '../../services/cartoesService'
 import { CATEGORIAS_CONTAS, CATEGORIAS_TRANSACOES } from '../../config/constants'
 import { formatCurrency, parseCurrency } from '../../utils/currency'
+import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
 import './Extrato.css'
 
 const ExtratoMensal = () => {
@@ -34,7 +35,7 @@ const ExtratoMensal = () => {
     categoria: '',
     descricao: '',
     valor: '',
-    data_transacao: new Date().toISOString().split('T')[0],
+    data_transacao: hojeISO(),
     conta_bancaria: '',
     metodo_pagamento: 'PIX',
     cartao_credito_id: '',
@@ -146,7 +147,7 @@ const ExtratoMensal = () => {
         categoria: '',
         descricao: '',
         valor: '',
-        data_transacao: new Date().toISOString().split('T')[0],
+        data_transacao: hojeISO(),
         conta_bancaria: '',
         metodo_pagamento: 'PIX',
         cartao_credito_id: '',
@@ -216,18 +217,7 @@ const ExtratoMensal = () => {
     }
   }
 
-  const mudarMes = (direcao) => {
-    const [ano, mes] = mesAtual.split('-')
-    const data = new Date(parseInt(ano), parseInt(mes) - 1, 1)
-    
-    if (direcao === 'anterior') {
-      data.setMonth(data.getMonth() - 1)
-    } else {
-      data.setMonth(data.getMonth() + 1)
-    }
-    
-    setMesAtual(formatMesReferencia(data))
-  }
+  const mudarMes = (direcao) => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
 
   const transacoesFiltradas = transacoes.filter(t => {
     if (filtroTipo !== 'todos' && t.tipo !== filtroTipo) return false
@@ -259,10 +249,7 @@ const ExtratoMensal = () => {
               ←
             </button>
             <span className="mes-atual">
-              {new Date(mesAtual + '-01').toLocaleDateString('pt-BR', { 
-                month: 'long', 
-                year: 'numeric' 
-              })}
+              {formatarMesExtenso(mesAtual)}
             </span>
             <button className="btn-icon" onClick={() => mudarMes('proximo')} aria-label="Próximo mês">
               →
@@ -342,7 +329,7 @@ const ExtratoMensal = () => {
                   <div className="transacao-main">
                     <Calendar size={16} />
                     <span className="data">
-                      {new Date(transacao.data_transacao).toLocaleDateString('pt-BR')}
+                      {formatarData(transacao.data_transacao)}
                     </span>
                     <span className={`tipo-badge ${transacao.tipo}`}>
                       {transacao.tipo === 'receita' ? '↑ Receúita' : '↓ Despesa'}
