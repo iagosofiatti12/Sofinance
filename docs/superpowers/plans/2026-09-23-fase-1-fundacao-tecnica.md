@@ -74,7 +74,17 @@ Estas foram verificadas contra o registro do npm em 2026-09-23. Não as reabra s
 
 ---
 
-### Task 1: Banco local e migrations versionadas
+### Task 1: Banco local e migrations versionadas — CONCLUÍDA em 2026-09-23 (commit `466a2c6`)
+
+**O que deu diferente do previsto, para quem precisar refazer:**
+
+1. **A CLI exige a senha por variável de ambiente nesta máquina.** O método automático dela (criar um papel temporário `cli_login_postgres`) é recusado pelo projeto com `permission denied to alter role`. Solução: `set -a; source .env; set +a` antes de qualquer comando, com `SUPABASE_DB_PASSWORD` no `.env`.
+2. **O `db pull` não roda com as migrations da Fase 0 presentes.** Ele monta um banco sombra aplicando as migrations locais do zero, e a primeira delas altera tabelas que ninguém criou. Sequência que funciona: mover as migrations existentes para fora da pasta, `migration repair --status reverted` nelas, rodar `db pull`, renomear o arquivo gerado para `20260917000000_baseline_remote_schema.sql`, devolver as migrations e `migration repair --status applied` em todas.
+3. **Descoberta não prevista: CRLF dentro do corpo das funções.** O `db diff` acusava as cinco funções para sempre. Causa: `core.autocrlf=true` fazia o Git escrever CRLF no disco, e o `\r` foi parar dentro do corpo das funções em produção quando o SQL original foi aplicado. Correção em duas partes: `.gitattributes` com `* text=auto eol=lf` (causa raiz) e a migration `20260918000200_normalizar_funcoes_lf.sql`, que reescreve as mesmas definições com LF. Depois disso o `db diff` responde `No schema changes found`.
+
+**Estado final:** cinco migrations, todas aplicadas local e remotamente, banco reconstruível do zero com `npm run db:reset`.
+
+### Task 1 (texto original)
 
 **Files:**
 - Create: `supabase/migrations/20260917000000_baseline_remote_schema.sql` (gerado), `supabase/migrations/20260923000000_default_privileges_anon.sql`
