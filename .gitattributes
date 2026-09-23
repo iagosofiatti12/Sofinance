@@ -1,0 +1,20 @@
+# Quebras de linha: LF no repositório e no disco, em qualquer sistema.
+#
+# Por que isto existe: esta máquina tem `core.autocrlf=true`, então o Git
+# escrevia os arquivos com CRLF no disco. Ao aplicar SQL em produção, o \r
+# acabava gravado DENTRO do corpo das funções do Postgres, e o
+# `supabase db diff` passava a acusar diferença para sempre entre o banco
+# local e o de produção, mesmo com as funções idênticas na prática.
+# Descoberto em 2026-09-23, durante a Fase 1.
+* text=auto eol=lf
+
+# Binários nunca são convertidos.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf  binary
