@@ -434,7 +434,6 @@ Create `tsconfig.node.json`:
     "module": "ESNext",
     "moduleResolution": "bundler",
     "types": ["node"],
-    "noEmit": true,
     "skipLibCheck": true,
     "strict": true,
     "composite": true
@@ -442,6 +441,8 @@ Create `tsconfig.node.json`:
   "include": ["vite.config.ts"]
 }
 ```
+
+Repare que não há `noEmit` aqui. O TypeScript recusa a combinação com `composite` (erro TS6310, "projeto referenciado não pode desabilitar emit"), e o scaffold padrão do Vite também não a usa. O `tsc --noEmit` do script `typecheck` continua suprimindo qualquer saída.
 
 - [ ] **Step 4: Declarar as variáveis de ambiente**
 
