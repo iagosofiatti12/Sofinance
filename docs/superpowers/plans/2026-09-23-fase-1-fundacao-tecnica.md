@@ -16,18 +16,18 @@
 
 Estas foram verificadas contra o registro do npm em 2026-09-23. Não as reabra sem um motivo novo.
 
-| Decisão | Motivo verificado |
-|---|---|
-| **TypeScript 5.9.3, não 7.0** | `typescript-eslint` (inclusive a versão canary 8.70.2-alpha.5) declara `peerDependencies.typescript: ">=4.8.4 <6.1.0"`. Com TypeScript 7 o lint com informação de tipos para de funcionar. Reavaliar quando o typescript-eslint publicar suporte. |
-| **React 19.3** | `react-router@8.4.0` exige `react >=19.2.7`. Sem React 19 não há React Router 8. Todas as outras bibliotecas do projeto já aceitam React 19. |
-| **lucide-react 1.x** | A versão instalada (0.263.1) declara peer `react` só até 18. É obrigatório subir junto com o React 19. |
-| **Vite 8.3 + @vitejs/plugin-react 6.1 + Vitest 5** | `@vitejs/plugin-react@6` exige `vite ^8`, e `vitest@5` exige `vite ^6.4 || ^7 || ^8`. Os peers extras do plugin (`oxc-transform-react`, `@rolldown/plugin-babel`, `babel-plugin-react-compiler`) são todos `optional: true`, então a instalação é limpa. Node instalado é 24.19, acima do mínimo do Vite 8 (`^20.19 || >=22.12`). |
-| **shadcn/ui com base Radix, não Base UI** | `@base-ui-components/react` ainda está em `1.0.0-rc.0`. Radix é estável hoje. Reavaliar na Fase 3; o shadcn permite trocar a base depois. |
-| **Recharts continua na 2.x** | A 2.15.4 já aceita React 19. A migração para a 3.x acontece na Fase 3, junto com o redesenho dos gráficos. |
-| **Sonner fica para a Fase 3** | Trocar `react-hot-toast` agora mexeria em 7 telas sem ganho nesta fase. |
-| **Componentes continuam `.jsx`** | A migração para TypeScript nesta fase cobre `domain`, `lib`, `services`, o roteador, os providers e a tela piloto. O resto é convertido quando for reescrito na Fase 2. |
+| Decisão                                                                     | Motivo verificado                                                                                                                                                                                                                                                            |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --- | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------- |
+| **TypeScript 5.9.3, não 7.0**                                               | `typescript-eslint` (inclusive a versão canary 8.70.2-alpha.5) declara `peerDependencies.typescript: ">=4.8.4 <6.1.0"`. Com TypeScript 7 o lint com informação de tipos para de funcionar. Reavaliar quando o typescript-eslint publicar suporte.                            |
+| **React 19.3**                                                              | `react-router@8.4.0` exige `react >=19.2.7`. Sem React 19 não há React Router 8. Todas as outras bibliotecas do projeto já aceitam React 19.                                                                                                                                 |
+| **lucide-react 1.x**                                                        | A versão instalada (0.263.1) declara peer `react` só até 18. É obrigatório subir junto com o React 19.                                                                                                                                                                       |
+| **Vite 8.3 + @vitejs/plugin-react 6.1 + Vitest 5**                          | `@vitejs/plugin-react@6` exige `vite ^8`, e `vitest@5` exige `vite ^6.4                                                                                                                                                                                                      |     | ^7  |     | ^8`. Os peers extras do plugin (`oxc-transform-react`, `@rolldown/plugin-babel`, `babel-plugin-react-compiler`) são todos `optional: true`, então a instalação é limpa. Node instalado é 24.19, acima do mínimo do Vite 8 (`^20.19 |     | >=22.12`). |
+| **shadcn/ui com base Radix, não Base UI**                                   | `@base-ui-components/react` ainda está em `1.0.0-rc.0`. Radix é estável hoje. Reavaliar na Fase 3; o shadcn permite trocar a base depois.                                                                                                                                    |
+| **Recharts continua na 2.x**                                                | A 2.15.4 já aceita React 19. A migração para a 3.x acontece na Fase 3, junto com o redesenho dos gráficos.                                                                                                                                                                   |
+| **Sonner fica para a Fase 3**                                               | Trocar `react-hot-toast` agora mexeria em 7 telas sem ganho nesta fase.                                                                                                                                                                                                      |
+| **Componentes continuam `.jsx`**                                            | A migração para TypeScript nesta fase cobre `domain`, `lib`, `services`, o roteador, os providers e a tela piloto. O resto é convertido quando for reescrito na Fase 2.                                                                                                      |
 | **`src/lib` e `src/components/ui`, não `src/shared/lib` e `src/shared/ui`** | O spec (seção 5.1) sugeria `src/shared/*`, mas o shadcn/ui espera `@/lib/utils` e `@/components/ui` por padrão. Brigar com o padrão da ferramenta custaria configuração extra em toda instalação de componente, sem ganho. O papel das pastas é o mesmo que o spec descreve. |
-| **`date-fns` sai do projeto** | Está instalado na versão 2.30 e é importado apenas em `DashboardHome.jsx`, onde os imports (`format`, `ptBR`) não são usados. Todas as datas já passam por `src/domain/dates.ts`, que usa `Date` nativo. Remover em vez de atualizar. |
+| **`date-fns` sai do projeto**                                               | Está instalado na versão 2.30 e é importado apenas em `DashboardHome.jsx`, onde os imports (`format`, `ptBR`) não são usados. Todas as datas já passam por `src/domain/dates.ts`, que usa `Date` nativo. Remover em vez de atualizar.                                        |
 
 ---
 
@@ -47,30 +47,30 @@ Estas foram verificadas contra o registro do npm em 2026-09-23. Não as reabra s
 
 ## Mapa de arquivos
 
-| Caminho | Responsabilidade |
-|---|---|
-| `supabase/migrations/20260917000000_baseline_remote_schema.sql` (novo) | Retrato do schema de produção, gerado pelo `db pull`; é o ponto de partida de qualquer banco novo |
-| `supabase/migrations/20260923000000_default_privileges_anon.sql` (novo) | Impede que tabelas futuras nasçam acessíveis ao papel `anon` |
-| `tsconfig.json`, `tsconfig.node.json` (novos) | Configuração do TypeScript para o app e para os arquivos de build |
-| `src/vite-env.d.ts` (novo) | Tipos das variáveis `import.meta.env` |
-| `src/types/database.types.ts` (novo, gerado) | Tipos das tabelas do Supabase; nunca editado à mão |
-| `vite.config.ts` (substitui `vite.config.js` e `vitest.config.js`) | Build, alias `@`, Tailwind e configuração dos testes num arquivo só |
-| `eslint.config.js` | Lint com TypeScript, React e acessibilidade |
-| `.github/workflows/ci.yml` (novo) | Lint, typecheck, testes e build a cada push e PR |
-| `src/domain/*.ts` (movidos de `src/utils`) | Regras puras: moeda, datas, vencimentos, resumo, payload de transação, validações |
-| `src/lib/logger.ts`, `src/lib/errorHandler.ts` (movidos) | Infraestrutura: log e tradução de erro |
-| `src/lib/supabase.ts` (move `src/services/supabaseClient.js`) | Cliente Supabase tipado |
-| `src/lib/queryClient.ts` (novo) | Configuração única do TanStack Query |
-| `src/lib/utils.ts` (novo, criado pelo shadcn) | Helper `cn` para classes |
-| `src/app/router.tsx` (novo) | Definição das rotas |
-| `src/app/providers.tsx` (novo) | Providers em um lugar só |
-| `src/app/RequireAuth.tsx` (novo) | Guarda de rota autenticada |
-| `src/app/AppLayout.tsx` (novo) | Moldura com sidebar e `<Outlet />` |
-| `src/services/*.ts` (convertidos) | Acesso ao Supabase, tipado |
-| `src/features/contas-fixas/` (novo) | Tela piloto: `api.ts`, `queries.ts`, `ContasFixasPage.tsx` |
-| `src/components/ui/` (novo, shadcn) | Componentes de interface reutilizáveis |
-| `CLAUDE.md` (novo) | Instruções permanentes do projeto para o Claude Code |
-| `.claude/skills/sofinance-domain/SKILL.md` (novo) | Regras de negócio consultáveis por qualquer agente |
+| Caminho                                                                 | Responsabilidade                                                                                  |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `supabase/migrations/20260917000000_baseline_remote_schema.sql` (novo)  | Retrato do schema de produção, gerado pelo `db pull`; é o ponto de partida de qualquer banco novo |
+| `supabase/migrations/20260923000000_default_privileges_anon.sql` (novo) | Impede que tabelas futuras nasçam acessíveis ao papel `anon`                                      |
+| `tsconfig.json`, `tsconfig.node.json` (novos)                           | Configuração do TypeScript para o app e para os arquivos de build                                 |
+| `src/vite-env.d.ts` (novo)                                              | Tipos das variáveis `import.meta.env`                                                             |
+| `src/types/database.types.ts` (novo, gerado)                            | Tipos das tabelas do Supabase; nunca editado à mão                                                |
+| `vite.config.ts` (substitui `vite.config.js` e `vitest.config.js`)      | Build, alias `@`, Tailwind e configuração dos testes num arquivo só                               |
+| `eslint.config.js`                                                      | Lint com TypeScript, React e acessibilidade                                                       |
+| `.github/workflows/ci.yml` (novo)                                       | Lint, typecheck, testes e build a cada push e PR                                                  |
+| `src/domain/*.ts` (movidos de `src/utils`)                              | Regras puras: moeda, datas, vencimentos, resumo, payload de transação, validações                 |
+| `src/lib/logger.ts`, `src/lib/errorHandler.ts` (movidos)                | Infraestrutura: log e tradução de erro                                                            |
+| `src/lib/supabase.ts` (move `src/services/supabaseClient.js`)           | Cliente Supabase tipado                                                                           |
+| `src/lib/queryClient.ts` (novo)                                         | Configuração única do TanStack Query                                                              |
+| `src/lib/utils.ts` (novo, criado pelo shadcn)                           | Helper `cn` para classes                                                                          |
+| `src/app/router.tsx` (novo)                                             | Definição das rotas                                                                               |
+| `src/app/providers.tsx` (novo)                                          | Providers em um lugar só                                                                          |
+| `src/app/RequireAuth.tsx` (novo)                                        | Guarda de rota autenticada                                                                        |
+| `src/app/AppLayout.tsx` (novo)                                          | Moldura com sidebar e `<Outlet />`                                                                |
+| `src/services/*.ts` (convertidos)                                       | Acesso ao Supabase, tipado                                                                        |
+| `src/features/contas-fixas/` (novo)                                     | Tela piloto: `api.ts`, `queries.ts`, `ContasFixasPage.tsx`                                        |
+| `src/components/ui/` (novo, shadcn)                                     | Componentes de interface reutilizáveis                                                            |
+| `CLAUDE.md` (novo)                                                      | Instruções permanentes do projeto para o Claude Code                                              |
+| `.claude/skills/sofinance-domain/SKILL.md` (novo)                       | Regras de negócio consultáveis por qualquer agente                                                |
 
 ---
 
@@ -87,10 +87,12 @@ Estas foram verificadas contra o registro do npm em 2026-09-23. Não as reabra s
 ### Task 1 (texto original)
 
 **Files:**
+
 - Create: `supabase/migrations/20260917000000_baseline_remote_schema.sql` (gerado), `supabase/migrations/20260923000000_default_privileges_anon.sql`
 - Modify: `package.json` (scripts), `.gitignore`
 
 **Interfaces:**
+
 - Produces: `npm run db:start`, `db:stop`, `db:reset`, `db:diff`, `db:types` funcionando; histórico de migrations coerente entre local e produção.
 
 **Contexto que o brief não sabe:** as duas migrations existentes (`20260917230000_fase0_rls_lockdown.sql` e `20260918000100_transacoes_colunas_cartao.sql`) foram aplicadas em produção pela Management API, não pela CLI, então a tabela `supabase_migrations.schema_migrations` do servidor não as conhece. Elas são idempotentes de propósito, então rodar de novo sobre o baseline não quebra nada.
@@ -216,9 +218,11 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 2: React 19
 
 **Files:**
+
 - Modify: `package.json`, `package-lock.json`, e qualquer arquivo que quebre na compilação por causa de ícone renomeado
 
 **Interfaces:**
+
 - Produces: React 19.3 instalado, pré-requisito do React Router 8 na Task 9.
 
 - [ ] **Step 1: Atualizar React e os ícones**
@@ -276,11 +280,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 3: Vite 8, Vitest 5 e configuração unificada
 
 **Files:**
+
 - Create: `vite.config.ts`
 - Delete: `vite.config.js`, `vitest.config.js`
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Consumes: React 19 da Task 2.
 - Produces: alias `@` apontando para `src` tanto no build quanto nos testes; um único arquivo de configuração.
 
@@ -377,10 +383,12 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 4: TypeScript e tipos do banco
 
 **Files:**
+
 - Create: `tsconfig.json`, `tsconfig.node.json`, `src/vite-env.d.ts`, `src/types/database.types.ts` (gerado)
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Produces: `npm run typecheck`; alias `@/*` reconhecido pelo editor; tipo `Database` exportado de `@/types/database.types` para as Tasks 7 e 8.
 
 - [ ] **Step 1: Instalar o TypeScript**
@@ -502,10 +510,12 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 5: ESLint 10, Prettier e ganchos de commit
 
 **Files:**
+
 - Modify: `eslint.config.js`, `package.json`, `.prettierignore`
 - Create: `.husky/pre-commit`
 
 **Interfaces:**
+
 - Consumes: TypeScript da Task 4.
 - Produces: lint entendendo `.ts`/`.tsx`; formatação e lint automáticos antes de cada commit.
 
@@ -553,7 +563,12 @@ export default tseslint.config(
       globals: { ...globals.browser, ...globals.node },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
-    settings: { react: { version: 'detect' } },
+    // A versão do React é fixada à mão, não detectada. O `eslint-plugin-react`
+    // 7.37.5, que é a última publicada, ainda chama `context.getFilename()`,
+    // removido no ESLint 10, e a detecção automática derruba o lint inteiro.
+    // Atualize esta string quando o React subir de versão, e volte para
+    // 'detect' quando o plugin publicar suporte ao ESLint 10.
+    settings: { react: { version: '19.3.0' } },
     rules: {
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
@@ -568,7 +583,7 @@ export default tseslint.config(
       'jsx-a11y/no-static-element-interactions': 'warn',
     },
   },
-  prettier,
+  prettier
 )
 ```
 
@@ -645,9 +660,11 @@ npm run lint && npm run typecheck && npm run test:run && npm run build
 ### Task 6: Integração contínua no GitHub
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 **Interfaces:**
+
 - Produces: verificação automática em todo push e pull request.
 
 - [ ] **Step 1: Criar o fluxo**
@@ -715,11 +732,13 @@ Expected: a execução aparece como `completed success`. Se o `gh` não estiver 
 ### Task 7: Regras puras viram `src/domain` em TypeScript
 
 **Files:**
+
 - Move and convert: `src/utils/{currency,dates,vencimentos,resumo,transacaoPayload,validations}.js` → `src/domain/*.ts` (com os testes correspondentes)
 - Move and convert: `src/utils/{logger,errorHandler}.js` → `src/lib/*.ts`
 - Modify: todos os arquivos que importam esses módulos
 
 **Interfaces:**
+
 - Consumes: `tsconfig.json` da Task 4.
 - Produces: `@/domain/currency` exporta `formatCurrency(value: string | number): string` e `parseCurrency(formatted: string): number`; `@/domain/dates` exporta `toISODateLocal(d: Date): string`, `hojeISO(): string`, `parseISODateLocal(iso: string): Date`, `formatarData(iso: string | null | undefined): string`, `formatarMesExtenso(mesRef: string): string`, `formatMesReferencia(date: Date): string`, `mudarMes(mesRef: string, delta: number): string`; `@/domain/vencimentos` exporta `diasAteVencimento(diaVencimento: number, hoje?: Date): number` e `proximosVencimentos<T extends ContaComVencimento>(contas: T[], hoje?: Date, limite?: number): (T & { diasRestantes: number })[]`; `@/domain/resumo` exporta `linhaParaResumo`, `ultimosMeses`, `montarEvolucao`; `@/domain/transacaoPayload` exporta `montarPayloadTransacao`; `@/domain/validations` exporta os schemas Zod e `validateData`; `@/lib/logger` exporta o logger padrão; `@/lib/errorHandler` exporta `getErrorMessage`.
 
@@ -825,11 +844,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 8: Serviços em TypeScript com os tipos do banco
 
 **Files:**
+
 - Move and convert: `src/services/supabaseClient.js` → `src/lib/supabase.ts`
 - Convert: `src/services/{authService,transacoesService,cartoesService,contasService,financiamentosService,metasService}.js` → `.ts`
 - Modify: importadores
 
 **Interfaces:**
+
 - Consumes: `Database` de `@/types/database.types` (Task 4); `@/lib/logger` (Task 7).
 - Produces: `@/lib/supabase` exporta `supabase` (cliente tipado) e `getUserId(): Promise<string>`; os serviços mantêm exatamente os mesmos nomes de função de hoje, agora tipados. `contasService` exporta `getContasFixas(): Promise<ContaFixa[]>`, `addContaFixa(conta: ContaFixaInput): Promise<ContaFixa>`, `updateContaFixa(id: string, updates: Partial<ContaFixaInput>): Promise<ContaFixa>`, `deleteContaFixa(id: string): Promise<void>`, e os tipos `ContaFixa = Database['public']['Tables']['contas_fixas']['Row']` e `ContaFixaInput = Database['public']['Tables']['contas_fixas']['Insert']`.
 
@@ -898,6 +919,7 @@ npm run typecheck
 ```
 
 Para cada erro, acrescente o tipo que falta. Regras a seguir:
+
 - Linhas vindas do banco usam `Database['public']['Tables']['<tabela>']['Row']`.
 - Dados enviados usam `['Insert']` ou `['Update']`.
 - Nada de `any`. Se precisar de uma saída, use `unknown` e estreite com verificação.
@@ -933,11 +955,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 9: React Router com URLs de verdade
 
 **Files:**
+
 - Create: `src/app/router.tsx`, `src/app/RequireAuth.tsx`, `src/app/AppLayout.tsx`
 - Modify: `src/main.jsx` → `src/main.tsx`, `src/components/Layout/Sidebar.jsx`, `src/components/Auth/AuthPage.jsx`, `src/components/Auth/Login.jsx`, `src/components/Auth/SignUp.jsx`, `src/components/Auth/ForgotPassword.jsx`, `src/components/Auth/ResetPassword.jsx`, `src/components/Settings/Settings.jsx`
 - Delete: `src/App.jsx`, `src/App.css` passa a ser importado pelo `AppLayout`
 
 **Interfaces:**
+
 - Consumes: `useAuth()` de `@/contexts/AuthContext` com `{ isAuthenticated, loading, recoveryMode, clearRecovery, user, signOut }`.
 - Produces: rotas `/login`, `/cadastro`, `/recuperar-senha`, `/reset-password`, `/` (dashboard), `/lancamentos`, `/contas`, `/cartoes`, `/dividas/imovel`, `/dividas/carro`, `/metas`, `/configuracoes`.
 
@@ -1202,6 +1226,7 @@ npm run dev
 ```
 
 Confirme, um a um:
+
 1. Sem sessão, abrir `http://localhost:3000/contas` manda para `/login`.
 2. Depois do login, a URL vira `/` e o dashboard aparece.
 3. Clicar em cada item do menu muda a URL e destaca o item certo.
@@ -1225,10 +1250,12 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 10: TanStack Query
 
 **Files:**
+
 - Create: `src/lib/queryClient.ts`, `src/app/providers.tsx`
 - Modify: `src/main.tsx`
 
 **Interfaces:**
+
 - Consumes: roteador da Task 9.
 - Produces: `queryClient` exportado de `@/lib/queryClient`; `<Providers>` de `@/app/providers` embrulhando autenticação e cache; `useQuery`/`useMutation` disponíveis para a Task 12.
 
@@ -1312,10 +1339,12 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 11: Tailwind v4 e shadcn/ui
 
 **Files:**
+
 - Modify: `vite.config.ts`, `src/styles/index.css`, `package.json`
 - Create: `components.json`, `src/lib/utils.ts`, `src/components/ui/*`
 
 **Interfaces:**
+
 - Produces: classes do Tailwind disponíveis em qualquer componente; `cn()` exportado de `@/lib/utils`; componentes `Button`, `Card`, `Dialog`, `Input`, `Label`, `Table` e `Badge` em `@/components/ui/`.
 
 **Contexto:** o CSS atual (`src/styles/index.css` e os `.css` por tela) continua valendo. Tailwind entra ao lado, não no lugar. A troca acontece tela a tela, começando pela Task 12.
@@ -1441,11 +1470,13 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 12: Tela piloto — Contas Fixas com Query, TypeScript e shadcn
 
 **Files:**
+
 - Create: `src/features/contas-fixas/api.ts`, `src/features/contas-fixas/queries.ts`, `src/features/contas-fixas/ContasFixasPage.tsx`, `src/features/contas-fixas/queries.test.ts`, `src/components/ui/currency-input.tsx`
 - Modify: `src/app/router.tsx`, `package.json`
 - Delete: `src/components/ContasFixas/ContasFixasList.jsx`, `src/components/ContasFixas/ContasFixas.css`
 
 **Interfaces:**
+
 - Consumes: `contasService` da Task 8, `queryClient` da Task 10, componentes de `@/components/ui` da Task 11, `diasAteVencimento` de `@/domain/vencimentos`, `formatCurrency` de `@/domain/currency`, `contaFixaSchema` de `@/domain/validations`, `CATEGORIAS_CONTAS` de `@/config/constants`.
 - Produces: `contasFixasKeys`, `useContasFixas()`, `useSalvarContaFixa()`, `useExcluirContaFixa()`, `useAlternarContaFixa()`; `<CurrencyInput value={number} onChange={(n: number) => void} />` em `@/components/ui/currency-input`; rota `/contas` renderizando `ContasFixasPage`.
 
@@ -1593,7 +1624,7 @@ export function CurrencyInput({ value, onChange, ...props }: CurrencyInputProps)
       inputMode="numeric"
       placeholder="R$ 0,00"
       value={value ? formatCurrency(Math.round(value * 100)) : ''}
-      onChange={(event) => {
+      onChange={event => {
         const digitos = event.target.value.replace(/\D/g, '')
         onChange(Number(digitos) / 100)
       }}
@@ -1702,7 +1733,7 @@ export default function ContasFixasPage() {
     setDialogoAberto(true)
   }
 
-  const aoEnviar = form.handleSubmit(async (dados) => {
+  const aoEnviar = form.handleSubmit(async dados => {
     try {
       await salvar.mutateAsync({ id: editando?.id, dados })
       toast.success(editando ? 'Conta atualizada!' : 'Conta adicionada!')
@@ -1732,7 +1763,7 @@ export default function ContasFixasPage() {
   }
 
   const totalMensal = contas
-    .filter((conta) => conta.ativa)
+    .filter(conta => conta.ativa)
     .reduce((soma, conta) => soma + Number(conta.valor), 0)
 
   if (error) {
@@ -1774,7 +1805,7 @@ export default function ContasFixasPage() {
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {contas.map((conta) => {
+          {contas.map(conta => {
             const dias = diasAteVencimento(conta.dia_vencimento)
             return (
               <Card key={conta.id} className={conta.ativa ? '' : 'opacity-60'}>
@@ -1907,7 +1938,7 @@ export default function ContasFixasPage() {
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {CATEGORIAS_CONTAS.map((categoria) => (
+                      {CATEGORIAS_CONTAS.map(categoria => (
                         <SelectItem key={categoria} value={categoria}>
                           {categoria}
                         </SelectItem>
@@ -1938,7 +1969,11 @@ export default function ContasFixasPage() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={salvar.isPending}>
-                {salvar.isPending ? 'Salvando...' : editando ? 'Salvar Alterações' : 'Adicionar Conta'}
+                {salvar.isPending
+                  ? 'Salvando...'
+                  : editando
+                    ? 'Salvar Alterações'
+                    : 'Adicionar Conta'}
               </Button>
             </DialogFooter>
           </form>
@@ -1996,6 +2031,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 13: Memória do projeto, revisão e integração
 
 **Files:**
+
 - Create: `CLAUDE.md`, `.claude/skills/sofinance-domain/SKILL.md`
 - Modify: `README.md`, `docs/superpowers/specs/2026-09-17-sofinance-revamp-design.md`, `.claude/agents/sofinance-senior-engineer.md`
 
@@ -2010,18 +2046,18 @@ App brasileiro de finanças pessoais. React 19 + Vite 8 + TypeScript na frente, 
 
 ## Comandos
 
-| Comando | O que faz |
-|---|---|
-| `npm run dev` | Sobe o app em http://localhost:3000 |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run test:run` | Testes uma vez |
-| `npm run build` | Build de produção |
+| Comando                        | O que faz                                           |
+| ------------------------------ | --------------------------------------------------- |
+| `npm run dev`                  | Sobe o app em http://localhost:3000                 |
+| `npm run lint`                 | ESLint                                              |
+| `npm run typecheck`            | `tsc --noEmit`                                      |
+| `npm run test:run`             | Testes uma vez                                      |
+| `npm run build`                | Build de produção                                   |
 | `npm run db:start` / `db:stop` | Sobe e derruba o Supabase local (precisa de Docker) |
-| `npm run db:reset` | Recria o banco local a partir das migrations |
-| `npm run db:diff` | Compara o banco local com produção |
-| `npm run db:push` | Aplica migrations pendentes em produção |
-| `npm run db:types` | Regenera `src/types/database.types.ts` |
+| `npm run db:reset`             | Recria o banco local a partir das migrations        |
+| `npm run db:diff`              | Compara o banco local com produção                  |
+| `npm run db:push`              | Aplica migrations pendentes em produção             |
+| `npm run db:types`             | Regenera `src/types/database.types.ts`              |
 
 Antes de dizer que terminou: `npm run lint && npm run typecheck && npm run test:run && npm run build`.
 
@@ -2070,9 +2106,11 @@ description: Regras de negócio financeiras do Sofinance (fatura de cartão, par
 # Regras de negócio do Sofinance
 
 ## Contas e saldo
+
 Saldo de conta = saldo inicial + entradas pagas − saídas pagas ± transferências. Lançamento pendente entra só no saldo projetado. Transferência tem origem e destino diferentes e não conta como receita nem como despesa nos relatórios.
 
 ## Cartão de crédito (modelo "fatura como conta a pagar")
+
 Criar um cartão exige apenas um nome. Cor, dia de vencimento, dia de fechamento e conta pagadora são opcionais. Não existe limite de crédito no modelo.
 
 Todo mês o sistema cria uma fatura por cartão como conta a pagar. O usuário informa o valor total quando a fatura chega; pagar gera uma despesa na categoria "Cartão de Crédito" debitada da conta escolhida.
@@ -2086,18 +2124,23 @@ Parcelamento em N vezes cria N itens em faturas consecutivas, com arredondamento
 Exemplo canônico: cartão fecha dia 15 e vence dia 25. Compra em 16/03 entra na fatura que vence em 25/04.
 
 ## Recorrências
+
 Geram lançamentos pendentes por materialização diária, nunca calculados na hora da renderização. Pagar é marcar como pago. Frequências: mensal, semanal, anual. Dia 29, 30 ou 31 em mês curto cai no último dia do mês.
 
 ## Dívidas
+
 Tipos: imóvel, veículo, empréstimo, consórcio, outro. Sistemas: Price (parcela fixa), SAC (amortização fixa) e fixo (parcela informada). Imóvel no Brasil costuma ser SAC com TR; veículo costuma ser Price. Taxa informada ao ano converte para mês por `(1 + i)^(1/12) − 1`. Saldo devedor nunca é parcelas restantes vezes valor da parcela em SAC ou Price.
 
 ## Orçamento e metas
+
 Orçamento por categoria compara gasto pago mais pendente do mês contra o limite, com alerta em 80% e 100%. Meta tem histórico de aportes; progresso é a soma dos aportes dividida pelo valor alvo.
 
 ## Formatação
+
 `R$ 1.234,56`; datas `dd/MM/yyyy`; mês de referência `YYYY-MM`; `Intl.NumberFormat('pt-BR')`. Fuso `America/Sao_Paulo`.
 
 ## LGPD
+
 Consentimento explícito no cadastro, exportação dos dados e exclusão completa (dados, storage e `auth.users`) por Edge Function com service role. Nunca expor a chave `service_role` no cliente.
 ```
 
@@ -2109,7 +2152,7 @@ Em `.claude/agents/sofinance-senior-engineer.md`, troque a linha que manda ler `
 
 Em `README.md`, na seção de instalação, acrescente os passos do banco local:
 
-```markdown
+````markdown
 ### Banco local (opcional, precisa de Docker)
 
 ```bash
@@ -2117,7 +2160,9 @@ npm run db:start   # sobe Postgres, Auth e API locais
 npm run db:reset   # recria o banco a partir de supabase/migrations
 npm run db:stop
 ```
-```
+````
+
+````
 
 E na seção de estrutura do projeto, substitua a árvore antiga pela estrutura descrita no `CLAUDE.md`.
 
@@ -2132,7 +2177,7 @@ npm run lint && npm run typecheck && npm run test:run && npm run build
 grep -rn "activeSection\|setActiveSection" src || echo "navegação antiga removida"
 grep -rn "from '@/utils/" src || echo "sem imports de src/utils"
 npx supabase db diff --linked --schema public
-```
+````
 
 Expected: tudo passa, as duas buscas não retornam nada e o diff do banco vem vazio.
 
@@ -2152,9 +2197,9 @@ Siga `superpowers:finishing-a-development-branch`. A Vercel publica sozinha depo
 
 ## Pendências que dependem do Iago
 
-| Item | Quando | Onde |
-|---|---|---|
-| Senha do banco para o `db pull` | Task 1 | Supabase → Project Settings → Database |
-| Docker Desktop aberto e rodando | Task 1 | Já instalado |
-| Aprovar o merge em `main` | Task 13 | Git |
-| DSN do Sentry na Vercel | Antes do beta (Fase 4) | sentry.io e Vercel |
+| Item                            | Quando                 | Onde                                   |
+| ------------------------------- | ---------------------- | -------------------------------------- |
+| Senha do banco para o `db pull` | Task 1                 | Supabase → Project Settings → Database |
+| Docker Desktop aberto e rodando | Task 1                 | Já instalado                           |
+| Aprovar o merge em `main`       | Task 13                | Git                                    |
+| DSN do Sentry na Vercel         | Antes do beta (Fase 4) | sentry.io e Vercel                     |
