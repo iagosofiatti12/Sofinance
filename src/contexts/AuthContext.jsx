@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { 
-  getCurrentUser, 
-  getSession, 
+import {
+  getCurrentUser,
+  getSession,
   signOut as authSignOut,
-  onAuthStateChange 
+  onAuthStateChange,
 } from '../services/authService'
 import logger from '../utils/logger'
 
@@ -75,12 +75,8 @@ export const AuthProvider = ({ children }) => {
     signOut,
     isAuthenticated: !!user,
     recoveryMode,
-    clearRecovery: () => setRecoveryMode(false)
+    clearRecovery: () => setRecoveryMode(false),
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

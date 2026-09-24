@@ -12,30 +12,36 @@ export const useFormInput = (initialValue = '', validator = null) => {
   const [touched, setTouched] = useState(false)
   const [isValid, setIsValid] = useState(true)
 
-  const validate = useCallback((newValue) => {
-    if (!validator) return true
+  const validate = useCallback(
+    newValue => {
+      if (!validator) return true
 
-    const result = validator(newValue)
-    
-    if (typeof result === 'boolean') {
-      setIsValid(result)
-      setError(result ? '' : 'Valor inválido')
-      return result
-    }
-    
-    setIsValid(result.valid)
-    setError(result.valid ? '' : result.message)
-    return result.valid
-  }, [validator])
+      const result = validator(newValue)
 
-  const handleChange = useCallback((e) => {
-    const newValue = e.target?.value ?? e
-    setValue(newValue)
-    
-    if (touched) {
-      validate(newValue)
-    }
-  }, [touched, validate])
+      if (typeof result === 'boolean') {
+        setIsValid(result)
+        setError(result ? '' : 'Valor inválido')
+        return result
+      }
+
+      setIsValid(result.valid)
+      setError(result.valid ? '' : result.message)
+      return result.valid
+    },
+    [validator]
+  )
+
+  const handleChange = useCallback(
+    e => {
+      const newValue = e.target?.value ?? e
+      setValue(newValue)
+
+      if (touched) {
+        validate(newValue)
+      }
+    },
+    [touched, validate]
+  )
 
   const handleBlur = useCallback(() => {
     setTouched(true)
@@ -69,8 +75,8 @@ export const useFormInput = (initialValue = '', validator = null) => {
       value,
       onChange: handleChange,
       onBlur: handleBlur,
-      className: touched ? (isValid ? 'success' : 'error') : ''
-    }
+      className: touched ? (isValid ? 'success' : 'error') : '',
+    },
   }
 }
 
@@ -78,50 +84,58 @@ export const useFormInput = (initialValue = '', validator = null) => {
  * Validadores prontos para uso
  */
 export const validators = {
-  required: (message = 'Campo obrigatório') => (value) => ({
-    valid: value && value.toString().trim().length > 0,
-    message
-  }),
+  required:
+    (message = 'Campo obrigatório') =>
+    value => ({
+      valid: value && value.toString().trim().length > 0,
+      message,
+    }),
 
-  minLength: (min, message) => (value) => ({
+  minLength: (min, message) => value => ({
     valid: value && value.toString().length >= min,
-    message: message || `Mínimo de ${min} caracteres`
+    message: message || `Mínimo de ${min} caracteres`,
   }),
 
-  maxLength: (max, message) => (value) => ({
+  maxLength: (max, message) => value => ({
     valid: !value || value.toString().length <= max,
-    message: message || `Máximo de ${max} caracteres`
+    message: message || `Máximo de ${max} caracteres`,
   }),
 
-  email: (message = 'Email inválido') => (value) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return {
-      valid: !value || emailRegex.test(value),
-      message
-    }
-  },
+  email:
+    (message = 'Email inválido') =>
+    value => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return {
+        valid: !value || emailRegex.test(value),
+        message,
+      }
+    },
 
-  number: (message = 'Deve ser um número') => (value) => ({
-    valid: !value || !isNaN(Number(value)),
-    message
-  }),
+  number:
+    (message = 'Deve ser um número') =>
+    value => ({
+      valid: !value || !isNaN(Number(value)),
+      message,
+    }),
 
-  min: (min, message) => (value) => ({
+  min: (min, message) => value => ({
     valid: !value || Number(value) >= min,
-    message: message || `Valor mínimo: ${min}`
+    message: message || `Valor mínimo: ${min}`,
   }),
 
-  max: (max, message) => (value) => ({
+  max: (max, message) => value => ({
     valid: !value || Number(value) <= max,
-    message: message || `Valor máximo: ${max}`
+    message: message || `Valor máximo: ${max}`,
   }),
 
   // Combinar múltiplos validadores
-  combine: (...validatorFns) => (value) => {
-    for (const fn of validatorFns) {
-      const result = fn(value)
-      if (!result.valid) return result
-    }
-    return { valid: true, message: '' }
-  }
+  combine:
+    (...validatorFns) =>
+    value => {
+      for (const fn of validatorFns) {
+        const result = fn(value)
+        if (!result.valid) return result
+      }
+      return { valid: true, message: '' }
+    },
 }

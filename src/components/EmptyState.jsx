@@ -2,12 +2,12 @@ import React from 'react'
 import { Inbox } from 'lucide-react'
 import './EmptyState.css'
 
-const EmptyState = ({ 
-  icon: Icon = Inbox, 
-  title = 'Nenhum item encontrado', 
+const EmptyState = ({
+  icon: Icon = Inbox,
+  title = 'Nenhum item encontrado',
   message = 'Adicione seu primeiro item para começar',
   actionLabel,
-  onAction 
+  onAction,
 }) => {
   return (
     <div className="empty-state">
@@ -17,7 +17,7 @@ const EmptyState = ({
       <h3 className="empty-state-title">{title}</h3>
       <p className="empty-state-message">{message}</p>
       {actionLabel && onAction && (
-        <button 
+        <button
           className="btn btn-primary empty-state-btn"
           onClick={onAction}
           aria-label={actionLabel}

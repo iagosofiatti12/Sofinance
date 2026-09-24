@@ -177,7 +177,7 @@
   font-weight: 500;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   width: auto;
   cursor: pointer;
 }
@@ -202,12 +202,12 @@
   .contas-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .contas-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .contas-header button {
     width: 100%;
   }

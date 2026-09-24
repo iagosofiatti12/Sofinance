@@ -22,7 +22,7 @@ const DarkModeToggle = () => {
   }
 
   return (
-    <button 
+    <button
       className="dark-mode-toggle"
       onClick={toggleDarkMode}
       aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}

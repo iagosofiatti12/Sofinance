@@ -2,21 +2,18 @@ import React, { useState } from 'react'
 import { Mail, Lock, LogIn, UserPlus, AlertCircle } from 'lucide-react'
 import GoogleIcon from './GoogleIcon'
 import toast from 'react-hot-toast'
-import { 
-  signInWithEmail, 
-  signInWithGoogle 
-} from '../../services/authService'
+import { signInWithEmail, signInWithGoogle } from '../../services/authService'
 import './Auth.css'
 
 const Login = ({ onToggleMode, onForgotPassword }) => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -75,7 +72,7 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
               id="login-email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
               placeholder="seu@email.com"
               required
               disabled={loading}
@@ -91,18 +88,14 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
               id="login-password"
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
               required
               disabled={loading}
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? (
               <span className="spinner-small"></span>
             ) : (
@@ -118,25 +111,25 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
           <span>ou</span>
         </div>
 
-        <button 
-          onClick={handleGoogleLogin}
-          className="btn btn-google btn-block"
-          disabled={loading}
-        >
+        <button onClick={handleGoogleLogin} className="btn btn-google btn-block" disabled={loading}>
           <GoogleIcon />
           Continuar com Google
         </button>
 
         <div className="auth-footer">
-          <p><button type="button" onClick={onForgotPassword} className="link-button" disabled={loading}>Esqueci minha senha</button></p>
           <p>
-            Não tem uma conta?{' '}
-            <button 
+            <button
               type="button"
-              onClick={onToggleMode}
+              onClick={onForgotPassword}
               className="link-button"
               disabled={loading}
             >
+              Esqueci minha senha
+            </button>
+          </p>
+          <p>
+            Não tem uma conta?{' '}
+            <button type="button" onClick={onToggleMode} className="link-button" disabled={loading}>
               Cadastre-se
             </button>
           </p>

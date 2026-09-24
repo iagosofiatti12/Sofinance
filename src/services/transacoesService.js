@@ -20,34 +20,34 @@ const getUserId = async () => {
  */
 export const getTransacoes = async (filtros = {}) => {
   const userId = await getUserId()
-  
+
   let query = supabase
     .from('transacoes')
     .select('*')
     .eq('user_id', userId)
     .order('data_transacao', { ascending: false })
-  
+
   // Aplicar filtros
   if (filtros.mes_referencia) {
     query = query.eq('mes_referencia', filtros.mes_referencia)
   }
-  
+
   if (filtros.tipo) {
     query = query.eq('tipo', filtros.tipo)
   }
-  
+
   if (filtros.categoria) {
     query = query.eq('categoria', filtros.categoria)
   }
-  
+
   if (filtros.data_inicial && filtros.data_final) {
     query = query
       .gte('data_transacao', filtros.data_inicial)
       .lte('data_transacao', filtros.data_final)
   }
-  
+
   const { data, error } = await query
-  
+
   if (error) throw error
   return data || []
 }
@@ -55,14 +55,14 @@ export const getTransacoes = async (filtros = {}) => {
 /**
  * Obter transações por mês
  */
-export const getTransacoesPorMes = async (mesReferencia) => {
+export const getTransacoesPorMes = async mesReferencia => {
   return await getTransacoes({ mes_referencia: mesReferencia })
 }
 
 /**
  * Adicionar nova transação
  */
-export const addTransacao = async (payload) => {
+export const addTransacao = async payload => {
   const userId = await getUserId()
 
   const { data, error } = await supabase
@@ -74,7 +74,11 @@ export const addTransacao = async (payload) => {
 
   let limiteAtualizado = true
   if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
-    limiteAtualizado = await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+    limiteAtualizado = await atualizarLimiteCartao(
+      payload.cartao_credito_id,
+      payload.valor,
+      'aumentar'
+    )
   }
 
   return { ...data[0], limiteAtualizado }
@@ -98,9 +102,10 @@ const atualizarLimiteCartao = async (cartaoId, valor, operacao = 'aumentar') => 
 
   if (!cartao) return false
 
-  const novoLimite = operacao === 'aumentar'
-    ? parseFloat(cartao.limite_usado) + parseFloat(valor)
-    : Math.max(0, parseFloat(cartao.limite_usado) - parseFloat(valor))
+  const novoLimite =
+    operacao === 'aumentar'
+      ? parseFloat(cartao.limite_usado) + parseFloat(valor)
+      : Math.max(0, parseFloat(cartao.limite_usado) - parseFloat(valor))
 
   const { error: erroUpdate } = await supabase
     .from('cartoes_credito')
@@ -153,7 +158,7 @@ export const updateTransacao = async (id, payload) => {
 /**
  * Deletar transação
  */
-export const deleteTransacao = async (id) => {
+export const deleteTransacao = async id => {
   const { data: atual, error: erroAtual } = await supabase
     .from('transacoes')
     .select('*')
@@ -162,11 +167,7 @@ export const deleteTransacao = async (id) => {
 
   if (erroAtual) throw erroAtual
 
-  const { data, error } = await supabase
-    .from('transacoes')
-    .delete()
-    .eq('id', id)
-    .select()
+  const { data, error } = await supabase.from('transacoes').delete().eq('id', id).select()
 
   if (error) throw error
   if (!data || data.length === 0) throw new Error('Transação não encontrada')
@@ -184,7 +185,7 @@ export const deleteTransacao = async (id) => {
 /**
  * Obter resumo mensal
  */
-export const getResumoMensal = async (mesReferencia) => {
+export const getResumoMensal = async mesReferencia => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('resumo_mensal')
@@ -199,9 +200,9 @@ export const getResumoMensal = async (mesReferencia) => {
 /**
  * Obter gastos por categoria
  */
-export const getGastosPorCategoria = async (mesReferencia) => {
+export const getGastosPorCategoria = async mesReferencia => {
   const transacoes = await getTransacoesPorMes(mesReferencia)
-  
+
   const gastosPorCategoria = transacoes
     .filter(t => t.tipo === 'despesa')
     .reduce((acc, t) => {
@@ -210,23 +211,23 @@ export const getGastosPorCategoria = async (mesReferencia) => {
         acc[categoria] = {
           categoria,
           total: 0,
-          quantidade: 0
+          quantidade: 0,
         }
       }
       acc[categoria].total += parseFloat(t.valor)
       acc[categoria].quantidade += 1
       return acc
     }, {})
-  
+
   return Object.values(gastosPorCategoria)
 }
 
 /**
  * Obter receitas por categoria
  */
-export const getReceitasPorCategoria = async (mesReferencia) => {
+export const getReceitasPorCategoria = async mesReferencia => {
   const transacoes = await getTransacoesPorMes(mesReferencia)
-  
+
   const receitasPorCategoria = transacoes
     .filter(t => t.tipo === 'receita')
     .reduce((acc, t) => {
@@ -235,14 +236,14 @@ export const getReceitasPorCategoria = async (mesReferencia) => {
         acc[categoria] = {
           categoria,
           total: 0,
-          quantidade: 0
+          quantidade: 0,
         }
       }
       acc[categoria].total += parseFloat(t.valor)
       acc[categoria].quantidade += 1
       return acc
     }, {})
-  
+
   return Object.values(receitasPorCategoria)
 }
 
@@ -266,20 +267,20 @@ export const getEvolucaoMensal = async (meses = 6) => {
  */
 export const getCategoriasMaisUsadas = async (tipo = 'despesa', limite = 10) => {
   const userId = await getUserId()
-  
+
   const { data, error } = await supabase
     .from('transacoes')
     .select('categoria')
     .eq('user_id', userId)
     .eq('tipo', tipo)
-  
+
   if (error) throw error
-  
+
   const contagem = data.reduce((acc, t) => {
     acc[t.categoria] = (acc[t.categoria] || 0) + 1
     return acc
   }, {})
-  
+
   return Object.entries(contagem)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limite)
@@ -314,17 +315,17 @@ export const calcularFaturaCartao = async (cartaoId, mesReferencia) => {
       valor: t.valor,
       data: t.data_transacao,
       categoria: t.categoria,
-      parcela: t.is_parcelado ? `${t.parcela_atual}/${t.total_parcelas}` : 'À vista'
-    }))
+      parcela: t.is_parcelado ? `${t.parcela_atual}/${t.total_parcelas}` : 'À vista',
+    })),
   }
 }
 
 /**
  * Obter todas as faturas de um cartão (histórico)
  */
-export const getHistoricoFaturasCartao = async (cartaoId) => {
+export const getHistoricoFaturasCartao = async cartaoId => {
   const userId = await getUserId()
-  
+
   const { data, error } = await supabase
     .from('transacoes')
     .select('mes_referencia, valor')
@@ -332,21 +333,21 @@ export const getHistoricoFaturasCartao = async (cartaoId) => {
     .eq('cartao_credito_id', cartaoId)
     .eq('tipo', 'despesa')
     .order('mes_referencia', { ascending: false })
-  
+
   if (error) throw error
-  
+
   // Agrupar por mês
   const faturasPorMes = data.reduce((acc, t) => {
     if (!acc[t.mes_referencia]) {
       acc[t.mes_referencia] = {
         mes: t.mes_referencia,
         total: 0,
-        mesFormatado: formatarMesExtenso(t.mes_referencia)
+        mesFormatado: formatarMesExtenso(t.mes_referencia),
       }
     }
     acc[t.mes_referencia].total += parseFloat(t.valor)
     return acc
   }, {})
-  
+
   return Object.values(faturasPorMes)
 }

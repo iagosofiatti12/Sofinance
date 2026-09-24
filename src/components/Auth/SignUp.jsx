@@ -2,10 +2,7 @@ import React, { useState } from 'react'
 import { Mail, Lock, User, LogIn, AlertCircle, CheckCircle } from 'lucide-react'
 import GoogleIcon from './GoogleIcon'
 import toast from 'react-hot-toast'
-import { 
-  signUpWithEmail, 
-  signInWithGoogle 
-} from '../../services/authService'
+import { signUpWithEmail, signInWithGoogle } from '../../services/authService'
 import './Auth.css'
 
 const SignUp = ({ onToggleMode }) => {
@@ -13,7 +10,7 @@ const SignUp = ({ onToggleMode }) => {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -24,7 +21,7 @@ const SignUp = ({ onToggleMode }) => {
       setError('As senhas não coincidem')
       return false
     }
-    
+
     if (formData.password.length < 8) {
       setError('A senha deve ter pelo menos 8 caracteres')
       return false
@@ -38,7 +35,7 @@ const SignUp = ({ onToggleMode }) => {
     return true
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
     setError('')
     setSuccess(false)
@@ -51,13 +48,13 @@ const SignUp = ({ onToggleMode }) => {
       await signUpWithEmail(formData.email, formData.password, formData.fullName)
       setSuccess(true)
       toast.success('Conta criada! Verifique seu email para confirmar.')
-      
+
       // Limpar formulário
       setFormData({
         fullName: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
       })
 
       // Redirecionar para login após 3 segundos
@@ -130,7 +127,7 @@ const SignUp = ({ onToggleMode }) => {
               id="signup-fullname"
               type="text"
               value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              onChange={e => setFormData({ ...formData, fullName: e.target.value })}
               placeholder="João Silva"
               required
               disabled={loading}
@@ -146,7 +143,7 @@ const SignUp = ({ onToggleMode }) => {
               id="signup-email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
               placeholder="seu@email.com"
               required
               disabled={loading}
@@ -162,7 +159,7 @@ const SignUp = ({ onToggleMode }) => {
               id="signup-password"
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
               minLength={8}
               required
@@ -180,7 +177,7 @@ const SignUp = ({ onToggleMode }) => {
               id="signup-confirm-password"
               type="password"
               value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
               placeholder="••••••••"
               minLength={8}
               required
@@ -188,11 +185,7 @@ const SignUp = ({ onToggleMode }) => {
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? (
               <span className="spinner-small"></span>
             ) : (
@@ -208,7 +201,7 @@ const SignUp = ({ onToggleMode }) => {
           <span>ou</span>
         </div>
 
-        <button 
+        <button
           onClick={handleGoogleSignUp}
           className="btn btn-google btn-block"
           disabled={loading}
@@ -220,12 +213,7 @@ const SignUp = ({ onToggleMode }) => {
         <div className="auth-footer">
           <p>
             Já tem uma conta?{' '}
-            <button 
-              type="button"
-              onClick={onToggleMode}
-              className="link-button"
-              disabled={loading}
-            >
+            <button type="button" onClick={onToggleMode} className="link-button" disabled={loading}>
               Faça login
             </button>
           </p>

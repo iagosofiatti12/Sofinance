@@ -3,11 +3,11 @@ import { Plus, Edit2, Trash2, Check, X, Calendar, DollarSign } from 'lucide-reac
 import toast from 'react-hot-toast'
 import LoadingSkeleton from '../LoadingSkeleton'
 import EmptyState from '../EmptyState'
-import { 
-  getContasFixas, 
-  addContaFixa, 
-  updateContaFixa, 
-  deleteContaFixa 
+import {
+  getContasFixas,
+  addContaFixa,
+  updateContaFixa,
+  deleteContaFixa,
 } from '../../services/contasService'
 import { getUserId } from '../../services/supabaseClient'
 import { CATEGORIAS_CONTAS } from '../../config/constants'
@@ -26,7 +26,7 @@ const ContasFixasList = () => {
     valor: '',
     dia_vencimento: '',
     categoria: 'Moradia',
-    ativa: true
+    ativa: true,
   })
 
   // Categorias agora vêm de constants.js
@@ -59,7 +59,7 @@ const ContasFixasList = () => {
         valor: conta.valor,
         dia_vencimento: conta.dia_vencimento,
         categoria: conta.categoria,
-        ativa: conta.ativa
+        ativa: conta.ativa,
       })
     } else {
       setEditingConta(null)
@@ -68,7 +68,7 @@ const ContasFixasList = () => {
         valor: '',
         dia_vencimento: '',
         categoria: 'Moradia',
-        ativa: true
+        ativa: true,
       })
     }
     setShowModal(true)
@@ -79,31 +79,34 @@ const ContasFixasList = () => {
     setEditingConta(null)
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    
+
     try {
       const userId = await getUserId()
-      
+
       // Preparar dados
       const dataToValidate = {
         nome: formData.nome,
-        valor: typeof formData.valor === 'string' ? parseCurrency(formData.valor) : parseFloat(formData.valor),
+        valor:
+          typeof formData.valor === 'string'
+            ? parseCurrency(formData.valor)
+            : parseFloat(formData.valor),
         dia_vencimento: parseInt(formData.dia_vencimento),
         categoria: formData.categoria,
-        ativa: formData.ativa !== false
+        ativa: formData.ativa !== false,
       }
-      
+
       // Validar com Zod
       const validation = validateData(contaFixaSchema, dataToValidate)
       if (!validation.success) {
         toast.error(getValidationErrorMessage(validation.errors))
         return
       }
-      
+
       const contaData = {
         ...validation.data,
-        user_id: userId
+        user_id: userId,
       }
 
       if (editingConta) {
@@ -122,9 +125,9 @@ const ContasFixasList = () => {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (!window.confirm('Deseja realmente excluir esta conta?')) return
-    
+
     try {
       await deleteContaFixa(id)
       await loadContas()
@@ -135,7 +138,7 @@ const ContasFixasList = () => {
     }
   }
 
-  const handleToggleAtiva = async (conta) => {
+  const handleToggleAtiva = async conta => {
     try {
       await updateContaFixa(conta.id, { ...conta, ativa: !conta.ativa })
       await loadContas()
@@ -146,15 +149,13 @@ const ContasFixasList = () => {
     }
   }
 
-  const getStatusBadge = (diasRestantes) => {
+  const getStatusBadge = diasRestantes => {
     if (diasRestantes <= 3) return 'badge-danger'
     if (diasRestantes <= 7) return 'badge-warning'
     return 'badge-success'
   }
 
-  const totalContas = contas
-    .filter(c => c.ativa)
-    .reduce((sum, c) => sum + parseFloat(c.valor), 0)
+  const totalContas = contas.filter(c => c.ativa).reduce((sum, c) => sum + parseFloat(c.valor), 0)
 
   if (loading) {
     return (
@@ -175,10 +176,15 @@ const ContasFixasList = () => {
         <div>
           <h2>Contas Fixas</h2>
           <p className="total-contas">
-            Total mensal: <strong>R$ {totalContas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
+            Total mensal:{' '}
+            <strong>R$ {totalContas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => handleOpenModal()} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => handleOpenModal()}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+        >
           <Plus size={18} />
           Nova Conta
         </button>
@@ -189,7 +195,10 @@ const ContasFixasList = () => {
           contas.map(conta => {
             const diasRestantes = diasAteVencimento(conta.dia_vencimento)
             return (
-              <div key={conta.id} className={`conta-card glass-card ${!conta.ativa ? 'inativa' : ''}`}>
+              <div
+                key={conta.id}
+                className={`conta-card glass-card ${!conta.ativa ? 'inativa' : ''}`}
+              >
                 <div className="conta-card-header">
                   <div className="conta-info">
                     <h3>{conta.nome}</h3>
@@ -198,16 +207,16 @@ const ContasFixasList = () => {
                     </span>
                   </div>
                   <div className="conta-actions">
-                    <button 
-                      className="btn-icon" 
+                    <button
+                      className="btn-icon"
                       onClick={() => handleOpenModal(conta)}
                       title="Editar"
                       aria-label="Editar conta fixa"
                     >
                       <Edit2 size={16} />
                     </button>
-                    <button 
-                      className="btn-icon danger" 
+                    <button
+                      className="btn-icon danger"
                       onClick={() => handleDelete(conta.id)}
                       aria-label="Excluir conta fixa"
                       title="Excluir"
@@ -220,14 +229,19 @@ const ContasFixasList = () => {
                 <div className="conta-details">
                   <div className="detail-item">
                     <DollarSign size={18} />
-                    <span className="valor">R$ {parseFloat(conta.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <span className="valor">
+                      R${' '}
+                      {parseFloat(conta.valor).toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <Calendar size={18} />
                     <span>Vencimento: dia {conta.dia_vencimento}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="categoria-badge">{conta.categoria}</span>
                   </div>
@@ -241,7 +255,7 @@ const ContasFixasList = () => {
                   )}
                 </div>
 
-                <button 
+                <button
                   className={`btn btn-sm ${conta.ativa ? 'btn-secondary' : 'btn-success'}`}
                   onClick={() => handleToggleAtiva(conta)}
                 >
@@ -265,9 +279,9 @@ const ContasFixasList = () => {
       {/* Modal de Cadastro/Edição */}
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h2>{editingConta ? 'Editar Conta' : 'Nova Conta Fixa'}</h2>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="conta-fixa-nome">Nome da Conta *</label>
@@ -275,7 +289,7 @@ const ContasFixasList = () => {
                   id="conta-fixa-nome"
                   type="text"
                   value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  onChange={e => setFormData({ ...formData, nome: e.target.value })}
                   placeholder="Ex: Aluguel, Luz, Internet..."
                   required
                 />
@@ -287,7 +301,7 @@ const ContasFixasList = () => {
                   id="conta-fixa-valor"
                   type="text"
                   value={formData.valor ? formatCurrency(parseFloat(formData.valor) * 100) : ''}
-                  onChange={(e) => {
+                  onChange={e => {
                     const valor = e.target.value.replace(/\D/g, '')
                     const numero = Number(valor) / 100
                     setFormData({ ...formData, valor: numero || '' })
@@ -305,7 +319,7 @@ const ContasFixasList = () => {
                   min="1"
                   max="31"
                   value={formData.dia_vencimento}
-                  onChange={(e) => setFormData({ ...formData, dia_vencimento: e.target.value })}
+                  onChange={e => setFormData({ ...formData, dia_vencimento: e.target.value })}
                   placeholder="1-31"
                   required
                 />
@@ -316,11 +330,13 @@ const ContasFixasList = () => {
                 <select
                   id="conta-fixa-categoria"
                   value={formData.categoria}
-                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                  onChange={e => setFormData({ ...formData, categoria: e.target.value })}
                   required
                 >
                   {CATEGORIAS_CONTAS.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -330,7 +346,7 @@ const ContasFixasList = () => {
                   <input
                     type="checkbox"
                     checked={formData.ativa}
-                    onChange={(e) => setFormData({ ...formData, ativa: e.target.checked })}
+                    onChange={e => setFormData({ ...formData, ativa: e.target.checked })}
                   />
                   Conta ativa
                 </label>

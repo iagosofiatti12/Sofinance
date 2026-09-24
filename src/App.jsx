@@ -66,7 +66,7 @@ function App() {
 
   return (
     <div className="app">
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 3000,
@@ -92,22 +92,17 @@ function App() {
           },
         }}
       />
-      
+
       <div className="dark-mode-float">
         <DarkModeToggle />
       </div>
-      
+
       <div className="app-container">
-        <Sidebar 
-          activeSection={activeSection} 
-          setActiveSection={setActiveSection} 
-        />
-        
+        <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+
         <main className="main-content">
           <div className="content-wrapper">
-            <Suspense fallback={<Spinner />}>
-              {renderContent()}
-            </Suspense>
+            <Suspense fallback={<Spinner />}>{renderContent()}</Suspense>
           </div>
         </main>
       </div>

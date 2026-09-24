@@ -11,21 +11,21 @@ const Settings = () => {
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState({
     full_name: '',
-    email: ''
+    email: '',
   })
 
   useEffect(() => {
     if (user) {
       setProfile({
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
-        email: user.email || ''
+        email: user.email || '',
       })
     }
   }, [user])
 
-  const handleUpdateProfile = async (e) => {
+  const handleUpdateProfile = async e => {
     e.preventDefault()
-    
+
     if (!profile.full_name.trim()) {
       toast.error('Nome não pode estar vazio')
       return
@@ -38,9 +38,9 @@ const Settings = () => {
 
     try {
       setLoading(true)
-      
+
       const { error } = await supabase.auth.updateUser({
-        data: { full_name: profile.full_name.trim() }
+        data: { full_name: profile.full_name.trim() },
       })
 
       if (error) throw error
@@ -67,12 +67,15 @@ const Settings = () => {
   }
 
   const handleDeleteAccount = async () => {
-    const confirmText = 'Tem certeza que deseja excluir sua conta? Esta ação é IRREVERSÍVEL e todos os seus dados serão perdidos permanentemente.'
-    
+    const confirmText =
+      'Tem certeza que deseja excluir sua conta? Esta ação é IRREVERSÍVEL e todos os seus dados serão perdidos permanentemente.'
+
     if (!confirm(confirmText)) return
 
-    const doubleConfirm = prompt('Digite "EXCLUIR" (em maiúsculas) para confirmar a exclusão da conta:')
-    
+    const doubleConfirm = prompt(
+      'Digite "EXCLUIR" (em maiúsculas) para confirmar a exclusão da conta:'
+    )
+
     if (doubleConfirm !== 'EXCLUIR') {
       toast.error('Exclusão cancelada')
       return
@@ -91,12 +94,12 @@ const Settings = () => {
     }
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     })
   }
 
@@ -127,7 +130,7 @@ const Settings = () => {
                 id="full_name"
                 type="text"
                 value={profile.full_name}
-                onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                onChange={e => setProfile({ ...profile, full_name: e.target.value })}
                 placeholder="Seu nome"
                 disabled={loading}
                 required
@@ -149,11 +152,7 @@ const Settings = () => {
               <small>O email não pode ser alterado</small>
             </div>
 
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={loading}
-            >
+            <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           </form>
@@ -186,9 +185,7 @@ const Settings = () => {
 
             <div className="info-item">
               <span className="info-label">Status</span>
-              <span className="info-value status-active">
-                ✓ Ativo
-              </span>
+              <span className="info-value status-active">✓ Ativo</span>
             </div>
           </div>
         </div>
@@ -206,10 +203,7 @@ const Settings = () => {
                 <h3>Sair da Conta</h3>
                 <p>Você será desconectado e redirecionado para a tela de login</p>
               </div>
-              <button 
-                onClick={handleLogout}
-                className="btn btn-danger"
-              >
+              <button onClick={handleLogout} className="btn btn-danger">
                 <LogOut size={18} />
                 Sair
               </button>
@@ -220,11 +214,7 @@ const Settings = () => {
                 <h3>Excluir Conta</h3>
                 <p>Ação permanente - todos os seus dados serão removidos</p>
               </div>
-              <button 
-                onClick={handleDeleteAccount}
-                className="btn btn-danger"
-                disabled={loading}
-              >
+              <button onClick={handleDeleteAccount} className="btn btn-danger" disabled={loading}>
                 <Trash2 size={18} />
                 {loading ? 'Excluindo...' : 'Excluir Conta'}
               </button>

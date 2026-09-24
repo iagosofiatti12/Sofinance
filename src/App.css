@@ -59,7 +59,7 @@
     top: 20px;
     right: 24px;
   }
-  
+
   .content-wrapper {
     padding: 32px 24px;
   }
@@ -69,20 +69,20 @@
   .app {
     flex-direction: column;
   }
-  
+
   .dark-mode-float {
     top: 16px;
     right: 16px;
   }
-  
+
   .app-container {
     flex-direction: column;
   }
-  
+
   .main-content {
     padding-bottom: 100px;
   }
-  
+
   .content-wrapper {
     padding: 24px 16px;
   }

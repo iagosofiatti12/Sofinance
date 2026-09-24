@@ -1,34 +1,34 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Wallet, 
-  CreditCard, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  CreditCard,
   Home as HomeIcon,
-  AlertCircle 
+  AlertCircle,
 } from 'lucide-react'
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from 'recharts'
 import toast from 'react-hot-toast'
 import { getContasFixas } from '../../services/contasService'
 import { getCartoes } from '../../services/cartoesService'
 import { getMetas } from '../../services/metasService'
-import { 
-  getResumoMensal, 
-  getGastosPorCategoria, 
+import {
+  getResumoMensal,
+  getGastosPorCategoria,
   getEvolucaoMensal,
-  formatMesReferencia 
+  formatMesReferencia,
 } from '../../services/transacoesService'
 import { proximosVencimentos } from '../../utils/vencimentos'
 import Spinner from '../UI/Spinner'
@@ -37,33 +37,33 @@ import './DashboardHome.css'
 const DashboardHome = () => {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
-    saldoMes: 0, gastosMes: 0, receitasMes: 0, proximosVencimentos: [],
-    contasFixasTotal: 0, limiteDisponivel: 0, metasProgresso: 0, gastosPorCategoria: [], evolucaoMensal: [],
+    saldoMes: 0,
+    gastosMes: 0,
+    receitasMes: 0,
+    proximosVencimentos: [],
+    contasFixasTotal: 0,
+    limiteDisponivel: 0,
+    metasProgresso: 0,
+    gastosPorCategoria: [],
+    evolucaoMensal: [],
   })
 
   const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true)
-      
+
       const mesAtual = formatMesReferencia(new Date())
-      
+
       // Carregar TODOS os dados em paralelo (3x mais rápido!)
-      const [
-        resumo,
-        gastosCategorias,
-        evolucao,
-        contas,
-        cartoes,
-        metas
-      ] = await Promise.all([
+      const [resumo, gastosCategorias, evolucao, contas, cartoes, metas] = await Promise.all([
         getResumoMensal(mesAtual),
         getGastosPorCategoria(mesAtual),
         getEvolucaoMensal(6),
         getContasFixas(),
         getCartoes(),
-        getMetas()
+        getMetas(),
       ])
-      
+
       // Calcular totais
       const contasTotal = contas.reduce((sum, conta) => sum + parseFloat(conta.valor), 0)
       const limiteTotal = cartoes.reduce((sum, c) => sum + parseFloat(c.limite_total), 0)
@@ -71,7 +71,7 @@ const DashboardHome = () => {
       const metasTotal = metas.reduce((sum, m) => sum + parseFloat(m.valor_meta), 0)
       const metasGuardado = metas.reduce((sum, m) => sum + parseFloat(m.valor_guardado), 0)
       const metasProgresso = metasTotal > 0 ? (metasGuardado / metasTotal) * 100 : 0
-      
+
       // Próximos vencimentos
       const proximosVencimentosLista = proximosVencimentos(contas)
 
@@ -84,7 +84,7 @@ const DashboardHome = () => {
         limiteDisponivel: limiteTotal - limiteUsado,
         metasProgresso,
         gastosPorCategoria: gastosCategorias,
-        evolucaoMensal: evolucao
+        evolucaoMensal: evolucao,
       })
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error)
@@ -100,13 +100,13 @@ const DashboardHome = () => {
 
   // Cores para o gráfico de pizza
   const COLORS = ['#2196f3', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4', '#ffeb3b']
-  
+
   // Formatar dados dos gráficos
   const gastosPorCategoriaFormatted = useMemo(() => {
     return (stats.gastosPorCategoria || []).map((item, index) => ({
       name: item.categoria,
       value: item.total,
-      color: COLORS[index % COLORS.length]
+      color: COLORS[index % COLORS.length],
     }))
   }, [stats.gastosPorCategoria])
 
@@ -114,14 +114,12 @@ const DashboardHome = () => {
     return (stats.evolucaoMensal || []).map(item => ({
       mes: item.mes,
       gastos: item.despesas,
-      receitas: item.receitas
+      receitas: item.receitas,
     }))
   }, [stats.evolucaoMensal])
 
   if (loading) {
-    return (
-      <Spinner label="Carregando dados..." />
-    )
+    return <Spinner label="Carregando dados..." />
   }
 
   return (
@@ -133,9 +131,15 @@ const DashboardHome = () => {
             <Wallet size={24} className="stat-icon primary" />
             <span className="stat-label">Saldo do mês</span>
           </div>
-          <h2 className="stat-value primary">R$ {(stats.saldoMes || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h2>
+          <h2 className="stat-value primary">
+            R$ {(stats.saldoMes || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </h2>
           <div className="stat-footer">
-            <span>{stats.receitasMes > 0 ? `${((stats.gastosMes / stats.receitasMes) * 100).toFixed(0)}% da receita gasta` : 'Sem receitas neste mês'}</span>
+            <span>
+              {stats.receitasMes > 0
+                ? `${((stats.gastosMes / stats.receitasMes) * 100).toFixed(0)}% da receita gasta`
+                : 'Sem receitas neste mês'}
+            </span>
           </div>
         </div>
 
@@ -144,7 +148,9 @@ const DashboardHome = () => {
             <TrendingDown size={24} className="stat-icon danger" />
             <span className="stat-label">Gastos do Mês</span>
           </div>
-          <h2 className="stat-value danger">R$ {(stats.gastosMes || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h2>
+          <h2 className="stat-value danger">
+            R$ {(stats.gastosMes || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </h2>
           <div className="stat-footer">
             {stats.receitasMes > 0 && (
               <span>{((stats.gastosMes / stats.receitasMes) * 100).toFixed(1)}% da receita</span>
@@ -157,7 +163,9 @@ const DashboardHome = () => {
             <CreditCard size={24} className="stat-icon success" />
             <span className="stat-label">Limite Disponível</span>
           </div>
-          <h2 className="stat-value success">R$ {stats.limiteDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h2>
+          <h2 className="stat-value success">
+            R$ {stats.limiteDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </h2>
           <div className="stat-footer">
             <span>em cartões de crédito</span>
           </div>
@@ -168,7 +176,9 @@ const DashboardHome = () => {
             <HomeIcon size={24} className="stat-icon warning" />
             <span className="stat-label">Contas Fixas</span>
           </div>
-          <h2 className="stat-value warning">R$ {stats.contasFixasTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h2>
+          <h2 className="stat-value warning">
+            R$ {stats.contasFixasTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </h2>
           <div className="stat-footer">
             <span>mensais</span>
           </div>
@@ -195,7 +205,7 @@ const DashboardHome = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => `R$ ${value.toFixed(2)}`} />
+              <Tooltip formatter={value => `R$ ${value.toFixed(2)}`} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -207,25 +217,25 @@ const DashboardHome = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
               <XAxis dataKey="mes" stroke="var(--text-secondary)" />
               <YAxis stroke="var(--text-secondary)" />
-              <Tooltip 
-                contentStyle={{ 
-                  background: 'var(--card-bg)', 
+              <Tooltip
+                contentStyle={{
+                  background: 'var(--card-bg)',
                   border: '1px solid var(--glass-border)',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
                 }}
               />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="receitas" 
-                stroke="var(--accent-green)" 
+              <Line
+                type="monotone"
+                dataKey="receitas"
+                stroke="var(--accent-green)"
                 strokeWidth={2}
                 name="Receitas"
               />
-              <Line 
-                type="monotone" 
-                dataKey="gastos" 
-                stroke="var(--accent-red)" 
+              <Line
+                type="monotone"
+                dataKey="gastos"
+                stroke="var(--accent-red)"
                 strokeWidth={2}
                 name="Gastos"
               />
@@ -247,10 +257,15 @@ const DashboardHome = () => {
                 <div key={conta.id} className="vencimento-item">
                   <div>
                     <p className="vencimento-nome">{conta.nome}</p>
-                    <p className="vencimento-dia">{conta.diasRestantes === 0 ? 'Vence hoje' : `Dia ${conta.dia_vencimento} · em ${conta.diasRestantes} dias`}</p>
+                    <p className="vencimento-dia">
+                      {conta.diasRestantes === 0
+                        ? 'Vence hoje'
+                        : `Dia ${conta.dia_vencimento} · em ${conta.diasRestantes} dias`}
+                    </p>
                   </div>
                   <span className="vencimento-valor">
-                    R$ {parseFloat(conta.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${' '}
+                    {parseFloat(conta.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               ))
@@ -271,8 +286,8 @@ const DashboardHome = () => {
               <span>{stats.metasProgresso.toFixed(1)}%</span>
             </div>
             <div className="progress-bar">
-              <div 
-                className="progress-fill" 
+              <div
+                className="progress-fill"
                 style={{ width: `${Math.min(stats.metasProgresso, 100)}%` }}
               />
             </div>

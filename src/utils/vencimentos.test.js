@@ -31,7 +31,7 @@ describe('proximosVencimentos', () => {
       { id: 4, nome: 'Internet', dia_vencimento: 18, ativa: true },
     ]
     const r = proximosVencimentos(contas, new Date(2026, 8, 17), 2)
-    expect(r.map((c) => c.nome)).toEqual(['Internet', 'Luz'])
+    expect(r.map(c => c.nome)).toEqual(['Internet', 'Luz'])
     expect(r[0].diasRestantes).toBe(1)
   })
   it('conta com dia_vencimento inválido vai depois das válidas', () => {
@@ -40,6 +40,6 @@ describe('proximosVencimentos', () => {
       { id: 2, nome: 'Aluguel', dia_vencimento: 5, ativa: true },
     ]
     const r = proximosVencimentos(contas, new Date(2026, 8, 17), 5)
-    expect(r.map((c) => c.nome)).toEqual(['Aluguel', 'Sem dia'])
+    expect(r.map(c => c.nome)).toEqual(['Aluguel', 'Sem dia'])
   })
 })

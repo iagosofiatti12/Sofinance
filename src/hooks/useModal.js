@@ -16,7 +16,7 @@ export const useModal = (initialState = false) => {
     isOpen,
     open,
     close,
-    toggle
+    toggle,
   }
 }
 

@@ -15,7 +15,7 @@ export const CATEGORIAS_CONTAS = [
   'Educação',
   'Lazer',
   'Seguros',
-  'Outros'
+  'Outros',
 ]
 
 export const CATEGORIAS_TRANSACOES = [
@@ -27,16 +27,10 @@ export const CATEGORIAS_TRANSACOES = [
   'Educação',
   'Viagem',
   'Cartão de Crédito',
-  'Outros'
+  'Outros',
 ]
 
-export const BANDEIRAS_CARTAO = [
-  'Visa',
-  'Mastercard',
-  'Elo',
-  'American Express',
-  'Hipercard'
-]
+export const BANDEIRAS_CARTAO = ['Visa', 'Mastercard', 'Elo', 'American Express', 'Hipercard']
 
 // Validações
 export const VALIDACAO = {
@@ -44,5 +38,5 @@ export const VALIDACAO = {
   DIA_MAX: 31,
   VALOR_MIN: 0,
   PARCELAS_MIN: 1,
-  PARCELAS_MAX: 48
+  PARCELAS_MAX: 48,
 }

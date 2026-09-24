@@ -56,7 +56,7 @@ const logger = {
     if (isDevelopment) {
       console.log(`[DEBUG] ${message}`, ...args)
     }
-  }
+  },
 }
 
 export default logger

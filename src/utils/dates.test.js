@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import {
-  toISODateLocal, parseISODateLocal, formatarData, formatarMesExtenso, formatMesReferencia, mudarMes,
+  toISODateLocal,
+  parseISODateLocal,
+  formatarData,
+  formatarMesExtenso,
+  formatMesReferencia,
+  mudarMes,
 } from './dates'
 
 describe('dates', () => {

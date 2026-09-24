@@ -8,25 +8,25 @@ export const getFinanciamentoImovel = async () => {
     .select('*')
     .eq('user_id', userId)
     .single()
-  
+
   if (error && error.code !== 'PGRST116') throw error
   return data
 }
 
-export const saveFinanciamentoImovel = async (financiamento) => {
+export const saveFinanciamentoImovel = async financiamento => {
   const userId = await getUserId()
   const existing = await getFinanciamentoImovel()
-  
+
   // Preparar dados sem user_id no update
   const { user_id, ...dataToSave } = financiamento
-  
+
   if (existing) {
     const { data, error } = await supabase
       .from('financiamento_imovel')
       .update(dataToSave)
       .eq('id', existing.id)
       .select()
-    
+
     if (error) throw error
     return data[0]
   } else {
@@ -34,7 +34,7 @@ export const saveFinanciamentoImovel = async (financiamento) => {
       .from('financiamento_imovel')
       .insert([{ ...dataToSave, user_id: userId }])
       .select()
-    
+
     if (error) throw error
     return data[0]
   }
@@ -48,25 +48,25 @@ export const getFinanciamentoCarro = async () => {
     .select('*')
     .eq('user_id', userId)
     .single()
-  
+
   if (error && error.code !== 'PGRST116') throw error
   return data
 }
 
-export const saveFinanciamentoCarro = async (financiamento) => {
+export const saveFinanciamentoCarro = async financiamento => {
   const userId = await getUserId()
   const existing = await getFinanciamentoCarro()
-  
+
   // Preparar dados sem user_id no update
   const { user_id, ...dataToSave } = financiamento
-  
+
   if (existing) {
     const { data, error } = await supabase
       .from('financiamento_carro')
       .update(dataToSave)
       .eq('id', existing.id)
       .select()
-    
+
     if (error) throw error
     return data[0]
   } else {
@@ -74,7 +74,7 @@ export const saveFinanciamentoCarro = async (financiamento) => {
       .from('financiamento_carro')
       .insert([{ ...dataToSave, user_id: userId }])
       .select()
-    
+
     if (error) throw error
     return data[0]
   }

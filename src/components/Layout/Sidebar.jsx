@@ -1,14 +1,14 @@
 import React from 'react'
-import { 
-  LayoutDashboard, 
-  Receipt, 
-  CreditCard, 
-  Home, 
-  Car, 
+import {
+  LayoutDashboard,
+  Receipt,
+  CreditCard,
+  Home,
+  Car,
   Target,
   User,
   LogOut,
-  FileText
+  FileText,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
@@ -45,7 +45,7 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     setActiveSection('dashboard')
   }
 
-  const handleLogoKeyDown = (e) => {
+  const handleLogoKeyDown = e => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleLogoClick()
@@ -53,24 +53,16 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
   }
 
   return (
-    <aside 
-      className="sidebar glass" 
-      role="navigation" 
-      aria-label="Menu principal"
-    >
-      <div 
-        className="sidebar-logo" 
+    <aside className="sidebar glass" role="navigation" aria-label="Menu principal">
+      <div
+        className="sidebar-logo"
         onClick={handleLogoClick}
         onKeyDown={handleLogoKeyDown}
-        role="button" 
+        role="button"
         tabIndex={0}
         aria-label="Voltar ao Dashboard"
       >
-        <img 
-          src="/logo-completo.png"
-          alt="Sofinance"
-          className="logo-image"
-        />
+        <img src="/logo-completo.png" alt="Sofinance" className="logo-image" />
       </div>
 
       <nav className="sidebar-nav">
@@ -90,7 +82,7 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
           )
         })}
       </nav>
-      
+
       <div className="sidebar-footer">
         <button
           className="sidebar-item sidebar-action"
@@ -100,7 +92,7 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
           <User size={20} aria-hidden="true" />
           <span>Perfil</span>
         </button>
-        
+
         <button
           className="sidebar-item sidebar-action sidebar-logout"
           onClick={handleLogout}

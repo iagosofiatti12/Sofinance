@@ -12,7 +12,7 @@ const ResetPassword = () => {
   const [confirma, setConfirma] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
     if (senha.length < 8) return toast.error('A senha deve ter pelo menos 8 caracteres')
     if (senha !== confirma) return toast.error('As senhas não coincidem')
@@ -38,12 +38,32 @@ const ResetPassword = () => {
         </div>
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="nova-senha"><Lock size={18} /> Nova senha</label>
-            <input id="nova-senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} minLength={8} required disabled={loading} />
+            <label htmlFor="nova-senha">
+              <Lock size={18} /> Nova senha
+            </label>
+            <input
+              id="nova-senha"
+              type="password"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
+              minLength={8}
+              required
+              disabled={loading}
+            />
           </div>
           <div className="form-group">
-            <label htmlFor="confirma-senha"><Lock size={18} /> Confirmar senha</label>
-            <input id="confirma-senha" type="password" value={confirma} onChange={(e) => setConfirma(e.target.value)} minLength={8} required disabled={loading} />
+            <label htmlFor="confirma-senha">
+              <Lock size={18} /> Confirmar senha
+            </label>
+            <input
+              id="confirma-senha"
+              type="password"
+              value={confirma}
+              onChange={e => setConfirma(e.target.value)}
+              minLength={8}
+              required
+              disabled={loading}
+            />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? 'Salvando...' : 'Salvar nova senha'}

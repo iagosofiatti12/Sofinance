@@ -6,24 +6,20 @@ import './LoadingButton.css'
  * Botão com estado de loading integrado
  * Mostra spinner e desabilita automaticamente durante operações assíncronas
  */
-const LoadingButton = ({ 
-  loading = false, 
+const LoadingButton = ({
+  loading = false,
   disabled = false,
-  children, 
+  children,
   className = '',
   variant = 'primary',
   icon: Icon,
-  ...props 
+  ...props
 }) => {
   const isDisabled = loading || disabled
   const buttonClass = `btn btn-${variant} loading-button ${className} ${loading ? 'loading' : ''}`
 
   return (
-    <button 
-      className={buttonClass}
-      disabled={isDisabled}
-      {...props}
-    >
+    <button className={buttonClass} disabled={isDisabled} {...props}>
       {loading ? (
         <>
           <Loader2 size={18} className="spinner" />

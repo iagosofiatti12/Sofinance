@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 50",
     "lint:fix": "eslint src --fix",
-    "format": "prettier --write \"src/**/*.{js,jsx,css,md}\"",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
     "test": "vitest",
     "test:run": "vitest --run",
     "test:ui": "vitest --ui",
@@ -20,7 +20,8 @@
     "db:reset": "supabase db reset",
     "db:diff": "supabase db diff --linked --schema public",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --linked > src/types/database.types.ts"
+    "db:types": "supabase gen types typescript --linked > src/types/database.types.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@sentry/react": "^10.75.0",
@@ -42,17 +43,29 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/ui": "^5.0.1",
-    "eslint": "^9.39.2",
+    "eslint": "^10.11.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.12.0",
+    "husky": "^9.1.7",
     "jsdom": "^27.4.0",
+    "lint-staged": "^17.5.1",
     "prettier": "^3.7.4",
     "supabase": "^2.117.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1",
     "vite": "^8.3.0",
     "vitest": "^5.0.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,md,json}": [
+      "prettier --write"
+    ]
   }
 }

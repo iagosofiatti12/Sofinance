@@ -1,5 +1,5 @@
 const diasNoMes = (ano, mes) => new Date(ano, mes + 1, 0).getDate()
-const inicioDoDia = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
+const inicioDoDia = d => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 const MS_DIA = 86_400_000
 
 export const diasAteVencimento = (diaVencimento, hoje = new Date()) => {
@@ -17,7 +17,7 @@ export const diasAteVencimento = (diaVencimento, hoje = new Date()) => {
 
 export const proximosVencimentos = (contas, hoje = new Date(), limite = 5) =>
   contas
-    .filter((c) => c.ativa)
-    .map((c) => ({ ...c, diasRestantes: diasAteVencimento(c.dia_vencimento, hoje) }))
+    .filter(c => c.ativa)
+    .map(c => ({ ...c, diasRestantes: diasAteVencimento(c.dia_vencimento, hoje) }))
     .sort((a, b) => a.diasRestantes - b.diasRestantes)
     .slice(0, limite)
