@@ -20,8 +20,6 @@ import {
   Legend, 
   ResponsiveContainer 
 } from 'recharts'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import { getContasFixas } from '../../services/contasService'
 import { getCartoes } from '../../services/cartoesService'
