@@ -312,10 +312,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          recharts: ['recharts'],
-          supabase: ['@supabase/supabase-js'],
-          react: ['react', 'react-dom'],
+        // O Vite 8 empacota com Rolldown, que aceita `manualChunks` apenas como
+        // função. A forma de objeto, usada até o Vite 7, quebra o build aqui.
+        manualChunks(id) {
+          if (id.includes('node_modules/recharts')) return 'recharts'
+          if (id.includes('node_modules/@supabase')) return 'supabase'
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'react'
+          }
         },
       },
     },
