@@ -26,7 +26,7 @@ import { formatCurrency, parseCurrency } from '@/domain/currency'
 import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '@/domain/dates'
 import { montarPayloadTransacao } from '@/domain/transacaoPayload'
 import { getErrorMessage } from '@/lib/errorHandler'
-import Spinner from '../UI/Spinner'
+import Spinner from '../ui/Spinner'
 import './Extrato.css'
 
 const ExtratoMensal = () => {

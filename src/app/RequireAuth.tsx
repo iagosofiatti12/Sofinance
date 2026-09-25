@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { useAuth } from '@/contexts/AuthContext'
-import Spinner from '@/components/UI/Spinner'
+import Spinner from '@/components/ui/Spinner'
 
 export default function RequireAuth() {
   const { isAuthenticated, loading, recoveryMode } = useAuth()

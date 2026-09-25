@@ -7,7 +7,7 @@ import { formatCurrency, parseCurrency } from '@/domain/currency'
 import { cartaoSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
 import { getErrorMessage } from '@/lib/errorHandler'
 import FaturaCartao from './FaturaCartao'
-import Spinner from '../UI/Spinner'
+import Spinner from '../ui/Spinner'
 import './Cartoes.css'
 
 const CartoesList = () => {

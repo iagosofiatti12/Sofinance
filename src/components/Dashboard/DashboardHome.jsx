@@ -31,7 +31,7 @@ import {
   formatMesReferencia,
 } from '../../services/transacoesService'
 import { proximosVencimentos } from '@/domain/vencimentos'
-import Spinner from '../UI/Spinner'
+import Spinner from '../ui/Spinner'
 import './DashboardHome.css'
 
 const DashboardHome = () => {

@@ -3,7 +3,7 @@ import { Outlet } from 'react-router'
 import { Toaster } from 'react-hot-toast'
 import DarkModeToggle from '@/components/Layout/DarkModeToggle'
 import Sidebar from '@/components/Layout/Sidebar'
-import Spinner from '@/components/UI/Spinner'
+import Spinner from '@/components/ui/Spinner'
 import '@/App.css'
 
 export default function AppLayout() {

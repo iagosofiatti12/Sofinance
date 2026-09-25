@@ -5,7 +5,7 @@ import { getMetas, addMeta, updateMeta, deleteMeta } from '../../services/metasS
 import { getUserId } from '@/lib/supabase'
 import { formatCurrency, parseCurrency } from '@/domain/currency'
 import { metaSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
-import Spinner from '../UI/Spinner'
+import Spinner from '../ui/Spinner'
 import './Metas.css'
 
 const MetasList = () => {

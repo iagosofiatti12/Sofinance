@@ -15,7 +15,7 @@ import {
 } from '@/domain/validations'
 import { getErrorMessage } from '@/lib/errorHandler'
 import { hojeISO, formatarData } from '@/domain/dates'
-import Spinner from '../UI/Spinner'
+import Spinner from '../ui/Spinner'
 import './Financiamentos.css'
 
 const FinanciamentoImovel = () => {
