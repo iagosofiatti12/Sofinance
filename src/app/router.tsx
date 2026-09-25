@@ -9,7 +9,7 @@ import ResetPassword from '@/components/Auth/ResetPassword'
 
 const DashboardHome = lazy(() => import('@/components/Dashboard/DashboardHome'))
 const ExtratoMensal = lazy(() => import('@/components/Extrato/ExtratoMensal'))
-const ContasFixasList = lazy(() => import('@/components/ContasFixas/ContasFixasList'))
+const ContasFixasPage = lazy(() => import('@/features/contas-fixas/ContasFixasPage'))
 const CartoesList = lazy(() => import('@/components/Cartoes/CartoesList'))
 const FinanciamentoImovel = lazy(() => import('@/components/Financiamentos/FinanciamentoImovel'))
 const FinanciamentoCarro = lazy(() => import('@/components/Financiamentos/FinanciamentoCarro'))
@@ -30,7 +30,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, Component: DashboardHome },
           { path: 'lancamentos', Component: ExtratoMensal },
-          { path: 'contas', Component: ContasFixasList },
+          { path: 'contas', Component: ContasFixasPage },
           { path: 'cartoes', Component: CartoesList },
           { path: 'dividas/imovel', Component: FinanciamentoImovel },
           { path: 'dividas/carro', Component: FinanciamentoCarro },
