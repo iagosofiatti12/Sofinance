@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/react'
 import { RouterProvider } from 'react-router'
 import { router } from '@/app/router'
 import ErrorBoundary from '@/components/ErrorBoundary'
-import { AuthProvider } from '@/contexts/AuthContext'
+import Providers from '@/app/providers'
 import '@/styles/index.css'
 
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -19,9 +19,9 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <AuthProvider>
+      <Providers>
         <RouterProvider router={router} />
-      </AuthProvider>
+      </Providers>
     </ErrorBoundary>
   </React.StrictMode>
 )
