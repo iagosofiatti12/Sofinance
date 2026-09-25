@@ -31,6 +31,9 @@ export default tseslint.config(
       globals: { ...globals.browser, ...globals.node },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    // Fixo em vez de 'detect': eslint-plugin-react 7.37.5 chama context.getFilename(),
+    // removido no ESLint 10, e 'detect' dispara esse caminho. Reverter para 'detect'
+    // quando o plugin publicar uma versão com suporte ao ESLint 10.
     settings: { react: { version: '19.3.0' } },
     rules: {
       'react/prop-types': 'off',

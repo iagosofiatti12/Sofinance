@@ -3,7 +3,7 @@
 // ====================================
 
 // REMOVIDO: DEMO_USER_ID
-// Agora usamos getUserId() do supabaseClient.js para pegar o user autenticado
+// Agora usamos getUserId() de src/lib/supabase.ts para pegar o user autenticado
 // Isso garante segurança e funcionamento correto em produção
 
 // Categorias

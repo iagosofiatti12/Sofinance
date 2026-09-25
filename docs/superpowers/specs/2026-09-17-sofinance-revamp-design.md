@@ -23,32 +23,32 @@ A seção 9 define as **skills, MCPs e o agente "Engenheiro Sênior Sofinance"**
 
 ### 1.1 Stack e arquitetura (como está)
 
-| Camada | Hoje |
-|---|---|
-| Frontend | React 18.2, Vite 5, JavaScript puro (sem TypeScript), CSS artesanal (~3.600 linhas), Recharts, lucide-react + react-icons, react-hot-toast, Zod 4 |
-| Roteamento | **Não existe.** Navegação por `useState('activeSection')` em `App.jsx`. Sem URLs, sem deep link, sem botão voltar, refresh volta ao dashboard |
-| Estado/dados | `useState` + `useEffect` em cada tela; cada componente chama serviços diretamente; sem cache, sem invalidação, sem estado global além de `AuthContext` |
-| Backend | Supabase (Postgres + Auth + RPC). SQL espalhado em 5 arquivos manuais, sem migrations versionadas nem CLI |
-| Deploy | Vercel (SPA rewrite) |
-| Testes | 1 teste, quebrado (seletores inexistentes, sem mock do Supabase) |
-| CI/CD | Nenhum |
-| Observabilidade | Nenhuma (sem Sentry, sem analytics) |
+| Camada          | Hoje                                                                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend        | React 18.2, Vite 5, JavaScript puro (sem TypeScript), CSS artesanal (~3.600 linhas), Recharts, lucide-react + react-icons, react-hot-toast, Zod 4      |
+| Roteamento      | **Não existe.** Navegação por `useState('activeSection')` em `App.jsx`. Sem URLs, sem deep link, sem botão voltar, refresh volta ao dashboard          |
+| Estado/dados    | `useState` + `useEffect` em cada tela; cada componente chama serviços diretamente; sem cache, sem invalidação, sem estado global além de `AuthContext` |
+| Backend         | Supabase (Postgres + Auth + RPC). SQL espalhado em 5 arquivos manuais, sem migrations versionadas nem CLI                                              |
+| Deploy          | Vercel (SPA rewrite)                                                                                                                                   |
+| Testes          | 1 teste, quebrado (seletores inexistentes, sem mock do Supabase)                                                                                       |
+| CI/CD           | Nenhum                                                                                                                                                 |
+| Observabilidade | Nenhuma (sem Sentry, sem analytics)                                                                                                                    |
 
 Estrutura de código: `components/<Feature>/<Feature>List.jsx` com 300 a 600 linhas cada, misturando busca de dados, validação, formulário, modal e listagem. Modais, formulários e máscaras monetárias estão **copiados e colados** em 7 arquivos (o mesmo `onChange` de moeda aparece 12 vezes).
 
 ### 1.2 Avaliação por módulo
 
-| Módulo | Nota | Comentário |
-|---|---|---|
-| Autenticação | 5 | Login/cadastro/Google funcionam. Faltam: esqueci a senha (serviço existe, UI não), reenviar confirmação, rota `/reset-password` (não existe, o link do e-mail cai no dashboard), login Microsoft é código morto |
-| Dashboard | 4 | Estado inicial com valores **fictícios hardcoded** (R$ 5.420,50 / R$ 3.280,00). "Saldo Total" é na verdade o saldo do mês. `getResumoMensal` chama uma RPC que retorna um número, mas o código espera um objeto: o saldo vira `undefined`. "Próximos vencimentos" ignora virada de mês. Texto de metas é fixo ("Continue assim!") |
-| Extrato (transações) | 6 | Melhor módulo. Parcelamento no cartão via RPC é bom. Problemas: edição envia `cartao_credito_id: ''` para coluna UUID (erro), não ajusta limite ao editar/excluir compra à vista no crédito, typo "Receúita", categorias de receita hardcoded no componente, data com bug de fuso (UTC) |
-| Contas fixas | 4 | São só lembretes. **Nunca viram transações**, então não afetam saldo, extrato nem gráficos. As colunas `origem`/`origem_id` da tabela `transacoes` existem para isso e não são usadas. "Dias restantes" assume mês de 30 dias |
-| Cartões e fatura | 4 | Fatura calculada pelo **mês da compra**, ignorando `dia_fechamento`. Isso é o erro mais visível para quem já usou Mobills/Organizze. `limite_usado` é desnormalizado e atualizado por read-modify-write no cliente (deriva com o tempo). A RPC `pagar_fatura_cartao` e a view `faturas_cartao` referenciam `c.nome`, mas a coluna é `nome_cartao`: **pagar fatura está quebrado** a menos que o banco tenha sido corrigido à mão. `criar_transacao_parcelada` atualiza `updated_at` em `cartoes_credito`, coluna que o `supabase-setup.sql` não cria |
-| Metas | 5 | Funciona, mas "Adicionar valor" usa `window.prompt`, sem histórico de aportes, e "meses restantes" ignora o tempo já decorrido |
-| Financiamentos | 3 | Modelado para **uma pessoa**: uma tabela por tipo (imóvel, carro), `.single()` = um financiamento por usuário. Saldo devedor = parcelas restantes × parcela (ignora amortização SAC/Price). Deveria ser um módulo genérico de "Dívidas e empréstimos" |
-| Configurações | 3 | `deleteAccount` apaga tabelas que **não existem** (`faturas`, `parcelas`, `financiamentos`, `metas`, `profiles`), ignora `transacoes` e nunca apaga o usuário do Auth. Os erros são engolidos. O usuário acha que excluiu a conta e não excluiu |
-| Design system | 6 | Tokens CSS bem definidos, dark mode, glassmorphism bonito. Mas: `scale`/`translate` em hover de todos os cards (jitter com conteúdo), sem `prefers-reduced-motion`, toggle de tema flutuando sobre o conteúdo, `Header.jsx` nunca usado, 4 padrões diferentes de loading, favicon de **2 MB** e GIF de loading de 500 KB |
+| Módulo               | Nota | Comentário                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Autenticação         | 5    | Login/cadastro/Google funcionam. Faltam: esqueci a senha (serviço existe, UI não), reenviar confirmação, rota `/reset-password` (não existe, o link do e-mail cai no dashboard), login Microsoft é código morto                                                                                                                                                                                                                                                                                                                                      |
+| Dashboard            | 4    | Estado inicial com valores **fictícios hardcoded** (R$ 5.420,50 / R$ 3.280,00). "Saldo Total" é na verdade o saldo do mês. `getResumoMensal` chama uma RPC que retorna um número, mas o código espera um objeto: o saldo vira `undefined`. "Próximos vencimentos" ignora virada de mês. Texto de metas é fixo ("Continue assim!")                                                                                                                                                                                                                    |
+| Extrato (transações) | 6    | Melhor módulo. Parcelamento no cartão via RPC é bom. Problemas: edição envia `cartao_credito_id: ''` para coluna UUID (erro), não ajusta limite ao editar/excluir compra à vista no crédito, typo "Receúita", categorias de receita hardcoded no componente, data com bug de fuso (UTC)                                                                                                                                                                                                                                                              |
+| Contas fixas         | 4    | São só lembretes. **Nunca viram transações**, então não afetam saldo, extrato nem gráficos. As colunas `origem`/`origem_id` da tabela `transacoes` existem para isso e não são usadas. "Dias restantes" assume mês de 30 dias                                                                                                                                                                                                                                                                                                                        |
+| Cartões e fatura     | 4    | Fatura calculada pelo **mês da compra**, ignorando `dia_fechamento`. Isso é o erro mais visível para quem já usou Mobills/Organizze. `limite_usado` é desnormalizado e atualizado por read-modify-write no cliente (deriva com o tempo). A RPC `pagar_fatura_cartao` e a view `faturas_cartao` referenciam `c.nome`, mas a coluna é `nome_cartao`: **pagar fatura está quebrado** a menos que o banco tenha sido corrigido à mão. `criar_transacao_parcelada` atualiza `updated_at` em `cartoes_credito`, coluna que o `supabase-setup.sql` não cria |
+| Metas                | 5    | Funciona, mas "Adicionar valor" usa `window.prompt`, sem histórico de aportes, e "meses restantes" ignora o tempo já decorrido                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Financiamentos       | 3    | Modelado para **uma pessoa**: uma tabela por tipo (imóvel, carro), `.single()` = um financiamento por usuário. Saldo devedor = parcelas restantes × parcela (ignora amortização SAC/Price). Deveria ser um módulo genérico de "Dívidas e empréstimos"                                                                                                                                                                                                                                                                                                |
+| Configurações        | 3    | `deleteAccount` apaga tabelas que **não existem** (`faturas`, `parcelas`, `financiamentos`, `metas`, `profiles`), ignora `transacoes` e nunca apaga o usuário do Auth. Os erros são engolidos. O usuário acha que excluiu a conta e não excluiu                                                                                                                                                                                                                                                                                                      |
+| Design system        | 6    | Tokens CSS bem definidos, dark mode, glassmorphism bonito. Mas: `scale`/`translate` em hover de todos os cards (jitter com conteúdo), sem `prefers-reduced-motion`, toggle de tema flutuando sobre o conteúdo, `Header.jsx` nunca usado, 4 padrões diferentes de loading, favicon de **2 MB** e GIF de loading de 500 KB                                                                                                                                                                                                                             |
 
 ### 1.3 Bugs e defeitos encontrados (verificados no código)
 
@@ -83,26 +83,26 @@ Estrutura de código: `components/<Feature>/<Feature>List.jsx` com 300 a 600 lin
 
 ### 1.4 Segurança e conformidade
 
-| Item | Estado | Necessário para público |
-|---|---|---|
-| RLS | Enfraquecida (item 1) | Políticas estritas por tabela, testadas com `pgTAP` ou testes de integração |
-| RPCs | Inseguras (item 2) | `auth.uid()` interno, `SECURITY INVOKER` quando possível, `REVOKE EXECUTE FROM anon` |
-| Exclusão de conta | Não funciona | Edge Function com service role: apaga dados, storage e `auth.users` |
-| LGPD | Nada | Termos de uso, política de privacidade, consentimento no cadastro, exportação de dados (portabilidade), eliminação, registro de base legal |
-| Senhas | Mínimo 6 caracteres | Mínimo 8, checagem de senha vazada (Supabase Auth suporta HaveIBeenPwned), rate limit |
-| Sessão | localStorage | Aceitável para SPA; considerar PKCE (padrão no supabase-js atual) e refresh silencioso |
-| Secrets | `.env` ignorado, ok | Manter. Nunca expor `service_role` no cliente |
-| Cabeçalhos | Nenhum | CSP, HSTS e afins via `vercel.json` |
+| Item              | Estado                | Necessário para público                                                                                                                    |
+| ----------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| RLS               | Enfraquecida (item 1) | Políticas estritas por tabela, testadas com `pgTAP` ou testes de integração                                                                |
+| RPCs              | Inseguras (item 2)    | `auth.uid()` interno, `SECURITY INVOKER` quando possível, `REVOKE EXECUTE FROM anon`                                                       |
+| Exclusão de conta | Não funciona          | Edge Function com service role: apaga dados, storage e `auth.users`                                                                        |
+| LGPD              | Nada                  | Termos de uso, política de privacidade, consentimento no cadastro, exportação de dados (portabilidade), eliminação, registro de base legal |
+| Senhas            | Mínimo 6 caracteres   | Mínimo 8, checagem de senha vazada (Supabase Auth suporta HaveIBeenPwned), rate limit                                                      |
+| Sessão            | localStorage          | Aceitável para SPA; considerar PKCE (padrão no supabase-js atual) e refresh silencioso                                                     |
+| Secrets           | `.env` ignorado, ok   | Manter. Nunca expor `service_role` no cliente                                                                                              |
+| Cabeçalhos        | Nenhum                | CSP, HSTS e afins via `vercel.json`                                                                                                        |
 
 ### 1.5 Qualidade de código e experiência de desenvolvimento
 
 Verificação executada em 2026-09-17 (após `npm install`):
 
-| Comando | Resultado |
-|---|---|
-| `npm run lint` | **Falha**: ESLint 9 exige `eslint.config.js` |
+| Comando          | Resultado                                                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run lint`   | **Falha**: ESLint 9 exige `eslint.config.js`                                                                                               |
 | `npx vitest run` | **Falha na importação**: `supabaseClient.js` lança erro sem `.env`; o único teste nem chega a rodar (e seus seletores não existem na tela) |
-| `npm run build` | Passa, mas gera **um único chunk de 910 KB** (248 KB gzip) sem code-splitting; `dist/` com 3,6 MB por causa das imagens |
+| `npm run build`  | Passa, mas gera **um único chunk de 910 KB** (248 KB gzip) sem code-splitting; `dist/` com 3,6 MB por causa das imagens                    |
 
 - **Sem TypeScript**: os bugs 5, 7 e 9 seriam pegos em compilação.
 - **Sem camada de dados**: cada tela repete `loading/try/catch/toast`. Sem cache: trocar de aba refaz todas as consultas.
@@ -116,19 +116,19 @@ Pontos fortes: identidade visual consistente, dark mode, empty states, toasts, a
 
 ### 1.7 Scorecard consolidado
 
-| Dimensão | Nota (0–10) |
-|---|---|
-| Arquitetura de software | 4 |
-| Modelo de dados | 4 |
-| Segurança | 3 |
-| Regras de negócio financeiras | 4 |
-| Funcionalidades vs. mercado | 5 |
-| UX/UI | 6 |
-| Qualidade de código | 4 |
-| Testes e CI | 1 |
-| Performance | 5 |
-| Prontidão multiusuário/produção | 3 |
-| **Média** | **4,2** |
+| Dimensão                        | Nota (0–10) |
+| ------------------------------- | ----------- |
+| Arquitetura de software         | 4           |
+| Modelo de dados                 | 4           |
+| Segurança                       | 3           |
+| Regras de negócio financeiras   | 4           |
+| Funcionalidades vs. mercado     | 5           |
+| UX/UI                           | 6           |
+| Qualidade de código             | 4           |
+| Testes e CI                     | 1           |
+| Performance                     | 5           |
+| Prontidão multiusuário/produção | 3           |
+| **Média**                       | **4,2**     |
 
 ---
 
@@ -136,13 +136,13 @@ Pontos fortes: identidade visual consistente, dark mode, empty states, toasts, a
 
 ### 2.1 Concorrentes e preços
 
-| App | Modelo | Preço premium (referência 2026) | Destaques |
-|---|---|---|---|
-| Mobills | Freemium | ~R$ 18/mês, R$ 96 a R$ 99,90/ano (promoções de 2 anos por R$ 199,90) | Mais completo: sync bancário (Open Finance), planejamento, relatórios, web + mobile |
-| Organizze | Freemium (trial 7 dias) | ~R$ 17,90/mês, faixas até R$ 599,90 | Interface limpa, importação Open Finance, limite por categoria, lembretes |
-| Minhas Economias | Freemium | R$ 99,90/ano | Manual + Open Finance, orçamento com alertas, metas |
-| Money Lover, Monefy, Spendee, Fin, Buddy | Freemium | R$ 100 a R$ 280/ano | Nichos: simplicidade, multi-moeda, compartilhamento |
-| Serasa "Minhas Contas" | Grátis | — | Agregação de contas por CPF, alertas |
+| App                                      | Modelo                  | Preço premium (referência 2026)                                      | Destaques                                                                           |
+| ---------------------------------------- | ----------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Mobills                                  | Freemium                | ~R$ 18/mês, R$ 96 a R$ 99,90/ano (promoções de 2 anos por R$ 199,90) | Mais completo: sync bancário (Open Finance), planejamento, relatórios, web + mobile |
+| Organizze                                | Freemium (trial 7 dias) | ~R$ 17,90/mês, faixas até R$ 599,90                                  | Interface limpa, importação Open Finance, limite por categoria, lembretes           |
+| Minhas Economias                         | Freemium                | R$ 99,90/ano                                                         | Manual + Open Finance, orçamento com alertas, metas                                 |
+| Money Lover, Monefy, Spendee, Fin, Buddy | Freemium                | R$ 100 a R$ 280/ano                                                  | Nichos: simplicidade, multi-moeda, compartilhamento                                 |
+| Serasa "Minhas Contas"                   | Grátis                  | —                                                                    | Agregação de contas por CPF, alertas                                                |
 
 Fontes: [Encaixei comparativo de preços](https://www.encaixei.com.br/comparativo-de-precos-apps-financas), [Canaltech: Organizze ou Mobills](https://canaltech.com.br/apps/organizze-ou-mobills-qual-aplicativo-melhor-para-controlar-gastos/), [Mobills pricing](https://www.mobills.com.br/pricing/), [TechTudo: 10 apps 2026](https://www.techtudo.com.br/listas/2026/01/10-apps-de-controle-financeiro-para-cuidar-melhor-do-dinheiro-em-2026-edapps.ghtml), [Serasa: top 10 apps](https://www.serasa.com.br/score/blog/opcoes-de-aplicativo-para-controle-financeiro/).
 
@@ -196,6 +196,7 @@ Competir de frente com Mobills em "ter tudo" não é viável. Diferenciação po
 ## 4. O que fica, sai, muda e entra
 
 ### Fica
+
 - Supabase (Postgres, Auth, RLS, Storage, Edge Functions).
 - React + Vite + Vercel.
 - Identidade visual (azul `#2563eb`, dark mode, logo).
@@ -204,6 +205,7 @@ Competir de frente com Mobills em "ter tudo" não é viável. Diferenciação po
 - Português do Brasil como único idioma no lançamento.
 
 ### Sai
+
 - Navegação por `useState` (entra roteador).
 - CSS artesanal duplicado por feature (entra design system com tokens + utilitários).
 - Tabelas `transacoes_cartao`, `usuarios`, scripts `fix-*`, políticas de demo.
@@ -216,6 +218,7 @@ Competir de frente com Mobills em "ter tudo" não é viável. Diferenciação po
 - Valores fictícios no dashboard.
 
 ### Muda
+
 - JavaScript → **TypeScript** (gradual, começando por domínio e serviços).
 - Serviços soltos → **camada de dados com TanStack Query** (cache, invalidação, otimismo) e tipos gerados do banco (`supabase gen types`).
 - Componentes de 500 linhas → **feature folders** (`src/features/<feature>/{api,components,hooks,model}`) com componentes de UI reutilizáveis (`Modal`, `Form`, `CurrencyInput`, `DataTable`, `Page`).
@@ -230,6 +233,7 @@ Competir de frente com Mobills em "ter tudo" não é viável. Diferenciação po
 - Configurações → perfil, preferências (tema, moeda, dia de início do mês), segurança, exportação e exclusão de dados.
 
 ### Entra
+
 - **Contas bancárias** com saldo e **transferências**.
 - **Categorias personalizáveis** (ícone, cor, subcategoria, tipo).
 - **Orçamento mensal por categoria**.
@@ -250,19 +254,19 @@ Competir de frente com Mobills em "ter tudo" não é viável. Diferenciação po
 
 ### 5.1 Frontend
 
-| Tema | Decisão | Motivo |
-|---|---|---|
-| Linguagem | TypeScript estrito | Elimina classe inteira dos bugs encontrados |
-| Framework | React 19 + Vite (versões estáveis atuais, confirmar com Context7) | Continuidade; sem necessidade de SSR |
-| Rotas | React Router (data APIs) | Deep links, guards de auth, `/reset-password` |
-| Dados | TanStack Query + `supabase-js` tipado | Cache, invalidação, loading/erro padronizados |
-| Formulários | react-hook-form + Zod 4 + `zodResolver` | Um padrão só, validação compartilhada com o domínio |
-| Estilo | Tailwind CSS v4 + tokens CSS já existentes + shadcn/ui (Radix) para primitivos acessíveis | Remove 3.600 linhas de CSS duplicado, modais/dialogs acessíveis prontos |
-| Gráficos | Recharts (manter) | Já funciona |
-| Datas | date-fns v4 com `@date-fns/tz` (`America/Sao_Paulo`) | Corrige bugs de fuso |
-| Dinheiro | Inteiros em centavos no domínio (`bigint`/`number` inteiro), formatação com `Intl.NumberFormat('pt-BR')` | Evita erro de ponto flutuante |
-| PWA | `vite-plugin-pwa` | Instalável, ícones corretos |
-| Estrutura | `src/app` (rotas, providers), `src/features/*`, `src/shared/ui`, `src/shared/lib`, `src/domain` (regras puras) | Isolamento e testabilidade |
+| Tema        | Decisão                                                                                                        | Motivo                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Linguagem   | TypeScript estrito                                                                                             | Elimina classe inteira dos bugs encontrados                             |
+| Framework   | React 19 + Vite (versões estáveis atuais, confirmar com Context7)                                              | Continuidade; sem necessidade de SSR                                    |
+| Rotas       | React Router (data APIs)                                                                                       | Deep links, guards de auth, `/reset-password`                           |
+| Dados       | TanStack Query + `supabase-js` tipado                                                                          | Cache, invalidação, loading/erro padronizados                           |
+| Formulários | react-hook-form + Zod 4 + `zodResolver`                                                                        | Um padrão só, validação compartilhada com o domínio                     |
+| Estilo      | Tailwind CSS v4 + tokens CSS já existentes + shadcn/ui (Radix) para primitivos acessíveis                      | Remove 3.600 linhas de CSS duplicado, modais/dialogs acessíveis prontos |
+| Gráficos    | Recharts (manter)                                                                                              | Já funciona                                                             |
+| Datas       | date-fns v4 com `@date-fns/tz` (`America/Sao_Paulo`)                                                           | Corrige bugs de fuso                                                    |
+| Dinheiro    | Inteiros em centavos no domínio (`bigint`/`number` inteiro), formatação com `Intl.NumberFormat('pt-BR')`       | Evita erro de ponto flutuante                                           |
+| PWA         | `vite-plugin-pwa`                                                                                              | Instalável, ícones corretos                                             |
+| Estrutura   | `src/app` (rotas, providers), `src/features/*`, `src/shared/ui`, `src/shared/lib`, `src/domain` (regras puras) | Isolamento e testabilidade                                              |
 
 ### 5.2 Banco de dados (schema v2)
 
@@ -339,7 +343,9 @@ Ferramentas: skill `frontend-design` (Anthropic) para direção visual; skill `w
 Estimativas para 1 dev + Claude Code (subagentes em paralelo onde marcado ∥). Cada fase vira um plano de implementação próprio via `superpowers:writing-plans` e é executada com `superpowers:executing-plans` ou `subagent-driven-development`, com TDD e `verification-before-completion`.
 
 ### Fase 0 — Segurança e estabilização (1 semana) — pode ir para produção sozinha
+
 Objetivo: parar de sangrar antes de reformar.
+
 1. Auditar o Supabase real: listar políticas (`select * from pg_policies`), dropar as `"Enable all for demo"`, revisar `GRANT`s.
 2. Reescrever as 3 RPCs para `auth.uid()` e verificação de posse; `REVOKE FROM anon`.
 3. Corrigir `pagar_fatura_cartao`/view (`nome_cartao`) e `updated_at` faltante.
@@ -348,17 +354,19 @@ Objetivo: parar de sangrar antes de reformar.
 6. Migrar Zod para API v4 (`issues`, `error` em vez de `errorMap`); migrar ESLint para flat config; fazer `supabaseClient` não lançar na importação em teste; consertar ou remover o teste quebrado.
 7. Trocar favicon/loader por SVG leve; ativar code-splitting por rota (`React.lazy`) e `manualChunks` para Recharts.
 8. Adicionar Sentry.
-Skills: `security-review`, `systematic-debugging`, `test-driven-development`, `supabase` (a instalar).
+   Skills: `security-review`, `systematic-debugging`, `test-driven-development`, `supabase` (a instalar).
 
 ### Fase 1 — Fundação técnica (2 semanas)
+
 1. Supabase CLI + `supabase/migrations` reproduzindo o schema atual (baseline) + `supabase start` local.
 2. TypeScript (`allowJs`, migração gradual), tipos gerados do banco.
 3. React Router com guards; TanStack Query; `shared/ui` com Dialog/Form/CurrencyInput/Skeleton/EmptyState únicos.
 4. Tailwind v4 + tokens; substituir CSS por feature em uma tela piloto (Contas fixas) para validar o padrão.
 5. ESLint/Prettier/Husky; GitHub Actions; Vitest com testes do domínio (moeda, datas, fatura).
-Skills: `writing-plans`, `subagent-driven-development` ∥, `using-git-worktrees`, `react-best-practices` (a instalar), Context7 para versões atuais.
+   Skills: `writing-plans`, `subagent-driven-development` ∥, `using-git-worktrees`, `react-best-practices` (a instalar), Context7 para versões atuais.
 
 ### Fase 2 — Domínio financeiro v2 (3 a 4 semanas)
+
 1. Schema v2 (seção 5.2) em migrations; views e funções; testes de RLS.
 2. Script de migração v1 → v2 (dados do Iago) testado em staging.
 3. Features, nesta ordem (cada uma com API tipada + hooks + UI + testes):
@@ -370,9 +378,10 @@ Skills: `writing-plans`, `subagent-driven-development` ∥, `using-git-worktrees
    f. Metas com aportes
    g. Dívidas (SAC/Price, cronograma, amortização extra)
 4. Dashboard v2 sobre as views.
-Skills: `test-driven-development`, `subagent-driven-development` ∥, `supabase-postgres-best-practices`, `code-review` a cada feature, `dataviz`.
+   Skills: `test-driven-development`, `subagent-driven-development` ∥, `supabase-postgres-best-practices`, `code-review` a cada feature, `dataviz`.
 
 ### Fase 3 — Redesign (2 semanas, parte ∥ com Fase 2 a partir da 2ª semana)
+
 1. Direção visual com `frontend-design`; tokens; componentes do design system.
 2. Mobile-first: bottom nav + sheet de lançamento rápido; desktop sidebar.
 3. Aplicar em todas as telas; auditoria com `web-design-guidelines`; acessibilidade; `prefers-reduced-motion`.
@@ -380,6 +389,7 @@ Skills: `test-driven-development`, `subagent-driven-development` ∥, `supabase-
 5. Playwright nos fluxos críticos.
 
 ### Fase 4 — Pronto para o público (2 semanas)
+
 1. Onboarding + dados de exemplo + checklist de ativação (skill `onboarding`, `signup`).
 2. LGPD: termos, privacidade, consentimento, exportação de dados, exclusão (já da Fase 0), página de "seus dados".
 3. Configurações completas (perfil, preferências, segurança, sessões).
@@ -389,6 +399,7 @@ Skills: `test-driven-development`, `subagent-driven-development` ∥, `supabase-
 7. Beta fechado (20 a 50 usuários) por 2 semanas com feedback (skill `customer-research`), depois lançamento (skill `launch`, `directory-submissions`).
 
 ### Fase 5 — Diferenciação (contínua, pós-lançamento)
+
 1. Importação OFX/CSV (Nubank, Itaú, Inter, Bradesco, C6) com deduplicação.
 2. Lembretes por e-mail e push (PWA).
 3. Categorização assistida por IA (Claude Haiku 4.5 via Edge Function; custo por chamada baixo).
@@ -399,14 +410,14 @@ Skills: `test-driven-development`, `subagent-driven-development` ∥, `supabase-
 
 ### Cronograma resumido
 
-| Fase | Duração | Entregável | Pode ir a produção? |
-|---|---|---|---|
-| 0 | 1 sem | App atual seguro e sem bugs críticos | Sim |
-| 1 | 2 sem | Base TS/rotas/query/CI, tela piloto | Sim (sem mudança visível) |
-| 2 | 3–4 sem | Domínio v2 e dados migrados | Sim, atrás de feature flag por usuário |
-| 3 | 2 sem (∥) | Novo design, mobile, PWA | Sim |
-| 4 | 2 sem | Onboarding, LGPD, cobrança, landing, beta | Lançamento |
-| **Total** | **10–14 sem** | | |
+| Fase      | Duração       | Entregável                                | Pode ir a produção?                    |
+| --------- | ------------- | ----------------------------------------- | -------------------------------------- |
+| 0         | 1 sem         | App atual seguro e sem bugs críticos      | Sim                                    |
+| 1         | 2 sem         | Base TS/rotas/query/CI, tela piloto       | Sim (sem mudança visível)              |
+| 2         | 3–4 sem       | Domínio v2 e dados migrados               | Sim, atrás de feature flag por usuário |
+| 3         | 2 sem (∥)     | Novo design, mobile, PWA                  | Sim                                    |
+| 4         | 2 sem         | Onboarding, LGPD, cobrança, landing, beta | Lançamento                             |
+| **Total** | **10–14 sem** |                                           |                                        |
 
 ---
 
@@ -423,35 +434,35 @@ Skills: `test-driven-development`, `subagent-driven-development` ∥, `supabase-
 
 ### 9.1 Skills já instaladas que serão usadas
 
-| Skill | Uso no plano |
-|---|---|
-| `superpowers:brainstorming` | Este documento; refinamento de cada fase |
-| `superpowers:writing-plans` | Plano de implementação de cada fase |
-| `superpowers:executing-plans` / `subagent-driven-development` | Execução com subagentes em paralelo |
-| `superpowers:test-driven-development` | Domínio financeiro, RLS, hooks |
-| `superpowers:systematic-debugging` | Fase 0 |
-| `superpowers:using-git-worktrees` | Fases 2 e 3 em paralelo |
-| `superpowers:requesting-code-review` / `receiving-code-review` / `code-review` | A cada feature |
-| `superpowers:verification-before-completion` | Antes de marcar qualquer tarefa como pronta |
-| `superpowers:finishing-a-development-branch` | Fechamento de PRs |
-| `security-review` | Fase 0 e antes do lançamento |
-| `simplify` | Depois de cada feature grande |
-| `dataviz` | Gráficos do dashboard e relatórios |
-| `run` + `claude-in-chrome` | Verificação visual e e2e manual |
-| Marketing: `pricing`, `paywalls`, `onboarding`, `signup`, `copywriting`, `cro`, `seo-audit`, `analytics`, `launch`, `directory-submissions`, `customer-research`, `churn-prevention`, `referrals`, `product-marketing` | Fases 4 e 5 |
-| `anthropic-skills:skill-creator` | Criar a skill interna `sofinance-domain` (regras de negócio) |
+| Skill                                                                                                                                                                                                                  | Uso no plano                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `superpowers:brainstorming`                                                                                                                                                                                            | Este documento; refinamento de cada fase                     |
+| `superpowers:writing-plans`                                                                                                                                                                                            | Plano de implementação de cada fase                          |
+| `superpowers:executing-plans` / `subagent-driven-development`                                                                                                                                                          | Execução com subagentes em paralelo                          |
+| `superpowers:test-driven-development`                                                                                                                                                                                  | Domínio financeiro, RLS, hooks                               |
+| `superpowers:systematic-debugging`                                                                                                                                                                                     | Fase 0                                                       |
+| `superpowers:using-git-worktrees`                                                                                                                                                                                      | Fases 2 e 3 em paralelo                                      |
+| `superpowers:requesting-code-review` / `receiving-code-review` / `code-review`                                                                                                                                         | A cada feature                                               |
+| `superpowers:verification-before-completion`                                                                                                                                                                           | Antes de marcar qualquer tarefa como pronta                  |
+| `superpowers:finishing-a-development-branch`                                                                                                                                                                           | Fechamento de PRs                                            |
+| `security-review`                                                                                                                                                                                                      | Fase 0 e antes do lançamento                                 |
+| `simplify`                                                                                                                                                                                                             | Depois de cada feature grande                                |
+| `dataviz`                                                                                                                                                                                                              | Gráficos do dashboard e relatórios                           |
+| `run` + `claude-in-chrome`                                                                                                                                                                                             | Verificação visual e e2e manual                              |
+| Marketing: `pricing`, `paywalls`, `onboarding`, `signup`, `copywriting`, `cro`, `seo-audit`, `analytics`, `launch`, `directory-submissions`, `customer-research`, `churn-prevention`, `referrals`, `product-marketing` | Fases 4 e 5                                                  |
+| `anthropic-skills:skill-creator`                                                                                                                                                                                       | Criar a skill interna `sofinance-domain` (regras de negócio) |
 
 ### 9.2 Skills e MCPs a instalar (comandos)
 
-| Item | Para quê | Instalação |
-|---|---|---|
-| **Context7 MCP** | Documentação atualizada de React, Vite, Tailwind v4, TanStack Query, supabase-js, Zod 4 | `claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp` ([docs](https://context7.com/docs/clients/claude-code)) |
-| **Supabase MCP** | Consultar schema, políticas, rodar migrations e gerar tipos direto do Claude Code | `claude mcp add --transport http supabase https://mcp.supabase.com/mcp?project_ref=<ref>` ([docs](https://supabase.com/features/mcp-server)); usar em **modo read-only** contra produção |
-| **Supabase agent skills** | Boas práticas de Auth, RLS, migrations, Postgres | `claude plugin marketplace add supabase/agent-skills` e `claude plugin install supabase@supabase-agent-skills` ([repo](https://github.com/supabase/agent-skills)) |
-| **Vercel agent skills** | `react-best-practices`, `web-design-guidelines`, `composition-patterns` | `npx skills add vercel-labs/agent-skills` ([repo](https://github.com/vercel-labs/agent-skills)) |
-| **frontend-design (Anthropic)** | Direção visual do redesign | plugin `frontend-design` do marketplace oficial `anthropics/claude-code` ([SKILL.md](https://github.com/anthropics/claude-code/blob/main/plugins/frontend-design/skills/frontend-design/SKILL.md)) |
-| **Playwright MCP** | Testes e2e e verificação visual automatizada | `claude mcp add playwright -- npx -y @playwright/mcp@latest` |
-| **Skill interna `sofinance-domain`** | Regras de negócio brasileiras (fatura, parcelas, SAC/Price, LGPD, formatação) para todos os agentes | Criar com `skill-creator` em `.claude/skills/sofinance-domain/SKILL.md` na Fase 1 |
+| Item                                 | Para quê                                                                                            | Instalação                                                                                                                                                                                         |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Context7 MCP**                     | Documentação atualizada de React, Vite, Tailwind v4, TanStack Query, supabase-js, Zod 4             | `claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp` ([docs](https://context7.com/docs/clients/claude-code))                                                                     |
+| **Supabase MCP**                     | Consultar schema, políticas, rodar migrations e gerar tipos direto do Claude Code                   | `claude mcp add --transport http supabase https://mcp.supabase.com/mcp?project_ref=<ref>` ([docs](https://supabase.com/features/mcp-server)); usar em **modo read-only** contra produção           |
+| **Supabase agent skills**            | Boas práticas de Auth, RLS, migrations, Postgres                                                    | `claude plugin marketplace add supabase/agent-skills` e `claude plugin install supabase@supabase-agent-skills` ([repo](https://github.com/supabase/agent-skills))                                  |
+| **Vercel agent skills**              | `react-best-practices`, `web-design-guidelines`, `composition-patterns`                             | `npx skills add vercel-labs/agent-skills` ([repo](https://github.com/vercel-labs/agent-skills))                                                                                                    |
+| **frontend-design (Anthropic)**      | Direção visual do redesign                                                                          | plugin `frontend-design` do marketplace oficial `anthropics/claude-code` ([SKILL.md](https://github.com/anthropics/claude-code/blob/main/plugins/frontend-design/skills/frontend-design/SKILL.md)) |
+| **Playwright MCP**                   | Testes e2e e verificação visual automatizada                                                        | `claude mcp add playwright -- npx -y @playwright/mcp@latest`                                                                                                                                       |
+| **Skill interna `sofinance-domain`** | Regras de negócio brasileiras (fatura, parcelas, SAC/Price, LGPD, formatação) para todos os agentes | Criar com `skill-creator` em `.claude/skills/sofinance-domain/SKILL.md` na Fase 1                                                                                                                  |
 
 Skills sem substituto encontrado e que **não** vale buscar: nada crítico ficou descoberto. Se surgir necessidade de app nativo, buscar `react-native-guidelines` (já no pacote Vercel) ou Expo skills.
 
@@ -472,6 +483,7 @@ Você é o engenheiro sênior responsável pelo Sofinance, um app brasileiro de 
 15 anos de engenharia com experiência de produto em fintechs de consumo.
 
 ## Como você trabalha
+
 - Antes de propor código, verifique o que já existe (leia `docs/superpowers/specs/` e o schema em `supabase/migrations`).
 - Prefira regras de negócio no banco (views, funções com `auth.uid()`, triggers) ou em `src/domain` puro e testado. Nunca nas telas.
 - Dinheiro é inteiro em centavos. Datas no fuso `America/Sao_Paulo`. Nunca use `new Date('YYYY-MM-DD')` sem tratar fuso.
@@ -481,6 +493,7 @@ Você é o engenheiro sênior responsável pelo Sofinance, um app brasileiro de 
 - Se um requisito contraria como o mercado brasileiro funciona, diga isso com exemplos concretos e proponha alternativa.
 
 ## Regras de negócio que você conhece de cor
+
 - Cartão de crédito: compras entre o fechamento anterior (exclusivo) e o fechamento atual (inclusivo)
   entram na fatura que vence no `dia_vencimento` seguinte. Se `dia_vencimento` < `dia_fechamento`, o vencimento
   é no mês seguinte ao fechamento. Compra após o fechamento cai na próxima fatura.
@@ -497,6 +510,7 @@ Você é o engenheiro sênior responsável pelo Sofinance, um app brasileiro de 
 - Formatação: `R$ 1.234,56`; datas `dd/MM/yyyy`; mês de referência `YYYY-MM`.
 
 ## Ao revisar código
+
 Procure: dinheiro em float, datas sem fuso, RLS ausente, `user_id` vindo do cliente, lógica duplicada entre
 cliente e banco, componentes acima de 250 linhas, `confirm`/`prompt`, estados de loading/erro faltando,
 consultas N+1, mutações sem invalidação de cache. Cite arquivo e linha.
@@ -512,14 +526,14 @@ Complementos:
 
 ## 10. Riscos e mitigação
 
-| Risco | Mitigação |
-|---|---|
-| Dados atuais do Iago se perderem na migração v1→v2 | Backup (`pg_dump`) antes, migração em staging, comparação de totais por mês antes/depois |
-| Escopo da Fase 2 crescer | Cada feature vira PR próprio com plano; nada entra sem estar no schema v2 |
-| Redesign atrasar o domínio | Fase 3 começa só depois de Contas/Lançamentos prontos; design system primeiro, telas depois |
-| Custo de Supabase/Vercel com usuários | Plano Free do Supabase aguenta o beta; monitorar; Pro (US$ 25/mês) a partir do lançamento |
-| Cobrança no Brasil | Decidir provedor na Fase 4 com base em Pix; não bloquear o beta (beta é gratuito) |
-| Dependência de um único desenvolvedor | Documentação viva (`docs/`), CLAUDE.md, agente sênior com regras, CI que impede regressão |
+| Risco                                              | Mitigação                                                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Dados atuais do Iago se perderem na migração v1→v2 | Backup (`pg_dump`) antes, migração em staging, comparação de totais por mês antes/depois    |
+| Escopo da Fase 2 crescer                           | Cada feature vira PR próprio com plano; nada entra sem estar no schema v2                   |
+| Redesign atrasar o domínio                         | Fase 3 começa só depois de Contas/Lançamentos prontos; design system primeiro, telas depois |
+| Custo de Supabase/Vercel com usuários              | Plano Free do Supabase aguenta o beta; monitorar; Pro (US$ 25/mês) a partir do lançamento   |
+| Cobrança no Brasil                                 | Decidir provedor na Fase 4 com base em Pix; não bloquear o beta (beta é gratuito)           |
+| Dependência de um único desenvolvedor              | Documentação viva (`docs/`), CLAUDE.md, agente sênior com regras, CI que impede regressão   |
 
 ## 11. Decisões que precisam do Iago
 
@@ -541,15 +555,15 @@ Complementos:
 
 ## 13. Decisões registradas em 2026-09-17 (segunda rodada)
 
-| Decisão | Resposta do Iago | Consequência |
-|---|---|---|
-| Faseamento 0 → 4 | Aprovado | Fase 0 começa após instalação das ferramentas |
-| Cartão de crédito | **Remover o cadastro detalhado**; tratar como gasto "Fatura do Cartão X"; avaliar importação de arquivo via workflow (n8n) | Modelo "cartão lite" abaixo (13.1) |
-| Design | "O melhor design possível", pesquisar componentes e bibliotecas | Stack de design em 13.2 |
-| Preço / cobrança | Não respondido | Mantém proposta da seção 8 como hipótese; decidir na Fase 4 |
-| Beta fechado | Sim | Entra na Fase 4 |
-| Auditoria do Supabase de produção | Sim | Primeiro item da Fase 0 |
-| Automações e rotinas | Pediu ideias | Lista em 13.3 |
+| Decisão                           | Resposta do Iago                                                                                                           | Consequência                                                |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Faseamento 0 → 4                  | Aprovado                                                                                                                   | Fase 0 começa após instalação das ferramentas               |
+| Cartão de crédito                 | **Remover o cadastro detalhado**; tratar como gasto "Fatura do Cartão X"; avaliar importação de arquivo via workflow (n8n) | Modelo "cartão lite" abaixo (13.1)                          |
+| Design                            | "O melhor design possível", pesquisar componentes e bibliotecas                                                            | Stack de design em 13.2                                     |
+| Preço / cobrança                  | Não respondido                                                                                                             | Mantém proposta da seção 8 como hipótese; decidir na Fase 4 |
+| Beta fechado                      | Sim                                                                                                                        | Entra na Fase 4                                             |
+| Auditoria do Supabase de produção | Sim                                                                                                                        | Primeiro item da Fase 0                                     |
+| Automações e rotinas              | Pediu ideias                                                                                                               | Lista em 13.3                                               |
 
 ### 13.1 Cartão de crédito: modelo "fatura como conta a pagar"
 
@@ -576,19 +590,19 @@ Mudanças no schema já registradas na seção 5.2 (`credit_cards` reduzido, `in
 
 ### 13.2 Stack de design (pesquisa de 2026)
 
-| Camada | Escolha | Por quê |
-|---|---|---|
-| Sistema de componentes | **shadcn/ui com base Base UI** (padrão desde julho/2026; Radix e React Aria como alternativas) + **Tailwind CSS v4** | Componentes acessíveis, código no repositório (sem lock-in), ecossistema de registries direto na CLI (`npx shadcn add @registro/componente`) |
-| Dashboard e gráficos | **shadcn Charts** (Recharts) + **Tremor** (open source, Vercel) para KPI cards, bar lists, tracker, spark charts, date range picker | Padrão de mercado para dashboards financeiros; 300+ blocks para referência |
-| Mobile | **Vaul** (Drawer/Sheet do shadcn) para lançamento rápido, bottom nav próprio | Gesto nativo de arrastar |
-| Tabelas | **TanStack Table** via DataTable do shadcn | Ordenação, filtros, virtualização |
-| Formulários | react-hook-form + Zod 4 + componentes Form do shadcn; **react-number-format** para moeda pt-BR | Um padrão só |
-| Feedback | **Sonner** (toasts), `cmdk` (paleta de comandos com atalhos) | Leves e acessíveis |
-| Motion | **Motion** (motion.dev) com `prefers-reduced-motion` | Transições de tela e microinterações com controle |
-| Ícones | Lucide (manter) | Já usado |
-| Tema | **tweakcn** para gerar o tema a partir do azul `#2563eb` em light/dark | Consistência de tokens |
-| Prototipagem | Figma MCP (já disponível) + **shadcn Figma kit** | Mockups antes de codar as telas principais |
-| Referências visuais | Mobbin (Nubank, Monarch, Copilot Money, Organizze) e Tremor Blocks | Padrões testados em fintech |
+| Camada                 | Escolha                                                                                                                             | Por quê                                                                                                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sistema de componentes | **shadcn/ui com base Base UI** (padrão desde julho/2026; Radix e React Aria como alternativas) + **Tailwind CSS v4**                | Componentes acessíveis, código no repositório (sem lock-in), ecossistema de registries direto na CLI (`npx shadcn add @registro/componente`) |
+| Dashboard e gráficos   | **shadcn Charts** (Recharts) + **Tremor** (open source, Vercel) para KPI cards, bar lists, tracker, spark charts, date range picker | Padrão de mercado para dashboards financeiros; 300+ blocks para referência                                                                   |
+| Mobile                 | **Vaul** (Drawer/Sheet do shadcn) para lançamento rápido, bottom nav próprio                                                        | Gesto nativo de arrastar                                                                                                                     |
+| Tabelas                | **TanStack Table** via DataTable do shadcn                                                                                          | Ordenação, filtros, virtualização                                                                                                            |
+| Formulários            | react-hook-form + Zod 4 + componentes Form do shadcn; **react-number-format** para moeda pt-BR                                      | Um padrão só                                                                                                                                 |
+| Feedback               | **Sonner** (toasts), `cmdk` (paleta de comandos com atalhos)                                                                        | Leves e acessíveis                                                                                                                           |
+| Motion                 | **Motion** (motion.dev) com `prefers-reduced-motion`                                                                                | Transições de tela e microinterações com controle                                                                                            |
+| Ícones                 | Lucide (manter)                                                                                                                     | Já usado                                                                                                                                     |
+| Tema                   | **tweakcn** para gerar o tema a partir do azul `#2563eb` em light/dark                                                              | Consistência de tokens                                                                                                                       |
+| Prototipagem           | Figma MCP (já disponível) + **shadcn Figma kit**                                                                                    | Mockups antes de codar as telas principais                                                                                                   |
+| Referências visuais    | Mobbin (Nubank, Monarch, Copilot Money, Organizze) e Tremor Blocks                                                                  | Padrões testados em fintech                                                                                                                  |
 
 Fontes: [shadcn/ui changelog julho 2026](https://ui.shadcn.com/docs/changelog/2026-07-react-aria), [Builder.io: 15 best React UI libraries 2026](https://www.builder.io/blog/react-component-libraries-2026), [Untitled UI: React component libraries 2026](https://www.untitledui.com/blog/react-component-libraries), [Tremor](https://tremor.so/), [shadcn registry directory](https://ui.shadcn.com/docs/directory).
 
@@ -662,10 +676,33 @@ código morto e SQL legado movidos para `docs/legacy*`. Revisão de segurança e
 Pendências do Iago antes do merge: smoke test (reset de senha e exclusão de conta com usuário descartável), Redirect URLs
 e senha mínima 8 no painel Supabase, DSN do Sentry na Vercel. Docker Desktop antes da Fase 1 (`db pull` + `migration repair`).
 
+### 13.3.3 Fase 1 executada em 2026-09-23/25
+
+Branch `fase-1/fundacao`, 13 tasks, plano em `docs/superpowers/plans/2026-09-23-fase-1-fundacao-tecnica.md`.
+
+Entregue:
+
+- Supabase CLI ligado ao projeto, schema em `supabase/migrations/` (baseline por `db pull` + migration de `default privileges` para o papel `anon`) e banco local reproduzível via Docker (`db:start`/`db:reset`).
+- TypeScript 5.9.3 com tipos gerados do banco (`src/types/database.types.ts`); `src/domain` (regras puras) e `src/lib` (infraestrutura) migrados e tipados; serviços em `src/services/*.ts` com tipos de entrada que excluem `user_id`.
+- Vite 8.3 + Vitest 5 num `vite.config.ts` único, substituindo `vite.config.js`/`vitest.config.js`.
+- ESLint 10 (flat config) + TypeScript + Prettier + Husky (`lint-staged` no pré-commit).
+- GitHub Actions (`ci.yml`): lint, typecheck, testes e build a cada push e PR.
+- React Router 8 com URLs reais, `RequireAuth` (guarda de rota, experiência de usuário — a segurança real é o RLS) e `AppLayout` compartilhado.
+- TanStack Query com `queryClient` único e cache por feature (fábrica de chaves, ex. `contasFixasKeys`).
+- Tailwind v4 + shadcn/ui (base Radix), convivendo com o CSS artesanal existente.
+- Tela piloto Contas Fixas (`src/features/contas-fixas/`) reescrita em TypeScript com TanStack Query e componentes shadcn, validando o padrão para as próximas telas.
+- `CLAUDE.md` e a skill `.claude/skills/sofinance-domain/` criados, incluindo as armadilhas descobertas na execução da fase (moeda em centavos no `formatCurrency`, contrato de invalidação de cache entre features, `src/components/ui` em minúsculas, LF travado por `.gitattributes`, rota `/reset-password` fixa, Vite em IPv6 nesta máquina).
+
+Decisões de versão verificadas contra o registro do npm em 2026-09-23 (tabela completa em "Decisões já tomadas" no topo do plano da Fase 1): TypeScript 5.9.3 (não 7.0, por causa do peer do `typescript-eslint`); React 19.3 (exigido pelo React Router 8.4); `lucide-react` 1.x (peer de React 19); Vite 8.3 + `@vitejs/plugin-react` 6.1 + Vitest 5; shadcn/ui com base Radix (Base UI ainda em release candidate); Recharts na 2.x (a migração para 3.x fica para a Fase 3); `react-hot-toast` mantido (Sonner fica para a Fase 3); componentes existentes continuam `.jsx` até serem reescritos; `src/lib` e `src/components/ui` em vez de `src/shared/*` (padrão esperado pelo shadcn/ui); `date-fns` removido do projeto (import morto); `actions/checkout@v7` e `actions/setup-node@v7` no CI.
+
+Revisão de segurança e revisão de código da Task 13 (Steps 7 e 8) e a integração em `main` (Step 9) ficam com o Iago.
+
+Pendência do Iago antes do merge: revisão de segurança, revisão de código e aprovar o merge de `fase-1/fundacao` em `main`.
+
 ### 13.4 Agente e arquivos de configuração
 
-- `.claude/agents/sofinance-senior-engineer.md` criado nesta rodada, com as regras do modelo de cartão lite.
-- `CLAUDE.md` e a skill `.claude/skills/sofinance-domain/` serão criados na Fase 1, quando a stack estiver fixada.
+- `.claude/agents/sofinance-senior-engineer.md` criado nesta rodada, com as regras do modelo de cartão lite; atualizado na Fase 1 (Task 13) para apontar para `supabase/migrations/` e para consultar a skill `sofinance-domain`.
+- `CLAUDE.md` e a skill `.claude/skills/sofinance-domain/` criados na Fase 1 (Task 13), com as armadilhas descobertas durante a execução da fase (ver 13.3.3).
 
 ### 13.5 Instalação das ferramentas (comandos verificados)
 

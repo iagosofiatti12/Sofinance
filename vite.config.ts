@@ -12,6 +12,10 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Sem isso, porta 3000 ocupada faz o Vite subir em outra silenciosamente, e o
+    // redirectTo de recuperação de senha (window.location.origin) só bate com a
+    // Redirect URL cadastrada no Supabase para a porta 3000. Preferimos falhar alto.
+    strictPort: true,
   },
   build: {
     rollupOptions: {
