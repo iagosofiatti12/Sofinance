@@ -1,5 +1,5 @@
 import { supabase, getUserId } from './supabaseClient'
-import logger from '../utils/logger'
+import logger from '@/lib/logger'
 
 // Pega todas as contas fixas do usuário
 export const getContasFixas = async () => {

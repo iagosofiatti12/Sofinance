@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { CreditCard, Calendar, FileText, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { calcularFaturaCartao, formatMesReferencia } from '../../services/transacoesService'
-import { formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
+import { formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '@/domain/dates'
 import './FaturaCartao.css'
 
 const FaturaCartao = ({ cartao, onClose }) => {

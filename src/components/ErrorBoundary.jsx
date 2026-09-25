@@ -1,7 +1,7 @@
 import React from 'react'
 import { AlertTriangle } from 'lucide-react'
 import * as Sentry from '@sentry/react'
-import logger from '../utils/logger'
+import logger from '@/lib/logger'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

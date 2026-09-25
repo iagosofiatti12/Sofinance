@@ -22,15 +22,10 @@ import {
 } from '../../services/transacoesService'
 import { getCartoes } from '../../services/cartoesService'
 import { CATEGORIAS_CONTAS, CATEGORIAS_TRANSACOES } from '../../config/constants'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import {
-  hojeISO,
-  formatarData,
-  formatarMesExtenso,
-  mudarMes as mudarMesRef,
-} from '../../utils/dates'
-import { montarPayloadTransacao } from '../../utils/transacaoPayload'
-import { getErrorMessage } from '../../utils/errorHandler'
+import { formatCurrency, parseCurrency } from '@/domain/currency'
+import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '@/domain/dates'
+import { montarPayloadTransacao } from '@/domain/transacaoPayload'
+import { getErrorMessage } from '@/lib/errorHandler'
 import Spinner from '../UI/Spinner'
 import './Extrato.css'
 

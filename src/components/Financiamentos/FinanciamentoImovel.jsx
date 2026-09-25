@@ -7,14 +7,14 @@ import {
   saveFinanciamentoImovel,
 } from '../../services/financiamentosService'
 import { getUserId } from '../../services/supabaseClient'
-import { formatCurrency } from '../../utils/currency'
+import { formatCurrency } from '@/domain/currency'
 import {
   financiamentoImovelSchema,
   validateData,
   getValidationErrorMessage,
-} from '../../utils/validations'
-import { getErrorMessage } from '../../utils/errorHandler'
-import { hojeISO, formatarData } from '../../utils/dates'
+} from '@/domain/validations'
+import { getErrorMessage } from '@/lib/errorHandler'
+import { hojeISO, formatarData } from '@/domain/dates'
 import Spinner from '../UI/Spinner'
 import './Financiamentos.css'
 

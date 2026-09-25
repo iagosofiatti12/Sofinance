@@ -6,9 +6,22 @@
 import logger from './logger'
 
 /**
+ * Forma mínima e não garantida de um erro capturado em runtime (Error nativo,
+ * PostgrestError do Supabase, ZodError ou qualquer valor lançado com `throw`).
+ * Usada apenas para o duck-typing que este módulo já fazia em JS.
+ */
+type ErrorLike = {
+  name?: string
+  issues?: Array<{ message?: string }>
+  code?: string | number
+  message?: string
+  details?: unknown
+}
+
+/**
  * Mapeia códigos de erro do Supabase para mensagens amigáveis
  */
-const SUPABASE_ERROR_MESSAGES = {
+const SUPABASE_ERROR_MESSAGES: Record<string, string> = {
   // Auth errors
   invalid_credentials: 'Email ou senha incorretos',
   email_not_confirmed: 'Por favor, confirme seu email',
@@ -38,26 +51,28 @@ const SUPABASE_ERROR_MESSAGES = {
 
 /**
  * Retorna mensagem de erro amigável baseada no erro do Supabase
- * @param {Error} error - Erro do Supabase ou genérico
- * @returns {string} Mensagem amigável
+ * @param error - Erro do Supabase ou genérico (forma não garantida em runtime)
+ * @returns Mensagem amigável
  */
-export const getErrorMessage = error => {
+export const getErrorMessage = (error: unknown): string => {
   if (!error) return 'Ocorreu um erro desconhecido'
 
+  const err = error as ErrorLike
+
   // Erro de validação Zod (já vem formatado)
-  if (error.name === 'ZodError' || Array.isArray(error.issues)) {
-    return error.issues?.[0]?.message || 'Dados inválidos'
+  if (err.name === 'ZodError' || Array.isArray(err.issues)) {
+    return err.issues?.[0]?.message || 'Dados inválidos'
   }
 
   // Erro do Supabase
-  if (error.code) {
-    const message = SUPABASE_ERROR_MESSAGES[error.code]
+  if (err.code) {
+    const message = SUPABASE_ERROR_MESSAGES[err.code]
     if (message) return message
   }
 
   // Erro com mensagem personalizada
-  if (error.message) {
-    const msg = error.message.toLowerCase()
+  if (err.message) {
+    const msg = err.message.toLowerCase()
 
     // Procurar por palavras-chave na mensagem
     for (const [key, value] of Object.entries(SUPABASE_ERROR_MESSAGES)) {
@@ -73,7 +88,7 @@ export const getErrorMessage = error => {
 
     // Retornar mensagem original se for compreensível
     if (msg.length < 100) {
-      return error.message
+      return err.message
     }
   }
 
@@ -84,23 +99,27 @@ export const getErrorMessage = error => {
 /**
  * Log de erro para debugging (só em desenvolvimento)
  */
-export const logError = (context, error) => {
+export const logError = (context: string, error: unknown): void => {
   if (import.meta.env.DEV) {
+    const err = error as ErrorLike | null | undefined
     logger.error(`❌ Erro: ${context}`)
     logger.error('Error object:', error)
-    logger.error('Message:', error?.message)
-    logger.error('Code:', error?.code)
-    logger.error('Details:', error?.details)
+    logger.error('Message:', err?.message)
+    logger.error('Code:', err?.code)
+    logger.error('Details:', err?.details)
   }
 }
 
 /**
  * Wrapper para tratamento consistente de erros assíncronos
- * @param {Function} asyncFn - Função assíncrona
- * @param {string} context - Contexto da operação (para logging)
- * @returns {Promise} Resultado ou erro tratado
+ * @param asyncFn - Função assíncrona
+ * @param context - Contexto da operação (para logging)
+ * @returns Resultado ou erro tratado
  */
-export const handleAsyncError = async (asyncFn, context = 'Operação') => {
+export const handleAsyncError = async <T>(
+  asyncFn: () => Promise<T>,
+  context: string = 'Operação'
+): Promise<T> => {
   try {
     return await asyncFn()
   } catch (error) {
@@ -112,7 +131,7 @@ export const handleAsyncError = async (asyncFn, context = 'Operação') => {
 /**
  * Verifica se usuário está autenticado e retorna erro amigável
  */
-export const checkAuth = user => {
+export const checkAuth = (user: unknown): void => {
   if (!user) {
     throw new Error('Você precisa estar logado para realizar esta ação')
   }

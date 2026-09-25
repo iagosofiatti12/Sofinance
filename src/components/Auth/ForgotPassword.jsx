@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Mail, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resetPassword } from '../../services/authService'
-import { getErrorMessage } from '../../utils/errorHandler'
+import { getErrorMessage } from '@/lib/errorHandler'
 import './Auth.css'
 
 const ForgotPassword = ({ onBack }) => {

@@ -3,8 +3,8 @@ import { Plus, Edit2, Trash2, Target, TrendingUp, DollarSign } from 'lucide-reac
 import toast from 'react-hot-toast'
 import { getMetas, addMeta, updateMeta, deleteMeta } from '../../services/metasService'
 import { getUserId } from '../../services/supabaseClient'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import { metaSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
+import { formatCurrency, parseCurrency } from '@/domain/currency'
+import { metaSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
 import Spinner from '../UI/Spinner'
 import './Metas.css'
 

@@ -13,10 +13,8 @@ const isDevelopment = import.meta.env.DEV
 const logger = {
   /**
    * Log de erro - importante para debugging
-   * @param {string} message - Mensagem de erro
-   * @param {...any} args - Argumentos adicionais
    */
-  error: (message, ...args) => {
+  error: (message: string, ...args: unknown[]): void => {
     if (isDevelopment) {
       console.error(`[ERROR] ${message}`, ...args)
     }
@@ -27,10 +25,8 @@ const logger = {
 
   /**
    * Log de warning
-   * @param {string} message - Mensagem de warning
-   * @param {...any} args - Argumentos adicionais
    */
-  warn: (message, ...args) => {
+  warn: (message: string, ...args: unknown[]): void => {
     if (isDevelopment) {
       console.warn(`[WARN] ${message}`, ...args)
     }
@@ -38,10 +34,8 @@ const logger = {
 
   /**
    * Log de informação
-   * @param {string} message - Mensagem de info
-   * @param {...any} args - Argumentos adicionais
    */
-  info: (message, ...args) => {
+  info: (message: string, ...args: unknown[]): void => {
     if (isDevelopment) {
       console.log(`[INFO] ${message}`, ...args)
     }
@@ -49,10 +43,8 @@ const logger = {
 
   /**
    * Log de debug - muito verboso, só em dev
-   * @param {string} message - Mensagem de debug
-   * @param {...any} args - Argumentos adicionais
    */
-  debug: (message, ...args) => {
+  debug: (message: string, ...args: unknown[]): void => {
     if (isDevelopment) {
       console.log(`[DEBUG] ${message}`, ...args)
     }

@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import type { ChangeEvent } from 'react'
 
 /**
  * Formata valor para moeda brasileira (R$)
- * @param {string|number} value - Valor a ser formatado
- * @returns {string} Valor formatado
+ * @param value - Valor a ser formatado
+ * @returns Valor formatado
  */
-export const formatCurrency = value => {
+export const formatCurrency = (value: string | number): string => {
   if (!value) return 'R$ 0,00'
 
   // Remove tudo que não é número
@@ -23,10 +24,10 @@ export const formatCurrency = value => {
 
 /**
  * Converte valor formatado (R$ 1.234,56) para number
- * @param {string} formattedValue - Valor formatado
- * @returns {number} Valor numérico
+ * @param formattedValue - Valor formatado
+ * @returns Valor numérico
  */
-export const parseCurrency = formattedValue => {
+export const parseCurrency = (formattedValue: string): number => {
   if (!formattedValue) return 0
 
   // Remove R$, espaços, pontos e substitui vírgula por ponto
@@ -43,11 +44,11 @@ export const parseCurrency = formattedValue => {
  * Hook para input de moeda
  * Retorna valor formatado e funções para gerenciar
  */
-export const useCurrencyInput = (initialValue = 0) => {
+export const useCurrencyInput = (initialValue: number = 0) => {
   const [displayValue, setDisplayValue] = useState(formatCurrency(initialValue * 100))
   const [numericValue, setNumericValue] = useState(initialValue)
 
-  const handleChange = e => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value
     const formatted = formatCurrency(inputValue)
     const numeric = parseCurrency(formatted)
@@ -64,7 +65,7 @@ export const useCurrencyInput = (initialValue = 0) => {
     }
   }
 
-  const setValue = value => {
+  const setValue = (value: number) => {
     const formatted = formatCurrency(value * 100)
     const numeric = parseCurrency(formatted)
 
@@ -92,7 +93,7 @@ export const useCurrencyInput = (initialValue = 0) => {
  * Formata input de moeda em tempo real
  * Para usar diretamente no onChange
  */
-export const formatCurrencyInput = event => {
+export const formatCurrencyInput = (event: ChangeEvent<HTMLInputElement>): number => {
   const input = event.target
   const valor = input.value
 
@@ -118,7 +119,7 @@ export const formatCurrencyInput = event => {
 /**
  * Pega valor numérico de um input formatado
  */
-export const getNumericValue = formattedValue => {
+export const getNumericValue = (formattedValue: string): number => {
   if (!formattedValue) return 0
 
   return parseCurrency(formattedValue)
@@ -128,11 +129,14 @@ export const getNumericValue = formattedValue => {
  * Hook otimizado para input monetário com validação
  * Usa debounce e validação integrada
  */
-export const useCurrencyInputV2 = (initialValue = 0, onChange = null) => {
+export const useCurrencyInputV2 = (
+  initialValue: number = 0,
+  onChange: ((value: number) => void) | null = null
+) => {
   const [rawValue, setRawValue] = useState(initialValue.toString())
   const [numericValue, setNumericValue] = useState(initialValue)
 
-  const handleInputChange = e => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value
 
     // Remove tudo que não é número

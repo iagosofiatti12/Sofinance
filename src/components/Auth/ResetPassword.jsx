@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { updatePassword } from '../../services/authService'
-import { getErrorMessage } from '../../utils/errorHandler'
+import { getErrorMessage } from '@/lib/errorHandler'
 import { useAuth } from '../../contexts/AuthContext'
 import './Auth.css'
 

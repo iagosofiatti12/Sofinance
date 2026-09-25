@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { z } from 'zod'
 import { cartaoSchema, transacaoSchema, validateData } from './validations'
-import { getErrorMessage } from './errorHandler'
+import { getErrorMessage } from '@/lib/errorHandler'
 
 describe('validateData com Zod 4', () => {
   it('retorna a mensagem customizada de enum inválido', () => {

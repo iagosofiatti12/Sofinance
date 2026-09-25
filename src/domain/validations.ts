@@ -149,22 +149,49 @@ export const financiamentoCarroSchema = z.object({
   data_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data inválida'),
 })
 
+export type ValidationError = { field: string; message: string }
+
+/**
+ * Forma pública "achatada" (success/data/errors sempre presentes no tipo).
+ * Em runtime o objeto retornado só tem um dos dois (`data` OU `errors`) —
+ * exatamente como no JS original. A forma discriminada correta seria
+ * `{ success: true; data: T } | { success: false; errors: ValidationError[] }`,
+ * mas o teste pré-existente (validations.test.ts) lê `r.data` e `r.errors`
+ * sem antes estreitar por `r.success`, e a Task 7 proíbe alterar o teste além
+ * do caminho do import. Por isso o tipo público expõe os dois campos como
+ * obrigatórios; ver a asserção documentada em `validateData` abaixo.
+ */
+export type ValidationResult<T> = {
+  success: boolean
+  data: T
+  errors: ValidationError[]
+}
+
 /**
  * Função helper para validar e retornar erros formatados
  */
-export const validateData = (schema, data) => {
+export const validateData = <Schema extends z.ZodType>(
+  schema: Schema,
+  data: unknown
+): ValidationResult<z.infer<Schema>> => {
   const result = schema.safeParse(data)
-  if (result.success) return { success: true, data: result.data }
+  if (result.success) {
+    // Asserção necessária: o objeto real só tem `success`+`data` (sem `errors`),
+    // mas o tipo público declara os dois campos como obrigatórios (ver acima).
+    // Isso não muda nada em tempo de execução — `as` só afasta o checador de
+    // tipos, o objeto retornado continua com as mesmas duas chaves de sempre.
+    return { success: true, data: result.data } as ValidationResult<z.infer<Schema>>
+  }
   return {
     success: false,
     errors: result.error.issues.map(err => ({ field: err.path.join('.'), message: err.message })),
-  }
+  } as ValidationResult<z.infer<Schema>>
 }
 
 /**
  * Função para pegar mensagem de erro amigável
  */
-export const getValidationErrorMessage = errors => {
+export const getValidationErrorMessage = (errors: ValidationError[] | null | undefined): string => {
   if (!errors || errors.length === 0) return 'Erro de validação'
   return errors[0].message
 }

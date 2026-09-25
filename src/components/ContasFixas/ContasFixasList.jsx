@@ -11,9 +11,9 @@ import {
 } from '../../services/contasService'
 import { getUserId } from '../../services/supabaseClient'
 import { CATEGORIAS_CONTAS } from '../../config/constants'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import { contaFixaSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
-import { diasAteVencimento } from '../../utils/vencimentos'
+import { formatCurrency, parseCurrency } from '@/domain/currency'
+import { contaFixaSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
+import { diasAteVencimento } from '@/domain/vencimentos'
 import './ContasFixas.css'
 
 const ContasFixasList = () => {

@@ -5,7 +5,7 @@ import {
   signOut as authSignOut,
   onAuthStateChange,
 } from '../services/authService'
-import logger from '../utils/logger'
+import logger from '@/lib/logger'
 
 const AuthContext = createContext({})
 

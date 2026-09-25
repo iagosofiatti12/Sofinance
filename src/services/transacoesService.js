@@ -1,8 +1,8 @@
 import { supabase } from './supabaseClient'
 import { getCurrentUser } from './authService'
-import { formatMesReferencia, formatarMesExtenso } from '../utils/dates'
-import { linhaParaResumo, montarEvolucao, ultimosMeses } from '../utils/resumo'
-import logger from '../utils/logger'
+import { formatMesReferencia, formatarMesExtenso } from '@/domain/dates'
+import { linhaParaResumo, montarEvolucao, ultimosMeses } from '@/domain/resumo'
+import logger from '@/lib/logger'
 
 export { formatMesReferencia }
 

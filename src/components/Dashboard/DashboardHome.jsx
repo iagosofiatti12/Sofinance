@@ -30,7 +30,7 @@ import {
   getEvolucaoMensal,
   formatMesReferencia,
 } from '../../services/transacoesService'
-import { proximosVencimentos } from '../../utils/vencimentos'
+import { proximosVencimentos } from '@/domain/vencimentos'
 import Spinner from '../UI/Spinner'
 import './DashboardHome.css'
 
