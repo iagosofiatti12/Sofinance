@@ -16,18 +16,19 @@
 
 Estas foram verificadas contra o registro do npm em 2026-09-23. Não as reabra sem um motivo novo.
 
-| Decisão                                                                     | Motivo verificado                                                                                                                                                                                                                                                            |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --- | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------- |
-| **TypeScript 5.9.3, não 7.0**                                               | `typescript-eslint` (inclusive a versão canary 8.70.2-alpha.5) declara `peerDependencies.typescript: ">=4.8.4 <6.1.0"`. Com TypeScript 7 o lint com informação de tipos para de funcionar. Reavaliar quando o typescript-eslint publicar suporte.                            |
-| **React 19.3**                                                              | `react-router@8.4.0` exige `react >=19.2.7`. Sem React 19 não há React Router 8. Todas as outras bibliotecas do projeto já aceitam React 19.                                                                                                                                 |
-| **lucide-react 1.x**                                                        | A versão instalada (0.263.1) declara peer `react` só até 18. É obrigatório subir junto com o React 19.                                                                                                                                                                       |
-| **Vite 8.3 + @vitejs/plugin-react 6.1 + Vitest 5**                          | `@vitejs/plugin-react@6` exige `vite ^8`, e `vitest@5` exige `vite ^6.4                                                                                                                                                                                                      |     | ^7  |     | ^8`. Os peers extras do plugin (`oxc-transform-react`, `@rolldown/plugin-babel`, `babel-plugin-react-compiler`) são todos `optional: true`, então a instalação é limpa. Node instalado é 24.19, acima do mínimo do Vite 8 (`^20.19 |     | >=22.12`). |
-| **shadcn/ui com base Radix, não Base UI**                                   | `@base-ui-components/react` ainda está em `1.0.0-rc.0`. Radix é estável hoje. Reavaliar na Fase 3; o shadcn permite trocar a base depois.                                                                                                                                    |
-| **Recharts continua na 2.x**                                                | A 2.15.4 já aceita React 19. A migração para a 3.x acontece na Fase 3, junto com o redesenho dos gráficos.                                                                                                                                                                   |
-| **Sonner fica para a Fase 3**                                               | Trocar `react-hot-toast` agora mexeria em 7 telas sem ganho nesta fase.                                                                                                                                                                                                      |
-| **Componentes continuam `.jsx`**                                            | A migração para TypeScript nesta fase cobre `domain`, `lib`, `services`, o roteador, os providers e a tela piloto. O resto é convertido quando for reescrito na Fase 2.                                                                                                      |
-| **`src/lib` e `src/components/ui`, não `src/shared/lib` e `src/shared/ui`** | O spec (seção 5.1) sugeria `src/shared/*`, mas o shadcn/ui espera `@/lib/utils` e `@/components/ui` por padrão. Brigar com o padrão da ferramenta custaria configuração extra em toda instalação de componente, sem ganho. O papel das pastas é o mesmo que o spec descreve. |
-| **`date-fns` sai do projeto**                                               | Está instalado na versão 2.30 e é importado apenas em `DashboardHome.jsx`, onde os imports (`format`, `ptBR`) não são usados. Todas as datas já passam por `src/domain/dates.ts`, que usa `Date` nativo. Remover em vez de atualizar.                                        |
+| Decisão                                                                     | Motivo verificado                                                                                                                                                                                                                                                                                                                             |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --- | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------- |
+| **TypeScript 5.9.3, não 7.0**                                               | `typescript-eslint` (inclusive a versão canary 8.70.2-alpha.5) declara `peerDependencies.typescript: ">=4.8.4 <6.1.0"`. Com TypeScript 7 o lint com informação de tipos para de funcionar. Reavaliar quando o typescript-eslint publicar suporte.                                                                                             |
+| **React 19.3**                                                              | `react-router@8.4.0` exige `react >=19.2.7`. Sem React 19 não há React Router 8. Todas as outras bibliotecas do projeto já aceitam React 19.                                                                                                                                                                                                  |
+| **lucide-react 1.x**                                                        | A versão instalada (0.263.1) declara peer `react` só até 18. É obrigatório subir junto com o React 19.                                                                                                                                                                                                                                        |
+| **Vite 8.3 + @vitejs/plugin-react 6.1 + Vitest 5**                          | `@vitejs/plugin-react@6` exige `vite ^8`, e `vitest@5` exige `vite ^6.4                                                                                                                                                                                                                                                                       |     | ^7  |     | ^8`. Os peers extras do plugin (`oxc-transform-react`, `@rolldown/plugin-babel`, `babel-plugin-react-compiler`) são todos `optional: true`, então a instalação é limpa. Node instalado é 24.19, acima do mínimo do Vite 8 (`^20.19 |     | >=22.12`). |
+| **shadcn/ui com base Radix, não Base UI**                                   | `@base-ui-components/react` ainda está em `1.0.0-rc.0`. Radix é estável hoje. Reavaliar na Fase 3; o shadcn permite trocar a base depois.                                                                                                                                                                                                     |
+| **Recharts continua na 2.x**                                                | A 2.15.4 já aceita React 19. A migração para a 3.x acontece na Fase 3, junto com o redesenho dos gráficos.                                                                                                                                                                                                                                    |
+| **Sonner fica para a Fase 3**                                               | Trocar `react-hot-toast` agora mexeria em 7 telas sem ganho nesta fase.                                                                                                                                                                                                                                                                       |
+| **Componentes continuam `.jsx`**                                            | A migração para TypeScript nesta fase cobre `domain`, `lib`, `services`, o roteador, os providers e a tela piloto. O resto é convertido quando for reescrito na Fase 2.                                                                                                                                                                       |
+| **`src/lib` e `src/components/ui`, não `src/shared/lib` e `src/shared/ui`** | O spec (seção 5.1) sugeria `src/shared/*`, mas o shadcn/ui espera `@/lib/utils` e `@/components/ui` por padrão. Brigar com o padrão da ferramenta custaria configuração extra em toda instalação de componente, sem ganho. O papel das pastas é o mesmo que o spec descreve.                                                                  |
+| **`date-fns` sai do projeto**                                               | Está instalado na versão 2.30 e é importado apenas em `DashboardHome.jsx`, onde os imports (`format`, `ptBR`) não são usados. Todas as datas já passam por `src/domain/dates.ts`, que usa `Date` nativo. Remover em vez de atualizar.                                                                                                         |
+| **`actions/checkout@v7` e `actions/setup-node@v7`**                         | Conferido na API do GitHub em 2026-09-25: as releases atuais sao checkout v7.0.1 e setup-node v7.0.0, e as tags moveis `v7` existem nas duas. A v7 do setup-node nao mexe em `node-version` nem em `cache: npm`. O plano trazia `@v5`, escrito de memoria e ja dois majors vencido — versao que nao passa por esta tabela nao foi verificada. |
 
 ---
 
@@ -676,16 +677,24 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
+    branches: [main]
+
+# Cancela execucao superada da mesma referencia. Sem isso, uma branch com PR
+# aberto roda o fluxo duas vezes a cada push: uma pelo evento push e outra
+# pelo pull_request.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verificar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -722,7 +731,7 @@ git push -u origin fase-1/fundacao
 - [ ] **Step 3: Conferir a execução**
 
 ```bash
-gh run list --branch fase-1/fundacao --limit 1
+curl -s "https://api.github.com/repos/iagosofiatti12/Sofinance/actions/runs?branch=fase-1%2Ffundacao&per_page=3"
 ```
 
 Expected: a execução aparece como `completed success`. Se o `gh` não estiver autenticado, abra a aba Actions do repositório no navegador e confirme o check verde. Se algum passo falhar, corrija antes de seguir.
