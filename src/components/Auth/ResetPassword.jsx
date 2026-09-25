@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { updatePassword } from '../../services/authService'
@@ -8,6 +9,7 @@ import './Auth.css'
 
 const ResetPassword = () => {
   const { clearRecovery } = useAuth()
+  const navigate = useNavigate()
   const [senha, setSenha] = useState('')
   const [confirma, setConfirma] = useState('')
   const [loading, setLoading] = useState(false)
@@ -21,7 +23,7 @@ const ResetPassword = () => {
       await updatePassword(senha)
       toast.success('Senha atualizada!')
       clearRecovery()
-      window.history.replaceState({}, '', '/')
+      navigate('/', { replace: true })
     } catch (error) {
       toast.error(getErrorMessage(error))
     } finally {

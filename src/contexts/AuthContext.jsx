@@ -7,8 +7,20 @@ import {
 } from '../services/authService'
 import logger from '@/lib/logger'
 
+/**
+ * @typedef {Object} AuthContextValue
+ * @property {import('@supabase/supabase-js').User | null} user
+ * @property {import('@supabase/supabase-js').Session | null} session
+ * @property {boolean} loading
+ * @property {() => Promise<void>} signOut
+ * @property {boolean} isAuthenticated
+ * @property {boolean} recoveryMode
+ * @property {() => void} clearRecovery
+ */
+
 const AuthContext = createContext({})
 
+/** @returns {AuthContextValue} */
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) {

@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Mail, Lock, LogIn, UserPlus, AlertCircle } from 'lucide-react'
 import GoogleIcon from './GoogleIcon'
 import toast from 'react-hot-toast'
 import { signInWithEmail, signInWithGoogle } from '../../services/authService'
 import './Auth.css'
 
-const Login = ({ onToggleMode, onForgotPassword }) => {
+const Login = () => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,6 +23,7 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
     try {
       await signInWithEmail(formData.email, formData.password)
       toast.success('Login realizado com sucesso!')
+      navigate('/', { replace: true })
     } catch (error) {
       console.error('Erro no login:', error)
       const message = error.message || 'Erro ao fazer login. Verifique suas credenciais.'
@@ -120,7 +123,7 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
           <p>
             <button
               type="button"
-              onClick={onForgotPassword}
+              onClick={() => navigate('/recuperar-senha')}
               className="link-button"
               disabled={loading}
             >
@@ -129,7 +132,12 @@ const Login = ({ onToggleMode, onForgotPassword }) => {
           </p>
           <p>
             Não tem uma conta?{' '}
-            <button type="button" onClick={onToggleMode} className="link-button" disabled={loading}>
+            <button
+              type="button"
+              onClick={() => navigate('/cadastro')}
+              className="link-button"
+              disabled={loading}
+            >
               Cadastre-se
             </button>
           </p>

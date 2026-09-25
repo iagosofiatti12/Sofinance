@@ -1,10 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import * as Sentry from '@sentry/react'
-import App from './App.jsx'
-import ErrorBoundary from './components/ErrorBoundary.jsx'
-import { AuthProvider } from './contexts/AuthContext.jsx'
-import './styles/index.css'
+import { RouterProvider } from 'react-router'
+import { router } from '@/app/router'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { AuthProvider } from '@/contexts/AuthContext'
+import '@/styles/index.css'
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
@@ -15,11 +16,11 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   })
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <AuthProvider>
-        <App />
+        <RouterProvider router={router} />
       </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>

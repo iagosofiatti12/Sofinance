@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Mail, Lock, User, LogIn, AlertCircle, CheckCircle } from 'lucide-react'
 import GoogleIcon from './GoogleIcon'
 import toast from 'react-hot-toast'
 import { signUpWithEmail, signInWithGoogle } from '../../services/authService'
 import './Auth.css'
 
-const SignUp = ({ onToggleMode }) => {
+const SignUp = () => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -59,7 +61,7 @@ const SignUp = ({ onToggleMode }) => {
 
       // Redirecionar para login após 3 segundos
       setTimeout(() => {
-        onToggleMode()
+        navigate('/login')
       }, 3000)
     } catch (error) {
       console.error('Erro no cadastro:', error)
@@ -213,7 +215,12 @@ const SignUp = ({ onToggleMode }) => {
         <div className="auth-footer">
           <p>
             Já tem uma conta?{' '}
-            <button type="button" onClick={onToggleMode} className="link-button" disabled={loading}>
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="link-button"
+              disabled={loading}
+            >
               Faça login
             </button>
           </p>

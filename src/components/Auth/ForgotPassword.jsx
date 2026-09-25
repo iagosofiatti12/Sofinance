@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Mail, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { resetPassword } from '../../services/authService'
 import { getErrorMessage } from '@/lib/errorHandler'
 import './Auth.css'
 
-const ForgotPassword = ({ onBack }) => {
+const ForgotPassword = () => {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -55,7 +57,7 @@ const ForgotPassword = ({ onBack }) => {
           </form>
         )}
         <div className="auth-footer">
-          <button type="button" onClick={onBack} className="link-button">
+          <button type="button" onClick={() => navigate('/login')} className="link-button">
             <ArrowLeft size={14} /> Voltar ao login
           </button>
         </div>
