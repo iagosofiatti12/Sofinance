@@ -9,8 +9,14 @@ import type { ChangeEvent } from 'react'
 export const formatCurrency = (value: string | number): string => {
   if (!value) return 'R$ 0,00'
 
+  // As telas chamam formatCurrency(parseFloat(valor) * 100), e essa multiplicacao nem
+  // sempre fecha em inteiro: 19.90 * 100 da 1989.9999999999998. Sem arredondar, a
+  // extracao de digitos abaixo le 19899999999999998 e a tela mostra
+  // R$ 199.000.000.000.000,00. Para string de digitos, arredondar nao muda nada.
+  const valorBase = typeof value === 'number' ? Math.round(value) : value
+
   // Remove tudo que não é número
-  const numeroLimpo = value.toString().replace(/\D/g, '')
+  const numeroLimpo = valorBase.toString().replace(/\D/g, '')
 
   // Converte para number e divide por 100 (centavos)
   const numero = Number(numeroLimpo) / 100
