@@ -3,7 +3,9 @@ import logger from '@/lib/logger'
 import type { Database } from '@/types/database.types'
 
 export type ContaFixa = Database['public']['Tables']['contas_fixas']['Row']
-export type ContaFixaInput = Database['public']['Tables']['contas_fixas']['Insert']
+// O user_id nunca vem do chamador: o servico o obtem da sessao e sobrescreve.
+// Deixa-lo fora do tipo faz o compilador impedir que alguem sequer tente informa-lo.
+export type ContaFixaInput = Omit<Database['public']['Tables']['contas_fixas']['Insert'], 'user_id'>
 
 // Pega todas as contas fixas do usuário
 export const getContasFixas = async (): Promise<ContaFixa[]> => {

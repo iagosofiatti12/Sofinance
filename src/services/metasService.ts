@@ -2,7 +2,9 @@ import { supabase, getUserId } from '@/lib/supabase'
 import type { Database } from '@/types/database.types'
 
 export type Meta = Database['public']['Tables']['metas_desejos']['Row']
-export type MetaInput = Database['public']['Tables']['metas_desejos']['Insert']
+// O user_id nunca vem do chamador: o servico o obtem da sessao e sobrescreve.
+// Deixa-lo fora do tipo faz o compilador impedir que alguem sequer tente informa-lo.
+export type MetaInput = Omit<Database['public']['Tables']['metas_desejos']['Insert'], 'user_id'>
 
 export const getMetas = async (): Promise<Meta[]> => {
   const userId = await getUserId()
