@@ -1,3 +1,15 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: #2563eb;
+  --color-brand-light: #3b82f6;
+  --color-brand-dark: #1d4ed8;
+  --color-receita: #10b981;
+  --color-despesa: #ef4444;
+  --color-alerta: #f59e0b;
+  --radius-card: 20px;
+}
+
 * {
   margin: 0;
   padding: 0;
