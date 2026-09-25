@@ -59,7 +59,10 @@ const DashboardHome = () => {
         getResumoMensal(mesAtual),
         getGastosPorCategoria(mesAtual),
         getEvolucaoMensal(6),
-        getContasFixas(),
+        // TODO(Fase 2): getContasFixas agora propaga erro (Task 12). O Dashboard ainda
+        // não tem tratamento de erro próprio, então preservamos a degradação
+        // silenciosa aqui até a migração para TanStack Query.
+        getContasFixas().catch(() => []),
         getCartoes(),
         getMetas(),
       ])

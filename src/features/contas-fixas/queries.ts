@@ -4,7 +4,6 @@ import type { ContaFixa, ContaFixaInput } from './api'
 
 export const contasFixasKeys = {
   all: ['contas-fixas'] as const,
-  detalhe: (id: string) => ['contas-fixas', id] as const,
 }
 
 export function useContasFixas() {
@@ -20,7 +19,7 @@ export function useSalvarContaFixa() {
     mutationFn: async (entrada: { id?: string; dados: ContaFixaInput }) =>
       entrada.id ? atualizar(entrada.id, entrada.dados) : criar(entrada.dados),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: contasFixasKeys.all })
+      return queryClient.invalidateQueries({ queryKey: contasFixasKeys.all })
     },
   })
 }
@@ -30,7 +29,7 @@ export function useExcluirContaFixa() {
   return useMutation({
     mutationFn: (id: string) => excluir(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: contasFixasKeys.all })
+      return queryClient.invalidateQueries({ queryKey: contasFixasKeys.all })
     },
   })
 }
@@ -40,7 +39,7 @@ export function useAlternarContaFixa() {
   return useMutation({
     mutationFn: (conta: ContaFixa) => atualizar(conta.id, { ativa: !conta.ativa }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: contasFixasKeys.all })
+      return queryClient.invalidateQueries({ queryKey: contasFixasKeys.all })
     },
   })
 }

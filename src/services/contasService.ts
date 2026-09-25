@@ -9,23 +9,18 @@ export type ContaFixaInput = Omit<Database['public']['Tables']['contas_fixas']['
 
 // Pega todas as contas fixas do usuário
 export const getContasFixas = async (): Promise<ContaFixa[]> => {
-  try {
-    const userId = await getUserId()
-    const { data, error } = await supabase
-      .from('contas_fixas')
-      .select('*')
-      .eq('user_id', userId)
-      .order('dia_vencimento', { ascending: true })
+  const userId = await getUserId()
+  const { data, error } = await supabase
+    .from('contas_fixas')
+    .select('*')
+    .eq('user_id', userId)
+    .order('dia_vencimento', { ascending: true })
 
-    if (error) {
-      logger.error('Supabase error:', error)
-      throw error
-    }
-    return data || []
-  } catch (error) {
+  if (error) {
     logger.error('Error fetching contas:', error)
-    return []
+    throw error
   }
+  return data || []
 }
 
 // Adiciona nova conta fixa
