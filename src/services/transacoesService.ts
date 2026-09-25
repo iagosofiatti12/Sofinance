@@ -1,13 +1,26 @@
-import { supabase } from './supabaseClient'
+import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from './authService'
 import { formatMesReferencia, formatarMesExtenso } from '@/domain/dates'
 import { linhaParaResumo, montarEvolucao, ultimosMeses } from '@/domain/resumo'
+import type { Resumo } from '@/domain/resumo'
 import logger from '@/lib/logger'
+import type { Database } from '@/types/database.types'
 
 export { formatMesReferencia }
 
+export type Transacao = Database['public']['Tables']['transacoes']['Row']
+export type TransacaoInput = Database['public']['Tables']['transacoes']['Insert']
+
+type FiltrosTransacoes = {
+  mes_referencia?: string
+  tipo?: string
+  categoria?: string
+  data_inicial?: string
+  data_final?: string
+}
+
 // Helper para obter user_id
-const getUserId = async () => {
+const getUserId = async (): Promise<string> => {
   const user = await getCurrentUser()
   if (!user) throw new Error('Usuário não autenticado')
   return user.id
@@ -18,7 +31,7 @@ const getUserId = async () => {
 /**
  * Listar todas as transações do usuário
  */
-export const getTransacoes = async (filtros = {}) => {
+export const getTransacoes = async (filtros: FiltrosTransacoes = {}): Promise<Transacao[]> => {
   const userId = await getUserId()
 
   let query = supabase
@@ -55,14 +68,16 @@ export const getTransacoes = async (filtros = {}) => {
 /**
  * Obter transações por mês
  */
-export const getTransacoesPorMes = async mesReferencia => {
+export const getTransacoesPorMes = async (mesReferencia: string): Promise<Transacao[]> => {
   return await getTransacoes({ mes_referencia: mesReferencia })
 }
 
 /**
  * Adicionar nova transação
  */
-export const addTransacao = async payload => {
+export const addTransacao = async (
+  payload: Omit<TransacaoInput, 'user_id'>
+): Promise<Transacao & { limiteAtualizado: boolean }> => {
   const userId = await getUserId()
 
   const { data, error } = await supabase
@@ -86,9 +101,13 @@ export const addTransacao = async payload => {
 
 /**
  * Atualizar limite usado do cartão
- * @returns {Promise<boolean>} true em caso de sucesso, false se o cartão não foi encontrado ou houve erro
+ * @returns true em caso de sucesso, false se o cartão não foi encontrado ou houve erro
  */
-const atualizarLimiteCartao = async (cartaoId, valor, operacao = 'aumentar') => {
+const atualizarLimiteCartao = async (
+  cartaoId: string,
+  valor: number,
+  operacao: 'aumentar' | 'diminuir' = 'aumentar'
+): Promise<boolean> => {
   const { data: cartao, error: erroSelect } = await supabase
     .from('cartoes_credito')
     .select('limite_usado')
@@ -104,8 +123,8 @@ const atualizarLimiteCartao = async (cartaoId, valor, operacao = 'aumentar') => 
 
   const novoLimite =
     operacao === 'aumentar'
-      ? parseFloat(cartao.limite_usado) + parseFloat(valor)
-      : Math.max(0, parseFloat(cartao.limite_usado) - parseFloat(valor))
+      ? parseFloat(String(cartao.limite_usado)) + parseFloat(String(valor))
+      : Math.max(0, parseFloat(String(cartao.limite_usado)) - parseFloat(String(valor)))
 
   const { error: erroUpdate } = await supabase
     .from('cartoes_credito')
@@ -123,7 +142,10 @@ const atualizarLimiteCartao = async (cartaoId, valor, operacao = 'aumentar') => 
 /**
  * Atualizar transação
  */
-export const updateTransacao = async (id, payload) => {
+export const updateTransacao = async (
+  id: string,
+  payload: Partial<Omit<TransacaoInput, 'user_id'>>
+): Promise<Transacao & { limiteAtualizado: boolean }> => {
   const { data: atual, error: erroAtual } = await supabase
     .from('transacoes')
     .select('*')
@@ -148,7 +170,11 @@ export const updateTransacao = async (id, payload) => {
     limiteAtualizado = limiteAtualizado && ok
   }
   if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
-    const ok = await atualizarLimiteCartao(payload.cartao_credito_id, payload.valor, 'aumentar')
+    const ok = await atualizarLimiteCartao(
+      payload.cartao_credito_id,
+      payload.valor as number,
+      'aumentar'
+    )
     limiteAtualizado = limiteAtualizado && ok
   }
 
@@ -158,7 +184,7 @@ export const updateTransacao = async (id, payload) => {
 /**
  * Deletar transação
  */
-export const deleteTransacao = async id => {
+export const deleteTransacao = async (id: string): Promise<{ limiteAtualizado: boolean }> => {
   const { data: atual, error: erroAtual } = await supabase
     .from('transacoes')
     .select('*')
@@ -185,7 +211,7 @@ export const deleteTransacao = async id => {
 /**
  * Obter resumo mensal
  */
-export const getResumoMensal = async mesReferencia => {
+export const getResumoMensal = async (mesReferencia: string): Promise<Resumo> => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('resumo_mensal')
@@ -197,15 +223,17 @@ export const getResumoMensal = async mesReferencia => {
   return linhaParaResumo(data)
 }
 
+type CategoriaResumo = { categoria: string; total: number; quantidade: number }
+
 /**
  * Obter gastos por categoria
  */
-export const getGastosPorCategoria = async mesReferencia => {
+export const getGastosPorCategoria = async (mesReferencia: string): Promise<CategoriaResumo[]> => {
   const transacoes = await getTransacoesPorMes(mesReferencia)
 
   const gastosPorCategoria = transacoes
     .filter(t => t.tipo === 'despesa')
-    .reduce((acc, t) => {
+    .reduce<Record<string, CategoriaResumo>>((acc, t) => {
       const categoria = t.categoria
       if (!acc[categoria]) {
         acc[categoria] = {
@@ -214,7 +242,7 @@ export const getGastosPorCategoria = async mesReferencia => {
           quantidade: 0,
         }
       }
-      acc[categoria].total += parseFloat(t.valor)
+      acc[categoria].total += parseFloat(String(t.valor))
       acc[categoria].quantidade += 1
       return acc
     }, {})
@@ -225,12 +253,14 @@ export const getGastosPorCategoria = async mesReferencia => {
 /**
  * Obter receitas por categoria
  */
-export const getReceitasPorCategoria = async mesReferencia => {
+export const getReceitasPorCategoria = async (
+  mesReferencia: string
+): Promise<CategoriaResumo[]> => {
   const transacoes = await getTransacoesPorMes(mesReferencia)
 
   const receitasPorCategoria = transacoes
     .filter(t => t.tipo === 'receita')
-    .reduce((acc, t) => {
+    .reduce<Record<string, CategoriaResumo>>((acc, t) => {
       const categoria = t.categoria
       if (!acc[categoria]) {
         acc[categoria] = {
@@ -239,7 +269,7 @@ export const getReceitasPorCategoria = async mesReferencia => {
           quantidade: 0,
         }
       }
-      acc[categoria].total += parseFloat(t.valor)
+      acc[categoria].total += parseFloat(String(t.valor))
       acc[categoria].quantidade += 1
       return acc
     }, {})
@@ -250,7 +280,7 @@ export const getReceitasPorCategoria = async mesReferencia => {
 /**
  * Obter evolução mensal (últimos N meses)
  */
-export const getEvolucaoMensal = async (meses = 6) => {
+export const getEvolucaoMensal = async (meses = 6): Promise<ReturnType<typeof montarEvolucao>> => {
   const userId = await getUserId()
   const mesesRef = ultimosMeses(meses)
   const { data, error } = await supabase
@@ -259,13 +289,25 @@ export const getEvolucaoMensal = async (meses = 6) => {
     .eq('user_id', userId)
     .in('mes_referencia', mesesRef)
   if (error) throw error
-  return montarEvolucao(data || [], mesesRef)
+  // A view retorna colunas nullable como `null`; LinhaResumo (domain) espera `undefined`.
+  // Conversão pura de forma, sem efeito no valor: `??` em linhaParaResumo trata os dois igual,
+  // e a comparação por mes_referencia em montarEvolucao não depende dessa diferença.
+  const linhas = (data || []).map(linha => ({
+    mes_referencia: linha.mes_referencia ?? undefined,
+    total_receitas: linha.total_receitas,
+    total_despesas: linha.total_despesas,
+    saldo: linha.saldo,
+  }))
+  return montarEvolucao(linhas, mesesRef)
 }
 
 /**
  * Obter categorias mais usadas
  */
-export const getCategoriasMaisUsadas = async (tipo = 'despesa', limite = 10) => {
+export const getCategoriasMaisUsadas = async (
+  tipo = 'despesa',
+  limite = 10
+): Promise<{ categoria: string; quantidade: number }[]> => {
   const userId = await getUserId()
 
   const { data, error } = await supabase
@@ -276,7 +318,7 @@ export const getCategoriasMaisUsadas = async (tipo = 'despesa', limite = 10) => 
 
   if (error) throw error
 
-  const contagem = data.reduce((acc, t) => {
+  const contagem = data.reduce<Record<string, number>>((acc, t) => {
     acc[t.categoria] = (acc[t.categoria] || 0) + 1
     return acc
   }, {})
@@ -292,7 +334,7 @@ export const getCategoriasMaisUsadas = async (tipo = 'despesa', limite = 10) => 
 /**
  * Calcular fatura de um cartão em um mês específico
  */
-export const calcularFaturaCartao = async (cartaoId, mesReferencia) => {
+export const calcularFaturaCartao = async (cartaoId: string, mesReferencia: string) => {
   const userId = await getUserId()
   const transacoes = await supabase
     .from('transacoes')
@@ -304,7 +346,7 @@ export const calcularFaturaCartao = async (cartaoId, mesReferencia) => {
 
   if (transacoes.error) throw transacoes.error
 
-  const total = transacoes.data.reduce((sum, t) => sum + parseFloat(t.valor), 0)
+  const total = transacoes.data.reduce((sum, t) => sum + parseFloat(String(t.valor)), 0)
 
   return {
     total_fatura: total,
@@ -323,7 +365,7 @@ export const calcularFaturaCartao = async (cartaoId, mesReferencia) => {
 /**
  * Obter todas as faturas de um cartão (histórico)
  */
-export const getHistoricoFaturasCartao = async cartaoId => {
+export const getHistoricoFaturasCartao = async (cartaoId: string) => {
   const userId = await getUserId()
 
   const { data, error } = await supabase
@@ -337,7 +379,8 @@ export const getHistoricoFaturasCartao = async cartaoId => {
   if (error) throw error
 
   // Agrupar por mês
-  const faturasPorMes = data.reduce((acc, t) => {
+  type FaturaMes = { mes: string; total: number; mesFormatado: string }
+  const faturasPorMes = data.reduce<Record<string, FaturaMes>>((acc, t) => {
     if (!acc[t.mes_referencia]) {
       acc[t.mes_referencia] = {
         mes: t.mes_referencia,
@@ -345,7 +388,7 @@ export const getHistoricoFaturasCartao = async cartaoId => {
         mesFormatado: formatarMesExtenso(t.mes_referencia),
       }
     }
-    acc[t.mes_referencia].total += parseFloat(t.valor)
+    acc[t.mes_referencia].total += parseFloat(String(t.valor))
     return acc
   }, {})
 

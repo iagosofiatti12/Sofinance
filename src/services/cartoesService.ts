@@ -1,7 +1,17 @@
-import { supabase, getUserId } from './supabaseClient'
+import { supabase, getUserId } from '@/lib/supabase'
+import type { Database } from '@/types/database.types'
+
+export type Cartao = Database['public']['Tables']['cartoes_credito']['Row']
+export type CartaoInput = {
+  nome: string
+  bandeira: string
+  limite_total: number
+  dia_fechamento: number
+  dia_vencimento: number
+}
 
 // ========== CARTÕES ==========
-export const getCartoes = async () => {
+export const getCartoes = async (): Promise<(Cartao & { nome: string })[]> => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('cartoes_credito')
@@ -18,7 +28,7 @@ export const getCartoes = async () => {
   }))
 }
 
-export const addCartao = async cartao => {
+export const addCartao = async (cartao: CartaoInput): Promise<Cartao> => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('cartoes_credito')
@@ -38,13 +48,13 @@ export const addCartao = async cartao => {
   return data[0]
 }
 
-export const updateCartao = async (id, updates) => {
+export const updateCartao = async (id: string, updates: Partial<CartaoInput>): Promise<Cartao> => {
   // Mapear nome para nome_cartao (compatibilidade com banco)
-  const dbUpdates = {
-    ...updates,
-    nome_cartao: updates.nome,
+  const { nome, ...rest } = updates
+  const dbUpdates: Database['public']['Tables']['cartoes_credito']['Update'] = {
+    ...rest,
+    nome_cartao: nome,
   }
-  delete dbUpdates.nome
 
   const { data, error } = await supabase
     .from('cartoes_credito')
@@ -56,7 +66,7 @@ export const updateCartao = async (id, updates) => {
   return data[0]
 }
 
-export const deleteCartao = async id => {
+export const deleteCartao = async (id: string): Promise<void> => {
   const { error } = await supabase.from('cartoes_credito').delete().eq('id', id)
 
   if (error) throw error

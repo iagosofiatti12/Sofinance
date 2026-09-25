@@ -1,8 +1,12 @@
-import { supabase, getUserId } from './supabaseClient'
+import { supabase, getUserId } from '@/lib/supabase'
 import logger from '@/lib/logger'
+import type { Database } from '@/types/database.types'
+
+export type ContaFixa = Database['public']['Tables']['contas_fixas']['Row']
+export type ContaFixaInput = Database['public']['Tables']['contas_fixas']['Insert']
 
 // Pega todas as contas fixas do usuário
-export const getContasFixas = async () => {
+export const getContasFixas = async (): Promise<ContaFixa[]> => {
   try {
     const userId = await getUserId()
     const { data, error } = await supabase
@@ -23,7 +27,7 @@ export const getContasFixas = async () => {
 }
 
 // Adiciona nova conta fixa
-export const addContaFixa = async conta => {
+export const addContaFixa = async (conta: ContaFixaInput): Promise<ContaFixa> => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('contas_fixas')
@@ -35,7 +39,10 @@ export const addContaFixa = async conta => {
 }
 
 // Atualiza conta fixa
-export const updateContaFixa = async (id, updates) => {
+export const updateContaFixa = async (
+  id: string,
+  updates: Partial<ContaFixaInput>
+): Promise<ContaFixa> => {
   const { data, error } = await supabase.from('contas_fixas').update(updates).eq('id', id).select()
 
   if (error) throw error
@@ -43,7 +50,7 @@ export const updateContaFixa = async (id, updates) => {
 }
 
 // Deleta conta fixa
-export const deleteContaFixa = async id => {
+export const deleteContaFixa = async (id: string): Promise<void> => {
   const { error } = await supabase.from('contas_fixas').delete().eq('id', id)
 
   if (error) throw error

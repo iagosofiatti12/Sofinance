@@ -1,7 +1,15 @@
-import { supabase, getUserId } from './supabaseClient'
+import { supabase, getUserId } from '@/lib/supabase'
+import type { Database } from '@/types/database.types'
+
+export type FinanciamentoImovel = Database['public']['Tables']['financiamento_imovel']['Row']
+export type FinanciamentoImovelInput =
+  Database['public']['Tables']['financiamento_imovel']['Insert']
+
+export type FinanciamentoCarro = Database['public']['Tables']['financiamento_carro']['Row']
+export type FinanciamentoCarroInput = Database['public']['Tables']['financiamento_carro']['Insert']
 
 // ========== FINANCIAMENTO IMÓVEL ==========
-export const getFinanciamentoImovel = async () => {
+export const getFinanciamentoImovel = async (): Promise<FinanciamentoImovel | null> => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('financiamento_imovel')
@@ -13,7 +21,9 @@ export const getFinanciamentoImovel = async () => {
   return data
 }
 
-export const saveFinanciamentoImovel = async financiamento => {
+export const saveFinanciamentoImovel = async (
+  financiamento: FinanciamentoImovelInput
+): Promise<FinanciamentoImovel> => {
   const userId = await getUserId()
   const existing = await getFinanciamentoImovel()
 
@@ -41,7 +51,7 @@ export const saveFinanciamentoImovel = async financiamento => {
 }
 
 // ========== FINANCIAMENTO CARRO ==========
-export const getFinanciamentoCarro = async () => {
+export const getFinanciamentoCarro = async (): Promise<FinanciamentoCarro | null> => {
   const userId = await getUserId()
   const { data, error } = await supabase
     .from('financiamento_carro')
@@ -53,7 +63,9 @@ export const getFinanciamentoCarro = async () => {
   return data
 }
 
-export const saveFinanciamentoCarro = async financiamento => {
+export const saveFinanciamentoCarro = async (
+  financiamento: FinanciamentoCarroInput
+): Promise<FinanciamentoCarro> => {
   const userId = await getUserId()
   const existing = await getFinanciamentoCarro()
 

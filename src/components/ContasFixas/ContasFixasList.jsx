@@ -9,7 +9,7 @@ import {
   updateContaFixa,
   deleteContaFixa,
 } from '../../services/contasService'
-import { getUserId } from '../../services/supabaseClient'
+import { getUserId } from '@/lib/supabase'
 import { CATEGORIAS_CONTAS } from '../../config/constants'
 import { formatCurrency, parseCurrency } from '@/domain/currency'
 import { contaFixaSchema, validateData, getValidationErrorMessage } from '@/domain/validations'

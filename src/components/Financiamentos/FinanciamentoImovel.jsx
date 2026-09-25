@@ -6,7 +6,7 @@ import {
   getFinanciamentoImovel,
   saveFinanciamentoImovel,
 } from '../../services/financiamentosService'
-import { getUserId } from '../../services/supabaseClient'
+import { getUserId } from '@/lib/supabase'
 import { formatCurrency } from '@/domain/currency'
 import {
   financiamentoImovelSchema,

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { User, LogOut, Mail, Calendar, Shield, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase } from '../../services/supabaseClient'
+import { supabase } from '@/lib/supabase'
 import { deleteAccount } from '../../services/authService'
 import './Settings.css'
 

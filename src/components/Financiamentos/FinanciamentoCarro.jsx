@@ -3,7 +3,7 @@ import { Car, Save, TrendingDown, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
 import EmptyState from '../EmptyState'
 import { getFinanciamentoCarro, saveFinanciamentoCarro } from '../../services/financiamentosService'
-import { getUserId } from '../../services/supabaseClient'
+import { getUserId } from '@/lib/supabase'
 import { formatCurrency } from '@/domain/currency'
 import {
   financiamentoCarroSchema,
