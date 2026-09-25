@@ -749,7 +749,7 @@ Expected: a execução aparece como `completed success`. Se o `gh` não estiver 
 **Interfaces:**
 
 - Consumes: `tsconfig.json` da Task 4.
-- Produces: `@/domain/currency` exporta `formatCurrency(value: string | number): string` e `parseCurrency(formatted: string): number`; `@/domain/dates` exporta `toISODateLocal(d: Date): string`, `hojeISO(): string`, `parseISODateLocal(iso: string): Date`, `formatarData(iso: string | null | undefined): string`, `formatarMesExtenso(mesRef: string): string`, `formatMesReferencia(date: Date): string`, `mudarMes(mesRef: string, delta: number): string`; `@/domain/vencimentos` exporta `diasAteVencimento(diaVencimento: number, hoje?: Date): number` e `proximosVencimentos<T extends ContaComVencimento>(contas: T[], hoje?: Date, limite?: number): (T & { diasRestantes: number })[]`; `@/domain/resumo` exporta `linhaParaResumo`, `ultimosMeses`, `montarEvolucao`; `@/domain/transacaoPayload` exporta `montarPayloadTransacao`; `@/domain/validations` exporta os schemas Zod e `validateData`; `@/lib/logger` exporta o logger padrão; `@/lib/errorHandler` exporta `getErrorMessage`.
+- Produces: `@/domain/currency` exporta `formatCurrency(value: string | number): string` e `parseCurrency(formatted: string): number`; `@/domain/dates` exporta `toISODateLocal(d: Date): string`, `hojeISO(): string`, `parseISODateLocal(iso: string): Date`, `formatarData(iso: string | null | undefined): string`, `formatarMesExtenso(mesRef: string): string`, `formatMesReferencia(date: Date): string`, `mudarMes(mesRef: string, delta: number): string`; `@/domain/vencimentos` exporta `diasAteVencimento(diaVencimento: number | null | undefined, hoje?: Date): number` e `proximosVencimentos<T extends ContaComVencimento>(contas: T[], hoje?: Date, limite?: number): (T & { diasRestantes: number })[]`; `@/domain/resumo` exporta `linhaParaResumo`, `ultimosMeses`, `montarEvolucao`; `@/domain/transacaoPayload` exporta `montarPayloadTransacao`; `@/domain/validations` exporta os schemas Zod e `validateData`; `@/lib/logger` exporta o logger padrão; `@/lib/errorHandler` exporta `getErrorMessage`.
 
 - [ ] **Step 1: Mover os arquivos preservando o histórico**
 
@@ -2212,3 +2212,19 @@ Siga `superpowers:finishing-a-development-branch`. A Vercel publica sozinha depo
 | Docker Desktop aberto e rodando | Task 1                 | Já instalado                           |
 | Aprovar o merge em `main`       | Task 13                | Git                                    |
 | DSN do Sentry na Vercel         | Antes do beta (Fase 4) | sentry.io e Vercel                     |
+
+## Correções aplicadas durante a execução
+
+Registradas aqui porque o plano é lido depois por quem não acompanhou a execução, e um plano que mente é pior que um plano ausente.
+
+| Onde   | O que estava errado                                    | Correção                                                                                                                                                                                                       |
+| ------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Task 3 | `manualChunks` na forma de objeto                      | O Vite 8 usa Rolldown e só aceita função                                                                                                                                                                       |
+| Task 4 | `tsconfig.node.json` com `noEmit` e `composite` juntos | O TypeScript rejeita com TS6310; `noEmit` sai                                                                                                                                                                  |
+| Task 5 | `settings.react.version: 'detect'`                     | Quebra o ESLint 10, porque o eslint-plugin-react 7.37.5 chama `context.getFilename()`, removido na 10. Fixado em `'19.3.0'`                                                                                    |
+| Task 6 | Gatilho só em `main` e pull request                    | O próprio passo de verificação conferia a branch de trabalho, que nada dispararia. Passa a rodar em toda branch, com `concurrency`                                                                             |
+| Task 6 | `actions/checkout@v5` e `actions/setup-node@v5`        | Dois majors vencidos; as releases atuais são v7.0.1 e v7.0.0                                                                                                                                                   |
+| Task 6 | `gh run list` no passo de verificação                  | O `gh` não está instalado; a conferência passa a ler a API pública do GitHub                                                                                                                                   |
+| Task 7 | `diasAteVencimento(diaVencimento: number, …)`          | O bloco Interfaces se contradizia: o teste já existente chama com `undefined`, e o `ContaComVencimento.dia_vencimento: number \| null` do mesmo brief desagua na função. Passa a `number \| null \| undefined` |
+
+Fora do plano, a execução expôs um defeito que nenhuma verificação local pegaria: um `npm ci` limpo falhava com ERESOLVE, porque três plugins do ESLint ainda não declaram suporte ao ESLint 10. O `node_modules` da máquina era anterior à Task 5 e nunca tinha passado por resolução do zero, então o repositório estava quebrado para qualquer clone novo sem que nada acusasse. Resolvido com um `overrides` restrito a esses três pacotes, na Task 6.
