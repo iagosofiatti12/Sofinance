@@ -26,6 +26,15 @@ export const formatCurrency = (value: string | number): string => {
 }
 
 /**
+ * Formata um valor em reais (number) para moeda brasileira.
+ * formatCurrency espera centavos; esta função existe para que as telas nunca
+ * precisem lembrar de fazer `formatCurrency(Math.round(valor * 100))` sozinhas.
+ * @param valor - Valor em reais
+ * @returns Valor formatado
+ */
+export const formatReais = (valor: number): string => formatCurrency(Math.round(valor * 100))
+
+/**
  * Converte valor formatado (R$ 1.234,56) para number
  * @param formattedValue - Valor formatado
  * @returns Valor numérico

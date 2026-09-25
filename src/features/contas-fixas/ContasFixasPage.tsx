@@ -28,10 +28,10 @@ import {
 import EmptyState from '@/components/EmptyState'
 import LoadingSkeleton from '@/components/LoadingSkeleton'
 import { CATEGORIAS_CONTAS } from '@/config/constants'
-import { formatCurrency } from '@/domain/currency'
+import { formatReais } from '@/domain/currency'
 import { contaFixaSchema } from '@/domain/validations'
 import { diasAteVencimento } from '@/domain/vencimentos'
-import { getErrorMessage } from '@/lib/errorHandler'
+import { getErrorMessage, logError } from '@/lib/errorHandler'
 import type { ContaFixa } from './api'
 import {
   useAlternarContaFixa,
@@ -50,10 +50,10 @@ const VALORES_INICIAIS: FormValues = {
   ativa: true,
 }
 
-function corDoSelo(dias: number): 'default' | 'secondary' | 'destructive' {
+function corDoSelo(dias: number): 'destructive' | 'warning' | 'success' {
   if (dias <= 3) return 'destructive'
-  if (dias <= 7) return 'secondary'
-  return 'default'
+  if (dias <= 7) return 'warning'
+  return 'success'
 }
 
 function textoDoSelo(dias: number): string {
@@ -97,6 +97,7 @@ export default function ContasFixasPage() {
       toast.success(editando ? 'Conta atualizada!' : 'Conta adicionada!')
       setDialogoAberto(false)
     } catch (erro) {
+      logError('Salvar conta fixa', erro)
       toast.error(getErrorMessage(erro))
     }
   })
@@ -107,6 +108,7 @@ export default function ContasFixasPage() {
       await excluir.mutateAsync(conta.id)
       toast.success('Conta excluída!')
     } catch (erro) {
+      logError('Excluir conta fixa', erro)
       toast.error(getErrorMessage(erro))
     }
   }
@@ -116,6 +118,7 @@ export default function ContasFixasPage() {
       await alternar.mutateAsync(conta)
       toast.success(conta.ativa ? 'Conta desativada.' : 'Conta ativada.')
     } catch (erro) {
+      logError('Alternar conta fixa', erro)
       toast.error(getErrorMessage(erro))
     }
   }
@@ -142,7 +145,7 @@ export default function ContasFixasPage() {
         <div>
           <h2 className="text-2xl font-bold">Contas Fixas</h2>
           <p className="text-sm text-[var(--text-secondary)]">
-            Total mensal: <strong>{formatCurrency(Math.round(totalMensal * 100))}</strong>
+            Total mensal: <strong>{formatReais(totalMensal)}</strong>
           </p>
         </div>
         <Button onClick={() => abrirDialogo(null)}>
@@ -180,6 +183,7 @@ export default function ContasFixasPage() {
                       size="icon"
                       onClick={() => abrirDialogo(conta)}
                       aria-label={`Editar conta ${conta.nome}`}
+                      title="Editar"
                     >
                       <Pencil size={16} />
                     </Button>
@@ -187,7 +191,9 @@ export default function ContasFixasPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => aoExcluir(conta)}
+                      disabled={excluir.isPending && excluir.variables === conta.id}
                       aria-label={`Excluir conta ${conta.nome}`}
+                      title="Excluir"
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -197,7 +203,7 @@ export default function ContasFixasPage() {
                 <CardContent className="flex flex-col gap-2 text-sm">
                   <span className="flex items-center gap-2 text-lg font-bold">
                     <DollarSign size={18} />
-                    {formatCurrency(Math.round(Number(conta.valor) * 100))}
+                    {formatReais(Number(conta.valor))}
                   </span>
                   <span className="flex items-center gap-2">
                     <Calendar size={16} />
@@ -212,7 +218,7 @@ export default function ContasFixasPage() {
                     variant={conta.ativa ? 'secondary' : 'default'}
                     className="w-full"
                     onClick={() => aoAlternar(conta)}
-                    disabled={alternar.isPending}
+                    disabled={alternar.isPending && alternar.variables?.id === conta.id}
                   >
                     {conta.ativa ? <X size={16} /> : <Check size={16} />}
                     {conta.ativa ? 'Desativar' : 'Ativar'}
@@ -232,7 +238,7 @@ export default function ContasFixasPage() {
 
           <form onSubmit={aoEnviar} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="conta-nome">Nome da Conta</Label>
+              <Label htmlFor="conta-nome">Nome da Conta *</Label>
               <Input
                 id="conta-nome"
                 placeholder="Ex: Aluguel, Luz, Internet..."
@@ -247,7 +253,7 @@ export default function ContasFixasPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="conta-valor">Valor</Label>
+              <Label htmlFor="conta-valor">Valor *</Label>
               <Controller
                 control={form.control}
                 name="valor"
@@ -269,12 +275,13 @@ export default function ContasFixasPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="conta-dia">Dia do Vencimento</Label>
+              <Label htmlFor="conta-dia">Dia do Vencimento *</Label>
               <Input
                 id="conta-dia"
                 type="number"
                 min={1}
                 max={31}
+                placeholder="1-31"
                 aria-invalid={Boolean(form.formState.errors.dia_vencimento)}
                 {...form.register('dia_vencimento', { valueAsNumber: true })}
               />
@@ -286,7 +293,7 @@ export default function ContasFixasPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="conta-categoria">Categoria</Label>
+              <Label htmlFor="conta-categoria">Categoria *</Label>
               <Controller
                 control={form.control}
                 name="categoria"
