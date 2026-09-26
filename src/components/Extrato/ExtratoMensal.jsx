@@ -25,6 +25,7 @@ import { CATEGORIAS_CONTAS, CATEGORIAS_TRANSACOES } from '../../config/constants
 import { formatCurrency, parseCurrency } from '@/domain/currency'
 import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '@/domain/dates'
 import { montarPayloadTransacao } from '@/domain/transacaoPayload'
+import { transacaoSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
 import { getErrorMessage } from '@/lib/errorHandler'
 import Spinner from '../ui/Spinner'
 import './Extrato.css'
@@ -180,10 +181,33 @@ const ExtratoMensal = () => {
       return
     }
 
+    const categoria = formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros')
+
+    // Valida os dados brutos do formulário (não o payload já montado): o
+    // payload usa `null` para "ausente" em campos opcionais, e o schema,
+    // como as outras telas, trata "ausente" como `undefined` — validar o
+    // formulário evita esse descompasso de forma, sem afrouxar a regra.
+    const dataToValidate = {
+      tipo: formData.tipo,
+      categoria,
+      descricao: formData.descricao,
+      valor: Number(formData.valor),
+      data_transacao: formData.data_transacao,
+      metodo_pagamento: formData.metodo_pagamento,
+      conta_bancaria: formData.conta_bancaria || undefined,
+      observacoes: formData.observacoes || undefined,
+    }
+
+    const validation = validateData(transacaoSchema, dataToValidate)
+    if (!validation.success) {
+      toast.error(getValidationErrorMessage(validation.errors))
+      return
+    }
+
     try {
       const payload = montarPayloadTransacao({
         ...formData,
-        categoria: formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros'),
+        categoria,
       })
 
       let resultado
