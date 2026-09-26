@@ -192,6 +192,7 @@ export const validateData = <Schema extends z.ZodType>(
  * Função para pegar mensagem de erro amigável
  */
 export const getValidationErrorMessage = (errors: ValidationError[] | null | undefined): string => {
-  if (!errors || errors.length === 0) return 'Erro de validação'
-  return errors[0].message
+  const primeiro = errors?.[0]
+  if (!primeiro) return 'Erro de validação'
+  return primeiro.message
 }

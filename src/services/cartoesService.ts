@@ -45,7 +45,9 @@ export const addCartao = async (cartao: CartaoInput): Promise<Cartao> => {
     .select()
 
   if (error) throw error
-  return data[0]
+  const linha = data?.[0]
+  if (!linha) throw new Error('Não foi possível criar o cartão')
+  return linha
 }
 
 export const updateCartao = async (id: string, updates: Partial<CartaoInput>): Promise<Cartao> => {
@@ -63,7 +65,9 @@ export const updateCartao = async (id: string, updates: Partial<CartaoInput>): P
     .select()
 
   if (error) throw error
-  return data[0]
+  const linha = data?.[0]
+  if (!linha) throw new Error('Cartão não encontrado')
+  return linha
 }
 
 export const deleteCartao = async (id: string): Promise<void> => {

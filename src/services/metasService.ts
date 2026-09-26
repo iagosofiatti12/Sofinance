@@ -26,14 +26,18 @@ export const addMeta = async (meta: MetaInput): Promise<Meta> => {
     .select()
 
   if (error) throw error
-  return data[0]
+  const linha = data?.[0]
+  if (!linha) throw new Error('Não foi possível criar a meta')
+  return linha
 }
 
 export const updateMeta = async (id: string, updates: Partial<MetaInput>): Promise<Meta> => {
   const { data, error } = await supabase.from('metas_desejos').update(updates).eq('id', id).select()
 
   if (error) throw error
-  return data[0]
+  const linha = data?.[0]
+  if (!linha) throw new Error('Meta não encontrada')
+  return linha
 }
 
 export const deleteMeta = async (id: string): Promise<void> => {

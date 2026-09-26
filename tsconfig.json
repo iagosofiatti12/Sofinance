@@ -7,10 +7,15 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "noEmit": true,
+    // "tsc -b" (Task 5) é sempre incremental e grava um .tsbuildinfo mesmo
+    // para este projeto com noEmit — manda esse arquivo para fora da árvore
+    // versionada, junto do output do tsconfig.node.json.
+    "tsBuildInfoFile": "./node_modules/.tsc-out/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
     "allowJs": true,
     "checkJs": false,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,

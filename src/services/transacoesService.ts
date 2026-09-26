@@ -82,10 +82,12 @@ export const addTransacao = async (
 
   const { data, error } = await supabase
     .from('transacoes')
-    .insert([{ user_id: userId, ...payload }])
+    .insert([{ ...payload, user_id: userId }])
     .select()
 
   if (error) throw error
+  const linha = data?.[0]
+  if (!linha) throw new Error('Não foi possível criar a transação')
 
   let limiteAtualizado = true
   if (payload.metodo_pagamento === 'Crédito' && payload.cartao_credito_id) {
@@ -96,7 +98,7 @@ export const addTransacao = async (
     )
   }
 
-  return { ...data[0], limiteAtualizado }
+  return { ...linha, limiteAtualizado }
 }
 
 /**
@@ -162,7 +164,8 @@ export const updateTransacao = async (
     .select()
 
   if (error) throw error
-  if (!data || data.length === 0) throw new Error('Transação não encontrada')
+  const linha = data?.[0]
+  if (!linha) throw new Error('Transação não encontrada')
 
   let limiteAtualizado = true
   if (atual.metodo_pagamento === 'Crédito' && atual.cartao_credito_id) {
@@ -178,7 +181,7 @@ export const updateTransacao = async (
     limiteAtualizado = limiteAtualizado && ok
   }
 
-  return { ...data[0], limiteAtualizado }
+  return { ...linha, limiteAtualizado }
 }
 
 /**
@@ -381,14 +384,15 @@ export const getHistoricoFaturasCartao = async (cartaoId: string) => {
   // Agrupar por mês
   type FaturaMes = { mes: string; total: number; mesFormatado: string }
   const faturasPorMes = data.reduce<Record<string, FaturaMes>>((acc, t) => {
-    if (!acc[t.mes_referencia]) {
-      acc[t.mes_referencia] = {
-        mes: t.mes_referencia,
+    const mes = t.mes_referencia
+    if (!acc[mes]) {
+      acc[mes] = {
+        mes,
         total: 0,
-        mesFormatado: formatarMesExtenso(t.mes_referencia),
+        mesFormatado: formatarMesExtenso(mes),
       }
     }
-    acc[t.mes_referencia].total += parseFloat(String(t.valor))
+    acc[mes].total += parseFloat(String(t.valor))
     return acc
   }, {})
 

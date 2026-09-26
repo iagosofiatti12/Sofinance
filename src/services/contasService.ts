@@ -32,7 +32,9 @@ export const addContaFixa = async (conta: ContaFixaInput): Promise<ContaFixa> =>
     .select()
 
   if (error) throw error
-  return data[0]
+  const linha = data?.[0]
+  if (!linha) throw new Error('Não foi possível criar a conta fixa')
+  return linha
 }
 
 // Atualiza conta fixa
@@ -43,7 +45,9 @@ export const updateContaFixa = async (
   const { data, error } = await supabase.from('contas_fixas').update(updates).eq('id', id).select()
 
   if (error) throw error
-  return data[0]
+  const linha = data?.[0]
+  if (!linha) throw new Error('Conta fixa não encontrada')
+  return linha
 }
 
 // Deleta conta fixa

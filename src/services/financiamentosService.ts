@@ -2,11 +2,18 @@ import { supabase, getUserId } from '@/lib/supabase'
 import type { Database } from '@/types/database.types'
 
 export type FinanciamentoImovel = Database['public']['Tables']['financiamento_imovel']['Row']
-export type FinanciamentoImovelInput =
-  Database['public']['Tables']['financiamento_imovel']['Insert']
+// O user_id nunca vem do chamador: o servico o obtem da sessao e sobrescreve.
+// Deixa-lo fora do tipo faz o compilador impedir que alguem sequer tente informa-lo.
+export type FinanciamentoImovelInput = Omit<
+  Database['public']['Tables']['financiamento_imovel']['Insert'],
+  'user_id'
+>
 
 export type FinanciamentoCarro = Database['public']['Tables']['financiamento_carro']['Row']
-export type FinanciamentoCarroInput = Database['public']['Tables']['financiamento_carro']['Insert']
+export type FinanciamentoCarroInput = Omit<
+  Database['public']['Tables']['financiamento_carro']['Insert'],
+  'user_id'
+>
 
 // ========== FINANCIAMENTO IMÓVEL ==========
 export const getFinanciamentoImovel = async (): Promise<FinanciamentoImovel | null> => {
@@ -27,26 +34,27 @@ export const saveFinanciamentoImovel = async (
   const userId = await getUserId()
   const existing = await getFinanciamentoImovel()
 
-  // Preparar dados sem user_id no update
-  const { user_id, ...dataToSave } = financiamento
-
   if (existing) {
     const { data, error } = await supabase
       .from('financiamento_imovel')
-      .update(dataToSave)
+      .update(financiamento)
       .eq('id', existing.id)
       .select()
 
     if (error) throw error
-    return data[0]
+    const linha = data?.[0]
+    if (!linha) throw new Error('Financiamento não encontrado')
+    return linha
   } else {
     const { data, error } = await supabase
       .from('financiamento_imovel')
-      .insert([{ ...dataToSave, user_id: userId }])
+      .insert([{ ...financiamento, user_id: userId }])
       .select()
 
     if (error) throw error
-    return data[0]
+    const linha = data?.[0]
+    if (!linha) throw new Error('Não foi possível salvar o financiamento')
+    return linha
   }
 }
 
@@ -69,25 +77,26 @@ export const saveFinanciamentoCarro = async (
   const userId = await getUserId()
   const existing = await getFinanciamentoCarro()
 
-  // Preparar dados sem user_id no update
-  const { user_id, ...dataToSave } = financiamento
-
   if (existing) {
     const { data, error } = await supabase
       .from('financiamento_carro')
-      .update(dataToSave)
+      .update(financiamento)
       .eq('id', existing.id)
       .select()
 
     if (error) throw error
-    return data[0]
+    const linha = data?.[0]
+    if (!linha) throw new Error('Financiamento não encontrado')
+    return linha
   } else {
     const { data, error } = await supabase
       .from('financiamento_carro')
-      .insert([{ ...dataToSave, user_id: userId }])
+      .insert([{ ...financiamento, user_id: userId }])
       .select()
 
     if (error) throw error
-    return data[0]
+    const linha = data?.[0]
+    if (!linha) throw new Error('Não foi possível salvar o financiamento')
+    return linha
   }
 }

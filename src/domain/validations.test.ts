@@ -25,7 +25,7 @@ describe('validateData com Zod 4', () => {
       metodo_pagamento: 'PIX',
     })
     expect(r.success).toBe(false)
-    expect(r.errors[0].message).toBe('Valor deve ser positivo')
+    expect(r.errors[0]?.message).toBe('Valor deve ser positivo')
   })
   it('aceita dados válidos', () => {
     const r = validateData(cartaoSchema, {

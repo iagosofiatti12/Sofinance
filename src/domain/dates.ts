@@ -7,7 +7,11 @@ export const hojeISO = (): string => toISODateLocal(new Date())
 
 export const parseISODateLocal = (iso: string): Date => {
   const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number)
-  return new Date(y, m - 1, d)
+  // `split('-')` devolve `string[]` de tamanho variável para o TS, então
+  // `.map(Number)` não garante 3 posições em tempo de compilação. Um ISO
+  // malformado já resultava em `undefined - 1` (NaN) e Data Inválida antes
+  // desta guarda; `?? NaN` preserva exatamente esse comportamento.
+  return new Date(y ?? NaN, (m ?? NaN) - 1, d ?? NaN)
 }
 
 export const formatarData = (iso: string | null | undefined): string =>
@@ -20,5 +24,5 @@ export const formatMesReferencia = (date: Date): string => toISODateLocal(date).
 
 export const mudarMes = (mesRef: string, delta: number): string => {
   const [y, m] = mesRef.split('-').map(Number)
-  return formatMesReferencia(new Date(y, m - 1 + delta, 1))
+  return formatMesReferencia(new Date(y ?? NaN, (m ?? NaN) - 1 + delta, 1))
 }
