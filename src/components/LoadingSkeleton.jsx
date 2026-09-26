@@ -11,7 +11,7 @@ const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
             <div className="skeleton-line skeleton-stat-value"></div>
           </div>
         )
-      
+
       case 'card':
         return (
           <div className="skeleton skeleton-card">
@@ -20,7 +20,7 @@ const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
             <div className="skeleton-line skeleton-text-short"></div>
           </div>
         )
-      
+
       case 'list-item':
         return (
           <div className="skeleton skeleton-list-item">
@@ -31,7 +31,7 @@ const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
             </div>
           </div>
         )
-      
+
       case 'table-row':
         return (
           <div className="skeleton skeleton-table-row">
@@ -41,7 +41,7 @@ const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
             <div className="skeleton-line skeleton-text-short"></div>
           </div>
         )
-      
+
       default:
         return <div className="skeleton skeleton-default"></div>
     }
@@ -50,9 +50,7 @@ const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
   return (
     <div className="skeleton-container">
       {Array.from({ length: count }).map((_, index) => (
-        <React.Fragment key={index}>
-          {renderSkeleton()}
-        </React.Fragment>
+        <React.Fragment key={index}>{renderSkeleton()}</React.Fragment>
       ))}
     </div>
   )

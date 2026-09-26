@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, CreditCard as CardIcon, FileText, Eye, X } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { 
-  getCartoes, 
-  addCartao, 
-  updateCartao, 
-  deleteCartao
-} from '../../services/cartoesService'
+import { getCartoes, addCartao, updateCartao, deleteCartao } from '../../services/cartoesService'
 import { BANDEIRAS_CARTAO } from '../../config/constants'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import { cartaoSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
-import { getErrorMessage } from '../../utils/errorHandler'
+import { formatCurrency, parseCurrency } from '@/domain/currency'
+import { cartaoSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
+import { getErrorMessage } from '@/lib/errorHandler'
 import FaturaCartao from './FaturaCartao'
-import Spinner from '../UI/Spinner'
+import Spinner from '../ui/Spinner'
 import './Cartoes.css'
 
 const CartoesList = () => {
@@ -27,7 +22,7 @@ const CartoesList = () => {
     bandeira: 'Visa',
     limite_total: '',
     dia_fechamento: '',
-    dia_vencimento: ''
+    dia_vencimento: '',
   })
 
   useEffect(() => {
@@ -55,7 +50,7 @@ const CartoesList = () => {
         bandeira: cartao.bandeira,
         limite_total: cartao.limite_total,
         dia_fechamento: cartao.dia_fechamento,
-        dia_vencimento: cartao.dia_vencimento
+        dia_vencimento: cartao.dia_vencimento,
       })
     } else {
       setEditingCartao(null)
@@ -64,7 +59,7 @@ const CartoesList = () => {
         bandeira: 'Visa',
         limite_total: '',
         dia_fechamento: '',
-        dia_vencimento: ''
+        dia_vencimento: '',
       })
     }
     setShowModal(true)
@@ -75,19 +70,22 @@ const CartoesList = () => {
     setEditingCartao(null)
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    
+
     try {
       // Preparar e validar dados
       const dataToValidate = {
         nome: formData.nome,
         bandeira: formData.bandeira,
-        limite_total: typeof formData.limite_total === 'string' ? parseCurrency(formData.limite_total) : parseFloat(formData.limite_total),
+        limite_total:
+          typeof formData.limite_total === 'string'
+            ? parseCurrency(formData.limite_total)
+            : parseFloat(formData.limite_total),
         dia_fechamento: parseInt(formData.dia_fechamento),
-        dia_vencimento: parseInt(formData.dia_vencimento)
+        dia_vencimento: parseInt(formData.dia_vencimento),
       }
-      
+
       const validation = validateData(cartaoSchema, dataToValidate)
       if (!validation.success) {
         toast.error(getValidationErrorMessage(validation.errors))
@@ -111,9 +109,9 @@ const CartoesList = () => {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (!window.confirm('Deseja realmente excluir este cartão?')) return
-    
+
     try {
       await deleteCartao(id)
       await loadCartoes()
@@ -124,25 +122,24 @@ const CartoesList = () => {
     }
   }
 
-  const getPercentualUso = (cartao) => {
-    const percentual = (parseFloat(cartao.limite_usado || 0) / parseFloat(cartao.limite_total)) * 100
+  const getPercentualUso = cartao => {
+    const percentual =
+      (parseFloat(cartao.limite_usado || 0) / parseFloat(cartao.limite_total)) * 100
     return percentual.toFixed(1)
   }
 
-  const getCorBarra = (percentual) => {
+  const getCorBarra = percentual => {
     if (percentual < 50) return 'var(--accent-green)'
     if (percentual < 80) return '#f59e0b'
     return 'var(--accent-red)'
   }
 
-  const getLimiteDisponivel = (cartao) => {
+  const getLimiteDisponivel = cartao => {
     return parseFloat(cartao.limite_total) - parseFloat(cartao.limite_usado || 0)
   }
 
   if (loading) {
-    return (
-      <Spinner label="Carregando cartões..." />
-    )
+    return <Spinner label="Carregando cartões..." />
   }
 
   return (
@@ -158,7 +155,8 @@ const CartoesList = () => {
       <div className="info-banner">
         <FileText size={20} />
         <p>
-          <strong>Dica:</strong> Para adicionar compras no cartão, vá em &quot;Extrato Mensal&quot; e escolha &quot;Crédito&quot; como método. Parcelamento chega na próxima versão.
+          <strong>Dica:</strong> Para adicionar compras no cartão, vá em &quot;Extrato Mensal&quot;
+          e escolha &quot;Crédito&quot; como método. Parcelamento chega na próxima versão.
         </p>
       </div>
 
@@ -189,16 +187,16 @@ const CartoesList = () => {
                     </div>
                   </div>
                   <div className="cartao-actions">
-                    <button 
-                      className="btn-icon" 
+                    <button
+                      className="btn-icon"
                       onClick={() => handleOpenModal(cartao)}
                       title="Editar"
                       aria-label="Editar cartão"
                     >
                       <Edit2 size={16} />
                     </button>
-                    <button 
-                      className="btn-icon danger" 
+                    <button
+                      className="btn-icon danger"
                       onClick={() => handleDelete(cartao.id)}
                       aria-label="Excluir cartão"
                       title="Excluir"
@@ -219,17 +217,20 @@ const CartoesList = () => {
                     <div>
                       <span className="label">Limite Total</span>
                       <span className="valor-total">
-                        R$ {parseFloat(cartao.limite_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        R${' '}
+                        {parseFloat(cartao.limite_total).toLocaleString('pt-BR', {
+                          minimumFractionDigits: 2,
+                        })}
                       </span>
                     </div>
                   </div>
 
                   <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ 
+                    <div
+                      className="progress-fill"
+                      style={{
                         width: `${Math.min(percentual, 100)}%`,
-                        background: getCorBarra(percentual)
+                        background: getCorBarra(percentual),
                       }}
                     />
                   </div>
@@ -247,7 +248,7 @@ const CartoesList = () => {
                   </div>
                 </div>
 
-                <button 
+                <button
                   className="btn btn-outline btn-ver-fatura"
                   onClick={() => setCartaoFatura(cartao)}
                 >
@@ -263,14 +264,14 @@ const CartoesList = () => {
       {/* Modal de Cadastro/Edição */}
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header-close">
               <h2>{editingCartao ? 'Editar Cartão' : 'Novo Cartão'}</h2>
               <button type="button" className="btn-icon" onClick={handleCloseModal}>
                 <X size={24} />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="cartao-nome">Nome do Cartão *</label>
@@ -278,7 +279,7 @@ const CartoesList = () => {
                   id="cartao-nome"
                   type="text"
                   value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  onChange={e => setFormData({ ...formData, nome: e.target.value })}
                   placeholder="Ex: Nubank, Itaú Mastercard..."
                   required
                 />
@@ -290,11 +291,13 @@ const CartoesList = () => {
                   <select
                     id="cartao-bandeira"
                     value={formData.bandeira}
-                    onChange={(e) => setFormData({ ...formData, bandeira: e.target.value })}
+                    onChange={e => setFormData({ ...formData, bandeira: e.target.value })}
                     required
                   >
                     {BANDEIRAS_CARTAO.map(b => (
-                      <option key={b} value={b}>{b}</option>
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -304,8 +307,12 @@ const CartoesList = () => {
                   <input
                     id="cartao-limite-total"
                     type="text"
-                    value={formData.limite_total ? formatCurrency(parseFloat(formData.limite_total) * 100) : ''}
-                    onChange={(e) => {
+                    value={
+                      formData.limite_total
+                        ? formatCurrency(parseFloat(formData.limite_total) * 100)
+                        : ''
+                    }
+                    onChange={e => {
                       const valor = e.target.value.replace(/\D/g, '')
                       const numero = Number(valor) / 100
                       setFormData({ ...formData, limite_total: numero || '' })
@@ -325,7 +332,7 @@ const CartoesList = () => {
                     min="1"
                     max="31"
                     value={formData.dia_fechamento}
-                    onChange={(e) => setFormData({ ...formData, dia_fechamento: e.target.value })}
+                    onChange={e => setFormData({ ...formData, dia_fechamento: e.target.value })}
                     placeholder="Ex: 15"
                     required
                   />
@@ -340,7 +347,7 @@ const CartoesList = () => {
                     min="1"
                     max="31"
                     value={formData.dia_vencimento}
-                    onChange={(e) => setFormData({ ...formData, dia_vencimento: e.target.value })}
+                    onChange={e => setFormData({ ...formData, dia_vencimento: e.target.value })}
                     placeholder="Ex: 25"
                     required
                   />
@@ -363,12 +370,12 @@ const CartoesList = () => {
 
       {/* Modal de Fatura */}
       {cartaoFatura && (
-        <FaturaCartao 
-          cartao={cartaoFatura} 
+        <FaturaCartao
+          cartao={cartaoFatura}
           onClose={() => {
             setCartaoFatura(null)
             loadCartoes() // Recarregar para atualizar limite após pagamento
-          }} 
+          }}
         />
       )}
     </div>

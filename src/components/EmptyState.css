@@ -24,7 +24,8 @@
 }
 
 @keyframes empty-state-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.1;
     transform: scale(1);
   }

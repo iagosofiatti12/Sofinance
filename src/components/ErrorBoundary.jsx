@@ -1,7 +1,7 @@
 import React from 'react'
 import { AlertTriangle } from 'lucide-react'
 import * as Sentry from '@sentry/react'
-import logger from '../utils/logger'
+import logger from '@/lib/logger'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -18,7 +18,7 @@ class ErrorBoundary extends React.Component {
     Sentry.captureException(error, { extra: { componentStack: errorInfo?.componentStack } })
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     })
   }
 
@@ -29,32 +29,38 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '100vh',
-          padding: '2rem',
-          background: 'linear-gradient(135deg, #0a0a0a 0%, #171717 100%)',
-          color: '#fafafa'
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            padding: '2rem',
+            background: 'linear-gradient(135deg, #0a0a0a 0%, #171717 100%)',
+            color: '#fafafa',
+          }}
+        >
           <AlertTriangle size={64} style={{ color: '#ef4444', marginBottom: '1.5rem' }} />
-          <h1 style={{ 
-            fontSize: '2rem', 
-            fontWeight: '900', 
-            marginBottom: '1rem',
-            textAlign: 'center'
-          }}>
+          <h1
+            style={{
+              fontSize: '2rem',
+              fontWeight: '900',
+              marginBottom: '1rem',
+              textAlign: 'center',
+            }}
+          >
             Oops! Algo deu errado
           </h1>
-          <p style={{ 
-            fontSize: '1rem', 
-            color: '#d4d4d4', 
-            marginBottom: '2rem',
-            textAlign: 'center',
-            maxWidth: '500px'
-          }}>
+          <p
+            style={{
+              fontSize: '1rem',
+              color: '#d4d4d4',
+              marginBottom: '2rem',
+              textAlign: 'center',
+              maxWidth: '500px',
+            }}
+          >
             Ocorreu um erro inesperado na aplicação. Por favor, tente recarregar a página.
           </p>
           <button
@@ -70,45 +76,51 @@ class ErrorBoundary extends React.Component {
               border: '1.5px solid #404040',
               borderRadius: '8px',
               cursor: 'pointer',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
             }}
-            onMouseOver={(e) => {
+            onMouseOver={e => {
               e.target.style.background = '#404040'
             }}
-            onMouseOut={(e) => {
+            onMouseOut={e => {
               e.target.style.background = '#1a1a1a'
             }}
-            onFocus={(e) => {
+            onFocus={e => {
               e.target.style.background = '#404040'
             }}
-            onBlur={(e) => {
+            onBlur={e => {
               e.target.style.background = '#1a1a1a'
             }}
           >
             Recarregar Página
           </button>
           {process.env.NODE_ENV === 'development' && this.state.error && (
-            <details style={{ 
-              marginTop: '2rem', 
-              padding: '1rem',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid #ef4444',
-              borderRadius: '8px',
-              maxWidth: '800px',
-              width: '100%'
-            }}>
-              <summary style={{ 
-                cursor: 'pointer', 
-                fontWeight: '700',
-                marginBottom: '0.5rem' 
-              }}>
+            <details
+              style={{
+                marginTop: '2rem',
+                padding: '1rem',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid #ef4444',
+                borderRadius: '8px',
+                maxWidth: '800px',
+                width: '100%',
+              }}
+            >
+              <summary
+                style={{
+                  cursor: 'pointer',
+                  fontWeight: '700',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 Detalhes do Erro (Dev Mode)
               </summary>
-              <pre style={{ 
-                fontSize: '0.875rem',
-                overflow: 'auto',
-                color: '#ef4444'
-              }}>
+              <pre
+                style={{
+                  fontSize: '0.875rem',
+                  overflow: 'auto',
+                  color: '#ef4444',
+                }}
+              >
                 {this.state.error.toString()}
                 {this.state.errorInfo?.componentStack}
               </pre>

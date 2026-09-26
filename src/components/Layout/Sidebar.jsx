@@ -1,35 +1,32 @@
 import React from 'react'
-import { 
-  LayoutDashboard, 
-  Receipt, 
-  CreditCard, 
-  Home, 
-  Car, 
+import { NavLink } from 'react-router'
+import {
+  LayoutDashboard,
+  Receipt,
+  CreditCard,
+  Home,
+  Car,
   Target,
   User,
   LogOut,
-  FileText
+  FileText,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
 import './Sidebar.css'
 
-const Sidebar = ({ activeSection, setActiveSection }) => {
+const menuItems = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/lancamentos', label: 'Extrato Mensal', icon: FileText },
+  { to: '/contas', label: 'Contas Fixas', icon: Receipt },
+  { to: '/cartoes', label: 'Cartões', icon: CreditCard },
+  { to: '/dividas/imovel', label: 'Financ. Imóvel', icon: Home },
+  { to: '/dividas/carro', label: 'Financ. Carro', icon: Car },
+  { to: '/metas', label: 'Metas', icon: Target },
+]
+
+const Sidebar = () => {
   const { signOut } = useAuth()
-
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'extrato', label: 'Extrato Mensal', icon: FileText },
-    { id: 'contas', label: 'Contas Fixas', icon: Receipt },
-    { id: 'cartoes', label: 'Cartões', icon: CreditCard },
-    { id: 'imovel', label: 'Financ. Imóvel', icon: Home },
-    { id: 'carro', label: 'Financ. Carro', icon: Car },
-    { id: 'metas', label: 'Metas', icon: Target },
-  ]
-
-  const handleSettings = () => {
-    setActiveSection('settings')
-  }
 
   const handleLogout = async () => {
     try {
@@ -41,66 +38,36 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     }
   }
 
-  const handleLogoClick = () => {
-    setActiveSection('dashboard')
-  }
-
-  const handleLogoKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleLogoClick()
-    }
-  }
-
   return (
-    <aside 
-      className="sidebar glass" 
-      role="navigation" 
-      aria-label="Menu principal"
-    >
-      <div 
-        className="sidebar-logo" 
-        onClick={handleLogoClick}
-        onKeyDown={handleLogoKeyDown}
-        role="button" 
-        tabIndex={0}
-        aria-label="Voltar ao Dashboard"
-      >
-        <img 
-          src="/logo-completo.png"
-          alt="Sofinance"
-          className="logo-image"
-        />
-      </div>
+    <aside className="sidebar glass" role="navigation" aria-label="Menu principal">
+      <NavLink to="/" className="sidebar-logo" aria-label="Voltar ao Dashboard">
+        <img src="/logo-completo.png" alt="Sofinance" className="logo-image" />
+      </NavLink>
 
       <nav className="sidebar-nav">
         {menuItems.map(item => {
           const Icon = item.icon
           return (
-            <button
-              key={item.id}
-              className={`sidebar-item ${activeSection === item.id ? 'active' : ''}`}
-              onClick={() => setActiveSection(item.id)}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
               aria-label={`Navegar para ${item.label}`}
-              aria-current={activeSection === item.id ? 'page' : undefined}
             >
               <Icon size={20} aria-hidden="true" />
               <span>{item.label}</span>
-            </button>
+            </NavLink>
           )
         })}
       </nav>
-      
+
       <div className="sidebar-footer">
-        <button
-          className="sidebar-item sidebar-action"
-          onClick={handleSettings}
-          aria-label="Perfil"
-        >
+        <NavLink to="/configuracoes" className="sidebar-item sidebar-action" aria-label="Perfil">
           <User size={20} aria-hidden="true" />
           <span>Perfil</span>
-        </button>
-        
+        </NavLink>
+
         <button
           className="sidebar-item sidebar-action sidebar-logout"
           onClick={handleLogout}

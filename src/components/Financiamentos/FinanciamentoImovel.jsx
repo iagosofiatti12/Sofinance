@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react'
 import { Home, Save, TrendingDown, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
 import EmptyState from '../EmptyState'
-import { getFinanciamentoImovel, saveFinanciamentoImovel } from '../../services/financiamentosService'
-import { getUserId } from '../../services/supabaseClient'
-import { formatCurrency } from '../../utils/currency'
-import { financiamentoImovelSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
-import { getErrorMessage } from '../../utils/errorHandler'
-import { hojeISO, formatarData } from '../../utils/dates'
-import Spinner from '../UI/Spinner'
+import {
+  getFinanciamentoImovel,
+  saveFinanciamentoImovel,
+} from '../../services/financiamentosService'
+import { getUserId } from '@/lib/supabase'
+import { formatCurrency } from '@/domain/currency'
+import {
+  financiamentoImovelSchema,
+  validateData,
+  getValidationErrorMessage,
+} from '@/domain/validations'
+import { getErrorMessage } from '@/lib/errorHandler'
+import { hojeISO, formatarData } from '@/domain/dates'
+import Spinner from '../ui/Spinner'
 import './Financiamentos.css'
 
 const FinanciamentoImovel = () => {
@@ -23,7 +30,7 @@ const FinanciamentoImovel = () => {
     parcela_valor: '',
     parcelas_pagas: 0,
     taxa_obra: 0,
-    data_inicio: hojeISO()
+    data_inicio: hojeISO(),
   })
 
   useEffect(() => {
@@ -48,12 +55,12 @@ const FinanciamentoImovel = () => {
     }
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    
+
     try {
       const userId = await getUserId()
-      
+
       // Preparar dados para validação
       const dataToValidate = {
         valor_total: parseFloat(formData.valor_total),
@@ -63,9 +70,9 @@ const FinanciamentoImovel = () => {
         parcela_valor: parseFloat(formData.parcela_valor),
         parcelas_pagas: parseInt(formData.parcelas_pagas || 0),
         taxa_obra: parseFloat(formData.taxa_obra || 0),
-        data_inicio: formData.data_inicio
+        data_inicio: formData.data_inicio,
       }
-      
+
       // Validar com Zod
       const validation = validateData(financiamentoImovelSchema, dataToValidate)
       if (!validation.success) {
@@ -100,9 +107,7 @@ const FinanciamentoImovel = () => {
   }
 
   if (loading) {
-    return (
-      <Spinner label="Carregando financiamento..." />
-    )
+    return <Spinner label="Carregando financiamento..." />
   }
 
   // Mostrar empty state se não houver financiamento e não estiver editando
@@ -147,8 +152,12 @@ const FinanciamentoImovel = () => {
                 <input
                   id="fin-imovel-valor-total"
                   type="text"
-                  value={formData.valor_total ? formatCurrency(parseFloat(formData.valor_total) * 100) : ''}
-                  onChange={(e) => {
+                  value={
+                    formData.valor_total
+                      ? formatCurrency(parseFloat(formData.valor_total) * 100)
+                      : ''
+                  }
+                  onChange={e => {
                     const valor = e.target.value.replace(/\D/g, '')
                     const numero = Number(valor) / 100
                     setFormData({ ...formData, valor_total: numero || '' })
@@ -163,8 +172,12 @@ const FinanciamentoImovel = () => {
                 <input
                   id="fin-imovel-valor-financiado"
                   type="text"
-                  value={formData.valor_financiado ? formatCurrency(parseFloat(formData.valor_financiado) * 100) : ''}
-                  onChange={(e) => {
+                  value={
+                    formData.valor_financiado
+                      ? formatCurrency(parseFloat(formData.valor_financiado) * 100)
+                      : ''
+                  }
+                  onChange={e => {
                     const valor = e.target.value.replace(/\D/g, '')
                     const numero = Number(valor) / 100
                     setFormData({ ...formData, valor_financiado: numero || '' })
@@ -183,7 +196,7 @@ const FinanciamentoImovel = () => {
                   type="number"
                   step="0.01"
                   value={formData.taxa_juros}
-                  onChange={(e) => setFormData({ ...formData, taxa_juros: e.target.value })}
+                  onChange={e => setFormData({ ...formData, taxa_juros: e.target.value })}
                   required
                 />
               </div>
@@ -194,7 +207,7 @@ const FinanciamentoImovel = () => {
                   id="fin-imovel-num-parcelas"
                   type="number"
                   value={formData.num_parcelas}
-                  onChange={(e) => setFormData({ ...formData, num_parcelas: e.target.value })}
+                  onChange={e => setFormData({ ...formData, num_parcelas: e.target.value })}
                   required
                 />
               </div>
@@ -206,8 +219,12 @@ const FinanciamentoImovel = () => {
                 <input
                   id="fin-imovel-parcela-valor"
                   type="text"
-                  value={formData.parcela_valor ? formatCurrency(parseFloat(formData.parcela_valor) * 100) : ''}
-                  onChange={(e) => {
+                  value={
+                    formData.parcela_valor
+                      ? formatCurrency(parseFloat(formData.parcela_valor) * 100)
+                      : ''
+                  }
+                  onChange={e => {
                     const valor = e.target.value.replace(/\D/g, '')
                     const numero = Number(valor) / 100
                     setFormData({ ...formData, parcela_valor: numero || '' })
@@ -223,7 +240,7 @@ const FinanciamentoImovel = () => {
                   id="fin-imovel-parcelas-pagas"
                   type="number"
                   value={formData.parcelas_pagas}
-                  onChange={(e) => setFormData({ ...formData, parcelas_pagas: e.target.value })}
+                  onChange={e => setFormData({ ...formData, parcelas_pagas: e.target.value })}
                 />
               </div>
             </div>
@@ -234,8 +251,10 @@ const FinanciamentoImovel = () => {
                 <input
                   id="fin-imovel-taxa-obra"
                   type="text"
-                  value={formData.taxa_obra ? formatCurrency(parseFloat(formData.taxa_obra) * 100) : ''}
-                  onChange={(e) => {
+                  value={
+                    formData.taxa_obra ? formatCurrency(parseFloat(formData.taxa_obra) * 100) : ''
+                  }
+                  onChange={e => {
                     const valor = e.target.value.replace(/\D/g, '')
                     const numero = Number(valor) / 100
                     setFormData({ ...formData, taxa_obra: numero || '' })
@@ -250,7 +269,7 @@ const FinanciamentoImovel = () => {
                   id="fin-imovel-data-inicio"
                   type="date"
                   value={formData.data_inicio}
-                  onChange={(e) => setFormData({ ...formData, data_inicio: e.target.value })}
+                  onChange={e => setFormData({ ...formData, data_inicio: e.target.value })}
                   required
                 />
               </div>
@@ -258,7 +277,11 @@ const FinanciamentoImovel = () => {
 
             <div className="form-actions">
               {financiamento && (
-                <button type="button" className="btn btn-secondary" onClick={() => setEditing(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setEditing(false)}
+                >
                   Cancelar
                 </button>
               )}
@@ -280,7 +303,10 @@ const FinanciamentoImovel = () => {
               <div className="stat-content">
                 <span className="stat-label">Valor Total</span>
                 <span className="stat-value">
-                  R$ {parseFloat(financiamento.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R${' '}
+                  {parseFloat(financiamento.valor_total).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
             </div>
@@ -316,7 +342,10 @@ const FinanciamentoImovel = () => {
               <div className="stat-content">
                 <span className="stat-label">Valor da Parcela</span>
                 <span className="stat-value">
-                  R$ {parseFloat(financiamento.parcela_valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R${' '}
+                  {parseFloat(financiamento.parcela_valor).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
             </div>
@@ -329,7 +358,9 @@ const FinanciamentoImovel = () => {
               <div className="progress-info">
                 <div className="progress-item">
                   <span className="label">Parcelas Pagas</span>
-                  <span className="value">{financiamento.parcelas_pagas} de {financiamento.num_parcelas}</span>
+                  <span className="value">
+                    {financiamento.parcelas_pagas} de {financiamento.num_parcelas}
+                  </span>
                 </div>
                 <div className="progress-item">
                   <span className="label">Progresso</span>
@@ -337,10 +368,7 @@ const FinanciamentoImovel = () => {
                 </div>
               </div>
               <div className="progress-bar large">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${calcularProgresso()}%` }}
-                />
+                <div className="progress-fill" style={{ width: `${calcularProgresso()}%` }} />
               </div>
             </div>
           </div>
@@ -352,24 +380,30 @@ const FinanciamentoImovel = () => {
               <div className="detail-row">
                 <span className="detail-label">Valor Financiado</span>
                 <span className="detail-value">
-                  R$ {parseFloat(financiamento.valor_financiado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R${' '}
+                  {parseFloat(financiamento.valor_financiado).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Taxa de Juros</span>
-                <span className="detail-value">{parseFloat(financiamento.taxa_juros).toFixed(2)}% a.a.</span>
+                <span className="detail-value">
+                  {parseFloat(financiamento.taxa_juros).toFixed(2)}% a.a.
+                </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Taxa de Obra</span>
                 <span className="detail-value">
-                  R$ {parseFloat(financiamento.taxa_obra).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R${' '}
+                  {parseFloat(financiamento.taxa_obra).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Data de Início</span>
-                <span className="detail-value">
-                  {formatarData(financiamento.data_inicio)}
-                </span>
+                <span className="detail-value">{formatarData(financiamento.data_inicio)}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">Parcelas Restantes</span>

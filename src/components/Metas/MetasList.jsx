@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Plus, Edit2, Trash2, Target, TrendingUp, DollarSign } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { getMetas, addMeta, updateMeta, deleteMeta } from '../../services/metasService'
-import { getUserId } from '../../services/supabaseClient'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import { metaSchema, validateData, getValidationErrorMessage } from '../../utils/validations'
-import Spinner from '../UI/Spinner'
+import { getUserId } from '@/lib/supabase'
+import { formatCurrency, parseCurrency } from '@/domain/currency'
+import { metaSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
+import Spinner from '../ui/Spinner'
 import './Metas.css'
 
 const MetasList = () => {
@@ -17,7 +17,7 @@ const MetasList = () => {
     nome: '',
     valor_meta: '',
     valor_guardado: 0,
-    prazo_meses: ''
+    prazo_meses: '',
   })
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const MetasList = () => {
         nome: meta.nome,
         valor_meta: meta.valor_meta,
         valor_guardado: meta.valor_guardado,
-        prazo_meses: meta.prazo_meses || ''
+        prazo_meses: meta.prazo_meses || '',
       })
     } else {
       setEditingMeta(null)
@@ -51,35 +51,41 @@ const MetasList = () => {
         nome: '',
         valor_meta: '',
         valor_guardado: 0,
-        prazo_meses: ''
+        prazo_meses: '',
       })
     }
     setShowModal(true)
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    
+
     try {
       const userId = await getUserId()
-      
+
       // Preparar e validar dados
       const dataToValidate = {
         nome: formData.nome,
-        valor_meta: typeof formData.valor_meta === 'string' ? parseCurrency(formData.valor_meta) : parseFloat(formData.valor_meta),
-        valor_guardado: typeof formData.valor_guardado === 'string' ? parseCurrency(formData.valor_guardado) : parseFloat(formData.valor_guardado || 0),
-        prazo_meses: formData.prazo_meses ? parseInt(formData.prazo_meses) : null
+        valor_meta:
+          typeof formData.valor_meta === 'string'
+            ? parseCurrency(formData.valor_meta)
+            : parseFloat(formData.valor_meta),
+        valor_guardado:
+          typeof formData.valor_guardado === 'string'
+            ? parseCurrency(formData.valor_guardado)
+            : parseFloat(formData.valor_guardado || 0),
+        prazo_meses: formData.prazo_meses ? parseInt(formData.prazo_meses) : null,
       }
-      
+
       const validation = validateData(metaSchema, dataToValidate)
       if (!validation.success) {
         toast.error(getValidationErrorMessage(validation.errors))
         return
       }
-      
+
       const metaData = {
         ...validation.data,
-        user_id: userId
+        user_id: userId,
       }
 
       if (editingMeta) {
@@ -98,9 +104,9 @@ const MetasList = () => {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (!confirm('Deseja realmente excluir esta meta?')) return
-    
+
     try {
       await deleteMeta(id)
       await loadMetas()
@@ -110,10 +116,10 @@ const MetasList = () => {
     }
   }
 
-  const handleAddValue = async (meta) => {
+  const handleAddValue = async meta => {
     const valor = prompt('Quanto você deseja adicionar?')
     if (!valor) return
-    
+
     const valorNumerico = parseFloat(valor)
     if (isNaN(valorNumerico) || valorNumerico <= 0) {
       toast.error('Valor inválido')
@@ -123,7 +129,7 @@ const MetasList = () => {
     try {
       await updateMeta(meta.id, {
         ...meta,
-        valor_guardado: parseFloat(meta.valor_guardado) + valorNumerico
+        valor_guardado: parseFloat(meta.valor_guardado) + valorNumerico,
       })
       await loadMetas()
     } catch (error) {
@@ -132,28 +138,28 @@ const MetasList = () => {
     }
   }
 
-  const calcularProgresso = (meta) => {
+  const calcularProgresso = meta => {
     return ((meta.valor_guardado / meta.valor_meta) * 100).toFixed(1)
   }
 
-  const calcularFaltante = (meta) => {
+  const calcularFaltante = meta => {
     return Math.max(0, meta.valor_meta - meta.valor_guardado)
   }
 
-  const calcularMesesRestantes = (meta) => {
+  const calcularMesesRestantes = meta => {
     if (!meta.prazo_meses) return null
     // Simplificado - em produção você calcularia baseado na data de criação
     return meta.prazo_meses
   }
 
-  const calcularPoupancaMensal = (meta) => {
+  const calcularPoupancaMensal = meta => {
     const faltante = calcularFaltante(meta)
     const meses = calcularMesesRestantes(meta)
     if (!meses || meses <= 0) return null
     return faltante / meses
   }
 
-  const getProgressColor = (progresso) => {
+  const getProgressColor = progresso => {
     if (progresso >= 100) return 'var(--accent-green)'
     if (progresso >= 70) return 'var(--accent-blue)'
     if (progresso >= 40) return '#f59e0b'
@@ -165,9 +171,7 @@ const MetasList = () => {
   const progressoGeral = totalMetas > 0 ? ((totalGuardado / totalMetas) * 100).toFixed(1) : 0
 
   if (loading) {
-    return (
-      <Spinner label="Carregando metas..." />
-    )
+    return <Spinner label="Carregando metas..." />
   }
 
   return (
@@ -176,10 +180,12 @@ const MetasList = () => {
         <div>
           <h2>Metas e Desejos</h2>
           <p className="metas-summary">
-            <strong>R$ {totalGuardado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
-            {' '}guardados de{' '}
-            <strong>R$ {totalMetas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
-            {' '}({progressoGeral}%)
+            <strong>
+              R$ {totalGuardado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </strong>{' '}
+            guardados de{' '}
+            <strong>R$ {totalMetas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> (
+            {progressoGeral}%)
           </p>
         </div>
         <button className="btn btn-primary" onClick={() => handleOpenModal()}>
@@ -196,10 +202,7 @@ const MetasList = () => {
             Progresso Geral
           </h3>
           <div className="progress-bar large">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${Math.min(progressoGeral, 100)}%` }}
-            />
+            <div className="progress-fill" style={{ width: `${Math.min(progressoGeral, 100)}%` }} />
           </div>
           <p className="text-center text-muted mt-2">
             Você está {progressoGeral}% próximo de alcançar todas as suas metas!
@@ -230,16 +233,16 @@ const MetasList = () => {
                     <Target size={28} />
                   </div>
                   <div className="meta-actions">
-                    <button 
-                      className="btn-icon" 
+                    <button
+                      className="btn-icon"
                       onClick={() => handleOpenModal(meta)}
                       title="Editar"
                       aria-label="Editar meta"
                     >
                       <Edit2 size={16} />
                     </button>
-                    <button 
-                      className="btn-icon danger" 
+                    <button
+                      className="btn-icon danger"
                       onClick={() => handleDelete(meta.id)}
                       title="Excluir"
                       aria-label="Excluir meta"
@@ -255,13 +258,19 @@ const MetasList = () => {
                   <div className="valor-item">
                     <span className="label">Guardado</span>
                     <span className="valor guardado">
-                      R$ {parseFloat(meta.valor_guardado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      R${' '}
+                      {parseFloat(meta.valor_guardado).toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                   <div className="valor-item">
                     <span className="label">Meta</span>
                     <span className="valor meta">
-                      R$ {parseFloat(meta.valor_meta).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      R${' '}
+                      {parseFloat(meta.valor_meta).toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                 </div>
@@ -276,11 +285,11 @@ const MetasList = () => {
                     )}
                   </div>
                   <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ 
+                    <div
+                      className="progress-fill"
+                      style={{
                         width: `${Math.min(progresso, 100)}%`,
-                        background: getProgressColor(progresso)
+                        background: getProgressColor(progresso),
                       }}
                     />
                   </div>
@@ -290,14 +299,18 @@ const MetasList = () => {
                   <div className="meta-sugestao">
                     <DollarSign size={16} />
                     <span>
-                      Poupar <strong>R$ {poupancaMensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/mês</strong>
-                      {' '}por {meta.prazo_meses} meses
+                      Poupar{' '}
+                      <strong>
+                        R$ {poupancaMensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        /mês
+                      </strong>{' '}
+                      por {meta.prazo_meses} meses
                     </span>
                   </div>
                 )}
 
                 {!atingido && (
-                  <button 
+                  <button
                     className="btn btn-success btn-block"
                     onClick={() => handleAddValue(meta)}
                   >
@@ -307,9 +320,7 @@ const MetasList = () => {
                 )}
 
                 {atingido && (
-                  <div className="meta-atingida-msg">
-                    🎉 Parabéns! Você conquistou esta meta!
-                  </div>
+                  <div className="meta-atingida-msg">🎉 Parabéns! Você conquistou esta meta!</div>
                 )}
               </div>
             )
@@ -330,9 +341,9 @@ const MetasList = () => {
       {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h2>{editingMeta ? 'Editar Meta' : 'Nova Meta'}</h2>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="meta-nome">Nome da Meta *</label>
@@ -340,7 +351,7 @@ const MetasList = () => {
                   id="meta-nome"
                   type="text"
                   value={formData.nome}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  onChange={e => setFormData({ ...formData, nome: e.target.value })}
                   placeholder="Ex: Viagem para Europa, iPhone novo..."
                   required
                 />
@@ -352,8 +363,12 @@ const MetasList = () => {
                   <input
                     id="meta-valor-meta"
                     type="text"
-                    value={formData.valor_meta ? formatCurrency(parseFloat(formData.valor_meta) * 100) : ''}
-                    onChange={(e) => {
+                    value={
+                      formData.valor_meta
+                        ? formatCurrency(parseFloat(formData.valor_meta) * 100)
+                        : ''
+                    }
+                    onChange={e => {
                       const valor = e.target.value.replace(/\D/g, '')
                       const numero = Number(valor) / 100
                       setFormData({ ...formData, valor_meta: numero || '' })
@@ -368,8 +383,12 @@ const MetasList = () => {
                   <input
                     id="meta-valor-guardado"
                     type="text"
-                    value={formData.valor_guardado ? formatCurrency(parseFloat(formData.valor_guardado) * 100) : ''}
-                    onChange={(e) => {
+                    value={
+                      formData.valor_guardado
+                        ? formatCurrency(parseFloat(formData.valor_guardado) * 100)
+                        : ''
+                    }
+                    onChange={e => {
                       const valor = e.target.value.replace(/\D/g, '')
                       const numero = Number(valor) / 100
                       setFormData({ ...formData, valor_guardado: numero || '' })
@@ -386,7 +405,7 @@ const MetasList = () => {
                   type="number"
                   min="1"
                   value={formData.prazo_meses}
-                  onChange={(e) => setFormData({ ...formData, prazo_meses: e.target.value })}
+                  onChange={e => setFormData({ ...formData, prazo_meses: e.target.value })}
                   placeholder="Opcional"
                 />
                 <small className="form-hint">
@@ -395,7 +414,11 @@ const MetasList = () => {
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowModal(false)}
+                >
                   Cancelar
                 </button>
                 <button type="submit" className="btn btn-primary">

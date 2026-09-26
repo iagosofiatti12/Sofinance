@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { CreditCard, Calendar, FileText, X } from 'lucide-react'
 import toast from 'react-hot-toast'
-import {
-  calcularFaturaCartao,
-  formatMesReferencia
-} from '../../services/transacoesService'
-import { formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
+import { calcularFaturaCartao, formatMesReferencia } from '../../services/transacoesService'
+import { formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '@/domain/dates'
 import './FaturaCartao.css'
 
 const FaturaCartao = ({ cartao, onClose }) => {
@@ -32,7 +29,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
     }
   }
 
-  const mudarMes = (direcao) => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
+  const mudarMes = direcao => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
 
   const mesFormatado = formatarMesExtenso(mesAtual)
 
@@ -41,7 +38,7 @@ const FaturaCartao = ({ cartao, onClose }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content fatura-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content fatura-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div>
             <h2>Fatura do Cartão</h2>
@@ -57,9 +54,17 @@ const FaturaCartao = ({ cartao, onClose }) => {
 
         {/* Navegação de Mês */}
         <div className="mes-navigation">
-          <button className="btn-icon" onClick={() => mudarMes('anterior')} aria-label="Mês anterior">←</button>
+          <button
+            className="btn-icon"
+            onClick={() => mudarMes('anterior')}
+            aria-label="Mês anterior"
+          >
+            ←
+          </button>
           <span className="mes-atual">{mesFormatado}</span>
-          <button className="btn-icon" onClick={() => mudarMes('proximo')} aria-label="Próximo mês">→</button>
+          <button className="btn-icon" onClick={() => mudarMes('proximo')} aria-label="Próximo mês">
+            →
+          </button>
         </div>
 
         {loading ? (
@@ -74,7 +79,10 @@ const FaturaCartao = ({ cartao, onClose }) => {
               <div className="resumo-item">
                 <span className="label">Valor da Fatura</span>
                 <span className="valor-fatura">
-                  R$ {parseFloat(fatura.total_fatura).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R${' '}
+                  {parseFloat(fatura.total_fatura).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
               </div>
 
@@ -92,7 +100,8 @@ const FaturaCartao = ({ cartao, onClose }) => {
             </div>
 
             <p className="text-muted" style={{ fontSize: 13 }}>
-              Para registrar o pagamento, lance uma despesa na categoria &quot;Cartão de Crédito&quot; no Extrato.
+              Para registrar o pagamento, lance uma despesa na categoria &quot;Cartão de
+              Crédito&quot; no Extrato.
             </p>
 
             {/* Barra de Limite */}
@@ -102,14 +111,24 @@ const FaturaCartao = ({ cartao, onClose }) => {
                 <span>{percentualUsado.toFixed(1)}%</span>
               </div>
               <div className="limite-bar">
-                <div 
+                <div
                   className={`limite-fill ${percentualUsado > 80 ? 'danger' : percentualUsado > 60 ? 'warning' : 'success'}`}
                   style={{ width: `${Math.min(percentualUsado, 100)}%` }}
                 />
               </div>
               <div className="limite-values">
-                <span>R$ {parseFloat(cartao.limite_usado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                <span>R$ {parseFloat(cartao.limite_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <span>
+                  R${' '}
+                  {parseFloat(cartao.limite_usado).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+                <span>
+                  R${' '}
+                  {parseFloat(cartao.limite_total).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
               </div>
             </div>
 
@@ -138,7 +157,8 @@ const FaturaCartao = ({ cartao, onClose }) => {
                         </div>
                       </div>
                       <span className="valor">
-                        R$ {parseFloat(t.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        R${' '}
+                        {parseFloat(t.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
                   ))}
@@ -150,7 +170,6 @@ const FaturaCartao = ({ cartao, onClose }) => {
                 </div>
               )}
             </div>
-
           </>
         )}
       </div>

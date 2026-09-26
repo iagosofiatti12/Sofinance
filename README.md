@@ -39,12 +39,14 @@ Sistema completo de gestão financeira pessoal desenvolvido com **React** e **Su
 ### Instalação
 
 1. Clone o repositório:
+
 ```bash
 git clone https://github.com/seu-usuario/sofinance.git
 cd sofinance
 ```
 
 2. Instale as dependências:
+
 ```bash
 npm install
 ```
@@ -83,25 +85,38 @@ npx supabase functions deploy delete-account --use-api
 6. No painel Supabase → Authentication: adicione `http://localhost:3000/reset-password` e `https://<seu-domínio>/reset-password` em Redirect URLs, e defina o tamanho mínimo de senha como 8.
 
 7. Inicie o servidor de desenvolvimento:
+
 ```bash
 npm run dev
+```
+
+### Banco local (opcional, precisa de Docker)
+
+```bash
+npm run db:start   # sobe Postgres, Auth e API locais
+npm run db:reset   # recria o banco a partir de supabase/migrations
+npm run db:stop
 ```
 
 ## 📂 Estrutura do Projeto
 
 ```
 src/
-├── components/      # Componentes React
-├── contexts/        # Context API (Auth)
-├── hooks/           # Custom Hooks
-├── services/        # Integração com Supabase
-├── utils/           # Utilitários (validações, formatação)
-└── styles/          # CSS Global
+├── app/                    # Roteador, providers, guarda de autenticação, layout
+├── domain/                 # Regras puras com teste, sem React e sem Supabase
+├── lib/                    # Infraestrutura: cliente Supabase, cache, log, tradução de erro
+├── features/<feature>/     # api.ts, queries.ts e telas de cada área
+├── components/ui/          # Componentes do shadcn
+├── components/              # Telas antigas em .jsx, migradas conforme forem reescritas
+└── types/database.types.ts # Gerado pelo Supabase, nunca editar à mão
+
+supabase/migrations/        # Única fonte de verdade do schema
 ```
 
 ## 🎨 Design
 
 Interface moderna com:
+
 - **Cor principal**: `#2563eb` (Azul Royal)
 - **Glassmorphism** para cards e containers
 - **Animações suaves** e transições
@@ -112,31 +127,31 @@ Interface moderna com:
 
 ### Aplicação
 
-| Comando | O que faz |
-|---|---|
-| `npm run dev` | Sobe o app em `http://localhost:3000` |
-| `npm run build` | Gera a versão de produção em `dist/` |
-| `npm run preview` | Serve localmente o que o build gerou |
-| `npm run lint` | Verifica o código com ESLint |
-| `npm run lint:fix` | Corrige automaticamente o que der |
-| `npm run format` | Formata com Prettier |
-| `npm test` | Testes em modo contínuo |
-| `npm run test:run` | Testes uma vez, para automação |
-| `npm run test:ui` | Testes com interface no navegador |
-| `npm run test:coverage` | Relatório de cobertura |
+| Comando                 | O que faz                             |
+| ----------------------- | ------------------------------------- |
+| `npm run dev`           | Sobe o app em `http://localhost:3000` |
+| `npm run build`         | Gera a versão de produção em `dist/`  |
+| `npm run preview`       | Serve localmente o que o build gerou  |
+| `npm run lint`          | Verifica o código com ESLint          |
+| `npm run lint:fix`      | Corrige automaticamente o que der     |
+| `npm run format`        | Formata com Prettier                  |
+| `npm test`              | Testes em modo contínuo               |
+| `npm run test:run`      | Testes uma vez, para automação        |
+| `npm run test:ui`       | Testes com interface no navegador     |
+| `npm run test:coverage` | Relatório de cobertura                |
 
 ### Banco de dados
 
 Precisam do Docker Desktop aberto, exceto `db:push`, `db:diff` e `db:types`, que falam direto com a nuvem.
 
-| Comando | O que faz |
-|---|---|
-| `npm run db:start` | Sobe o Supabase local: Postgres, autenticação, API e painel |
-| `npm run db:stop` | Derruba o Supabase local |
-| `npm run db:reset` | Apaga o banco local e reconstrói a partir de `supabase/migrations/` |
-| `npm run db:diff` | Compara o banco local com o de produção. O esperado é `No schema changes found` |
-| `npm run db:push` | Aplica em produção as migrations que ainda faltam |
-| `npm run db:types` | Regenera `src/types/database.types.ts` a partir do schema |
+| Comando            | O que faz                                                                       |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `npm run db:start` | Sobe o Supabase local: Postgres, autenticação, API e painel                     |
+| `npm run db:stop`  | Derruba o Supabase local                                                        |
+| `npm run db:reset` | Apaga o banco local e reconstrói a partir de `supabase/migrations/`             |
+| `npm run db:diff`  | Compara o banco local com o de produção. O esperado é `No schema changes found` |
+| `npm run db:push`  | Aplica em produção as migrations que ainda faltam                               |
+| `npm run db:types` | Regenera `src/types/database.types.ts` a partir do schema                       |
 
 Depois do `db:start`, o painel local abre em `http://localhost:54323` e os e-mails de teste ficam em `http://localhost:54324`.
 

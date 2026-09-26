@@ -216,7 +216,7 @@
   .cartoes-content {
     grid-template-columns: 1fr;
   }
-  
+
   .cartoes-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -229,15 +229,15 @@
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .cartoes-header button {
     width: 100%;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .cartoes-list {
     grid-template-columns: 1fr;
   }

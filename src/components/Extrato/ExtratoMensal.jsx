@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { 
-  Plus, Edit2, Trash2, Calendar, DollarSign, Filter,
-  TrendingUp, TrendingDown, FileText, X
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Calendar,
+  DollarSign,
+  Filter,
+  TrendingUp,
+  TrendingDown,
+  FileText,
+  X,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import {
@@ -10,15 +18,16 @@ import {
   updateTransacao,
   deleteTransacao,
   formatMesReferencia,
-  getResumoMensal
+  getResumoMensal,
 } from '../../services/transacoesService'
 import { getCartoes } from '../../services/cartoesService'
 import { CATEGORIAS_CONTAS, CATEGORIAS_TRANSACOES } from '../../config/constants'
-import { formatCurrency, parseCurrency } from '../../utils/currency'
-import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '../../utils/dates'
-import { montarPayloadTransacao } from '../../utils/transacaoPayload'
-import { getErrorMessage } from '../../utils/errorHandler'
-import Spinner from '../UI/Spinner'
+import { formatCurrency, parseCurrency } from '@/domain/currency'
+import { hojeISO, formatarData, formatarMesExtenso, mudarMes as mudarMesRef } from '@/domain/dates'
+import { montarPayloadTransacao } from '@/domain/transacaoPayload'
+import { transacaoSchema, validateData, getValidationErrorMessage } from '@/domain/validations'
+import { getErrorMessage } from '@/lib/errorHandler'
+import Spinner from '../ui/Spinner'
 import './Extrato.css'
 
 const ExtratoMensal = () => {
@@ -41,7 +50,7 @@ const ExtratoMensal = () => {
     conta_bancaria: '',
     metodo_pagamento: 'PIX',
     cartao_credito_id: '',
-    observacoes: ''
+    observacoes: '',
   })
 
   const [formErrors, setFormErrors] = useState({})
@@ -49,8 +58,8 @@ const ExtratoMensal = () => {
   // Validação inline
   const validateField = (name, value) => {
     let error = ''
-    
-    switch(name) {
+
+    switch (name) {
       case 'descricao':
         if (!value.trim()) error = 'Descrição é obrigatória'
         else if (value.trim().length < 3) error = 'Mínimo de 3 caracteres'
@@ -74,16 +83,16 @@ const ExtratoMensal = () => {
       default:
         break
     }
-    
+
     setFormErrors(prev => ({
       ...prev,
-      [name]: error
+      [name]: error,
     }))
-    
+
     return error === ''
   }
 
-  const handleBlur = (e) => {
+  const handleBlur = e => {
     const { name, value } = e.target
     validateField(name, value)
   }
@@ -133,7 +142,7 @@ const ExtratoMensal = () => {
         conta_bancaria: transacao.conta_bancaria || '',
         metodo_pagamento: transacao.metodo_pagamento || 'PIX',
         cartao_credito_id: transacao.cartao_credito_id || '',
-        observacoes: transacao.observacoes || ''
+        observacoes: transacao.observacoes || '',
       })
     } else {
       setEditingTransacao(null)
@@ -146,7 +155,7 @@ const ExtratoMensal = () => {
         conta_bancaria: '',
         metodo_pagamento: 'PIX',
         cartao_credito_id: '',
-        observacoes: ''
+        observacoes: '',
       })
     }
     setShowModal(true)
@@ -157,25 +166,48 @@ const ExtratoMensal = () => {
     setEditingTransacao(null)
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    
+
     // Validar se selecionou cartão quando método é Crédito
     if (formData.metodo_pagamento === 'Crédito' && !formData.cartao_credito_id) {
       toast.error('Selecione um cartão de crédito!')
       return
     }
-    
+
     // Não permite editar transação parcelada (por segurança)
     if (editingTransacao && editingTransacao.is_parcelado) {
       toast.error('Não é possível editar transações parceladas. Exclua e crie novamente.')
       return
     }
 
+    const categoria = formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros')
+
+    // Valida os dados brutos do formulário (não o payload já montado): o
+    // payload usa `null` para "ausente" em campos opcionais, e o schema,
+    // como as outras telas, trata "ausente" como `undefined` — validar o
+    // formulário evita esse descompasso de forma, sem afrouxar a regra.
+    const dataToValidate = {
+      tipo: formData.tipo,
+      categoria,
+      descricao: formData.descricao,
+      valor: Number(formData.valor),
+      data_transacao: formData.data_transacao,
+      metodo_pagamento: formData.metodo_pagamento,
+      conta_bancaria: formData.conta_bancaria || undefined,
+      observacoes: formData.observacoes || undefined,
+    }
+
+    const validation = validateData(transacaoSchema, dataToValidate)
+    if (!validation.success) {
+      toast.error(getValidationErrorMessage(validation.errors))
+      return
+    }
+
     try {
       const payload = montarPayloadTransacao({
         ...formData,
-        categoria: formData.categoria || (formData.tipo === 'receita' ? 'Salário' : 'Outros')
+        categoria,
       })
 
       let resultado
@@ -186,7 +218,9 @@ const ExtratoMensal = () => {
       }
       toast.success('Transação salva!')
       if (resultado?.limiteAtualizado === false) {
-        toast('Transação salva, mas o limite do cartão não foi atualizado. Confira em Cartões.', { icon: '⚠️' })
+        toast('Transação salva, mas o limite do cartão não foi atualizado. Confira em Cartões.', {
+          icon: '⚠️',
+        })
       }
 
       await loadTransacoes()
@@ -197,7 +231,7 @@ const ExtratoMensal = () => {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (!window.confirm('Deseja realmente excluir esta transação?')) return
 
     try {
@@ -205,7 +239,10 @@ const ExtratoMensal = () => {
       await loadTransacoes()
       toast.success('Transação excluída!')
       if (resultado?.limiteAtualizado === false) {
-        toast('Transação excluída, mas o limite do cartão não foi atualizado. Confira em Cartões.', { icon: '⚠️' })
+        toast(
+          'Transação excluída, mas o limite do cartão não foi atualizado. Confira em Cartões.',
+          { icon: '⚠️' }
+        )
       }
     } catch (error) {
       console.error('Erro ao excluir transação:', error)
@@ -213,7 +250,7 @@ const ExtratoMensal = () => {
     }
   }
 
-  const mudarMes = (direcao) => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
+  const mudarMes = direcao => setMesAtual(mudarMesRef(mesAtual, direcao === 'anterior' ? -1 : 1))
 
   const transacoesFiltradas = transacoes.filter(t => {
     if (filtroTipo !== 'todos' && t.tipo !== filtroTipo) return false
@@ -221,14 +258,13 @@ const ExtratoMensal = () => {
     return true
   })
 
-  const categoriasPorTipo = formData.tipo === 'receita' 
-    ? ['Salário', 'Freelance', 'Investimentos', 'Outros']
-    : [...CATEGORIAS_CONTAS, ...CATEGORIAS_TRANSACOES].filter((v, i, a) => a.indexOf(v) === i)
+  const categoriasPorTipo =
+    formData.tipo === 'receita'
+      ? ['Salário', 'Freelance', 'Investimentos', 'Outros']
+      : [...CATEGORIAS_CONTAS, ...CATEGORIAS_TRANSACOES].filter((v, i, a) => a.indexOf(v) === i)
 
   if (loading) {
-    return (
-      <Spinner label="Carregando extrato..." />
-    )
+    return <Spinner label="Carregando extrato..." />
   }
 
   return (
@@ -238,13 +274,19 @@ const ExtratoMensal = () => {
         <div>
           <h2>Extrato Financeiro</h2>
           <div className="mes-navigation">
-            <button className="btn-icon" onClick={() => mudarMes('anterior')} aria-label="Mês anterior">
+            <button
+              className="btn-icon"
+              onClick={() => mudarMes('anterior')}
+              aria-label="Mês anterior"
+            >
               ←
             </button>
-            <span className="mes-atual">
-              {formatarMesExtenso(mesAtual)}
-            </span>
-            <button className="btn-icon" onClick={() => mudarMes('proximo')} aria-label="Próximo mês">
+            <span className="mes-atual">{formatarMesExtenso(mesAtual)}</span>
+            <button
+              className="btn-icon"
+              onClick={() => mudarMes('proximo')}
+              aria-label="Próximo mês"
+            >
               →
             </button>
           </div>
@@ -273,7 +315,9 @@ const ExtratoMensal = () => {
           <h3>R$ {resumo.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h3>
         </div>
 
-        <div className={`resumo-card glass-card saldo ${resumo.saldo >= 0 ? 'positivo' : 'negativo'}`}>
+        <div
+          className={`resumo-card glass-card saldo ${resumo.saldo >= 0 ? 'positivo' : 'negativo'}`}
+        >
           <div className="resumo-header">
             <DollarSign size={24} />
             <span>Saldo</span>
@@ -289,7 +333,11 @@ const ExtratoMensal = () => {
             <Filter size={16} />
             Tipo
           </label>
-          <select id="extrato-filtro-tipo" value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
+          <select
+            id="extrato-filtro-tipo"
+            value={filtroTipo}
+            onChange={e => setFiltroTipo(e.target.value)}
+          >
             <option value="todos">Todos</option>
             <option value="receita">Receitas</option>
             <option value="despesa">Despesas</option>
@@ -298,10 +346,16 @@ const ExtratoMensal = () => {
 
         <div className="filtro-group">
           <label htmlFor="extrato-filtro-categoria">Categoria</label>
-          <select id="extrato-filtro-categoria" value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}>
+          <select
+            id="extrato-filtro-categoria"
+            value={filtroCategoria}
+            onChange={e => setFiltroCategoria(e.target.value)}
+          >
             <option value="todas">Todas</option>
             {[...new Set(transacoes.map(t => t.categoria))].map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
         </div>
@@ -321,9 +375,7 @@ const ExtratoMensal = () => {
                 <div className="transacao-info">
                   <div className="transacao-main">
                     <Calendar size={16} />
-                    <span className="data">
-                      {formatarData(transacao.data_transacao)}
-                    </span>
+                    <span className="data">{formatarData(transacao.data_transacao)}</span>
                     <span className={`tipo-badge ${transacao.tipo}`}>
                       {transacao.tipo === 'receita' ? '↑ Receita' : '↓ Despesa'}
                     </span>
@@ -349,19 +401,22 @@ const ExtratoMensal = () => {
 
                 <div className="transacao-actions">
                   <span className={`valor ${transacao.tipo}`}>
-                    {transacao.tipo === 'receita' ? '+ R$' : '- R$'} {parseFloat(transacao.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {transacao.tipo === 'receita' ? '+ R$' : '- R$'}{' '}
+                    {parseFloat(transacao.valor).toLocaleString('pt-BR', {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                   <div className="actions-buttons">
-                    <button 
-                      className="btn-icon" 
+                    <button
+                      className="btn-icon"
                       onClick={() => handleOpenModal(transacao)}
                       title="Editar transação"
                       aria-label={`Editar transação ${transacao.descricao}`}
                     >
                       <Edit2 size={16} />
                     </button>
-                    <button 
-                      className="btn-icon danger" 
+                    <button
+                      className="btn-icon danger"
                       onClick={() => handleDelete(transacao.id)}
                       title="Excluir transação"
                       aria-label={`Excluir transação ${transacao.descricao}`}
@@ -387,14 +442,14 @@ const ExtratoMensal = () => {
       {/* Modal de Cadastro/Edição */}
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content large" onClick={e => e.stopPropagation()}>
             <div className="modal-header-close">
               <h2>{editingTransacao ? 'Editar Transação' : 'Nova Transação'}</h2>
               <button type="button" className="btn-icon" onClick={handleCloseModal}>
                 <X size={24} />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className="form-group">
@@ -402,7 +457,9 @@ const ExtratoMensal = () => {
                   <select
                     id="transacao-tipo"
                     value={formData.tipo}
-                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value, categoria: '' })}
+                    onChange={e =>
+                      setFormData({ ...formData, tipo: e.target.value, categoria: '' })
+                    }
                     required
                   >
                     <option value="receita">Receita</option>
@@ -416,17 +473,21 @@ const ExtratoMensal = () => {
                     id="transacao-categoria"
                     name="categoria"
                     value={formData.categoria}
-                    onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                    onChange={e => setFormData({ ...formData, categoria: e.target.value })}
                     onBlur={handleBlur}
                     className={formErrors.categoria ? 'error' : ''}
                     required
                   >
                     <option value="">Selecione...</option>
                     {categoriasPorTipo.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
                     ))}
                   </select>
-                  {formErrors.categoria && <span className="error-message">{formErrors.categoria}</span>}
+                  {formErrors.categoria && (
+                    <span className="error-message">{formErrors.categoria}</span>
+                  )}
                 </div>
               </div>
 
@@ -437,13 +498,15 @@ const ExtratoMensal = () => {
                   type="text"
                   name="descricao"
                   value={formData.descricao}
-                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                  onChange={e => setFormData({ ...formData, descricao: e.target.value })}
                   onBlur={handleBlur}
                   className={formErrors.descricao ? 'error' : ''}
                   placeholder="Ex: Supermercado, Salário, etc."
                   required
                 />
-                {formErrors.descricao && <span className="error-message">{formErrors.descricao}</span>}
+                {formErrors.descricao && (
+                  <span className="error-message">{formErrors.descricao}</span>
+                )}
               </div>
 
               <div className="form-row">
@@ -454,7 +517,7 @@ const ExtratoMensal = () => {
                     type="text"
                     name="valor"
                     value={formData.valor ? formatCurrency(parseFloat(formData.valor) * 100) : ''}
-                    onChange={(e) => {
+                    onChange={e => {
                       const valor = e.target.value.replace(/\D/g, '')
                       const numero = Number(valor) / 100
                       setFormData({ ...formData, valor: numero || '' })
@@ -474,12 +537,14 @@ const ExtratoMensal = () => {
                     type="date"
                     name="data_transacao"
                     value={formData.data_transacao}
-                    onChange={(e) => setFormData({ ...formData, data_transacao: e.target.value })}
+                    onChange={e => setFormData({ ...formData, data_transacao: e.target.value })}
                     onBlur={handleBlur}
                     className={formErrors.data_transacao ? 'error' : ''}
                     required
                   />
-                  {formErrors.data_transacao && <span className="error-message">{formErrors.data_transacao}</span>}
+                  {formErrors.data_transacao && (
+                    <span className="error-message">{formErrors.data_transacao}</span>
+                  )}
                 </div>
               </div>
 
@@ -489,14 +554,19 @@ const ExtratoMensal = () => {
                   <select
                     id="transacao-metodo-pagamento"
                     value={formData.metodo_pagamento}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      metodo_pagamento: e.target.value,
-                      cartao_credito_id: e.target.value === 'Crédito' ? formData.cartao_credito_id : ''
-                    })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        metodo_pagamento: e.target.value,
+                        cartao_credito_id:
+                          e.target.value === 'Crédito' ? formData.cartao_credito_id : '',
+                      })
+                    }
                   >
                     {metodosPagamento.map(metodo => (
-                      <option key={metodo} value={metodo}>{metodo}</option>
+                      <option key={metodo} value={metodo}>
+                        {metodo}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -507,7 +577,9 @@ const ExtratoMensal = () => {
                     <select
                       id="transacao-cartao-credito"
                       value={formData.cartao_credito_id}
-                      onChange={(e) => setFormData({ ...formData, cartao_credito_id: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, cartao_credito_id: e.target.value })
+                      }
                       required={formData.metodo_pagamento === 'Crédito'}
                     >
                       <option value="">Selecione um cartão...</option>
@@ -520,24 +592,29 @@ const ExtratoMensal = () => {
                   </div>
                 )}
 
-                {formData.metodo_pagamento !== 'Crédito' && formData.metodo_pagamento !== 'Dinheiro' && (
-                  <div className="form-group">
-                    <label htmlFor="transacao-conta-bancaria">Conta Bancária</label>
-                    <input
-                      id="transacao-conta-bancaria"
-                      type="text"
-                      value={formData.conta_bancaria}
-                      onChange={(e) => setFormData({ ...formData, conta_bancaria: e.target.value })}
-                      placeholder="Ex: Nubank, Itaú..."
-                    />
-                  </div>
-                )}
+                {formData.metodo_pagamento !== 'Crédito' &&
+                  formData.metodo_pagamento !== 'Dinheiro' && (
+                    <div className="form-group">
+                      <label htmlFor="transacao-conta-bancaria">Conta Bancária</label>
+                      <input
+                        id="transacao-conta-bancaria"
+                        type="text"
+                        value={formData.conta_bancaria}
+                        onChange={e => setFormData({ ...formData, conta_bancaria: e.target.value })}
+                        placeholder="Ex: Nubank, Itaú..."
+                      />
+                    </div>
+                  )}
               </div>
 
               {formData.metodo_pagamento === 'Crédito' && cartoes.length === 0 && (
                 <div className="alert-warning">
                   ⚠️ Você não tem cartões cadastrados.
-                  <button type="button" className="alert-warning-link" onClick={() => toast('Vá em "Cartões" para cadastrar')}>
+                  <button
+                    type="button"
+                    className="alert-warning-link"
+                    onClick={() => toast('Vá em "Cartões" para cadastrar')}
+                  >
                     Cadastre um cartão primeiro
                   </button>
                 </div>
@@ -548,7 +625,7 @@ const ExtratoMensal = () => {
                 <textarea
                   id="transacao-observacoes"
                   value={formData.observacoes}
-                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                  onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
                   placeholder="Informações adicionais..."
                   rows="3"
                 />
